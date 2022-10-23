@@ -60,8 +60,8 @@ int generateQuote() {
 
 // Playback saved audio file
 int playbackAudio() {
-	extern short iBigBuf[];												// buffer
-	extern long  lBigBufSize;											// total number of samples
+	extern short iBigBuf[];													// buffer
+	extern long  lBigBufSize;												// total number of samples
 	short* iBigBufNew = (short*)malloc(lBigBufSize * sizeof(short));		// buffer used for reading recorded sound from file
 	char replay;
 	FILE* f;
@@ -100,11 +100,11 @@ void printMenu() {
 
 // Record audio, play it back to the user, and ask if they want to save the file
 int recordAudio() {
-	extern short iBigBuf[];												// buffer
-	extern long  lBigBufSize;											// total number of samples
+	extern short iBigBuf[];								// buffer
+	extern long  lBigBufSize;							// total number of samples
 
-	char save;
-	char c;																// used to flush extra input
+	char save;											// Holds wether or not the user wans to save the recording			
+	char c;												// used to flush extra input
 	FILE* f;
 
 	// initialize playback and recording

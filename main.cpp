@@ -18,7 +18,7 @@ int	main(int argc, char* argv[])
 	char c;
 	link q;
 
-	srand(time(NULL));											// Seed the random number generator
+	srand(time(NULL));											// Seed the random number generator 
 	initQueue();
 
 	do {
