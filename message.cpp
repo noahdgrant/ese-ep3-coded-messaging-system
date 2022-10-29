@@ -7,7 +7,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE // Need this so that fopen() works
 
-#include <malloc.h>			// Dynamic memory allocation for arrays that store quote location and length
+#include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +17,7 @@
 
 // Function gets a random number between min and max (max is the number of quotes in the file)
 int frandNum(int min, int max) {
-	return (rand() % (max - min) + min);	// From w2 slides. Returns rand num between min and max
+	return (rand() % (max - min) + min);					// From w2 slides. Returns rand num between min and max
 } // frandNum()
 
 // Function returns number of quotes in the file (only need to run once)
@@ -38,7 +38,7 @@ int fnumQuotes(void) {
 	}
 
 	fclose(fp);
-	return (numQuotes - 1);									// -1 because the end of the document is %% so it thinks there is one more quote than there actually is
+	return (numQuotes - 1);												// -1 because the end of the document is %% so it thinks there is one more quote than there actually is
 } // fnumQuotes()
 
 // Function returns an array that indicates the start of every quote in the file (number of characters from the start of the file) 
@@ -94,6 +94,7 @@ int* fquoteLength(int numQuotes, long int* quoteIndices) {
 // Function that gets q random quote from the FortuneCookies file 
 int GetMessageFromFile(char* buff, int randNum, long int* quoteIndices, int* quoteLengths) {
 	FILE* fp = NULL;
+	char c;												// Hold the last char of quote to check for \n
 
 	for (int i = 0; i < MAX_QUOTE_LENGTH; i++) {		// Fill the buffer with empty chars
 		buff[i] = '\0';
@@ -107,6 +108,12 @@ int GetMessageFromFile(char* buff, int randNum, long int* quoteIndices, int* quo
 
 	fseek(fp, quoteIndices[randNum], SEEK_SET);			// Go to the starting index of the random quote
 	fread(buff, quoteLengths[randNum], 1, fp);			// Copy the random quote
+
+	// Remove the last char of the quote if it is a part of the unix newline character
+	c = buff[quoteLengths[randNum] - 1];				// Last char before \0
+	if ((c == '\n') || (c == '\r')) {
+		buff[quoteLengths[randNum] - 1] = '\0';
+	}
 
 	fclose(fp);
 	return 0;
