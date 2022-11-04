@@ -69,6 +69,36 @@ int	main(int argc, char* argv[])
 			case '8':
 				receiveAudioComm();
 				break;
+			// Change Com Port
+			case '9':
+				selectComPort();
+				break;
+
+			// Change Audio Settings
+			case '10':
+				changeAudioSettings();
+				break;
+
+			// Toggle Encription
+			case '11':
+				isEncription != isEncription;
+				break;
+
+			// Set Encription Code
+			case '12':
+				setXOR();
+				break;
+				
+			// Set Recipient ID
+			case '13':
+				setRID();
+				break;
+
+			// Set Sender ID
+			case '14':
+				setSID();
+				break;
+
 			// Invalid command
 			default:
 				printf("You did not enter a valid command. Please try again.");

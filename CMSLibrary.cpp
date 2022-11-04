@@ -28,6 +28,12 @@ void printMenu() {
 	printf("6. Receive Text Message\n");
 	printf("7. Transmit Aduio Message\n");
 	printf("8. Receive Audio Message\n");
+	printf("9. Select Com Port\n");
+	printf("10. Change Audio Settings\n");
+	printf("11. Toggle Encription\n");
+	printf("12. Set Encription Code\n");
+	printf("13. Set Recipient ID\n");
+	printf("14. Set Sender ID\n");
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;
