@@ -14,7 +14,7 @@
 
 int	main(int argc, char* argv[])
 {
-	char cmd[2] = "\0";
+	char cmd[3];
 	link q;
 
 	srand(time(NULL));											// Seed the random number generator 
@@ -26,7 +26,7 @@ int	main(int argc, char* argv[])
 
 		// Input from user
 		fflush(stdin);											// Flush input buffer after use. Good practice in C
-		scanf_s("%2s", &cmd, 2);								// Get command from user
+		scanf_s("%s", cmd, sizeof(cmd));	
 		printf("\n%s\n\n",cmd);
 
 		while (getchar() != '\n') {}							// Flush other input
