@@ -148,13 +148,13 @@ int recordAudio() {
 } // recordAudio()
 
 // SERIAL COMMUNIACTION
-wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
-wchar_t COMPORT_Rx[] = L"COM7";									// COM port used for Rx (use L"COM6" for transmit program)
+wchar_t COMPORT_Tx[] = L"COM3";										// COM port used for Rx (use L"COM6" for transmit program)
+wchar_t COMPORT_Rx[] = L"COM3";										// COM port used for Rx (use L"COM6" for transmit program)
 const int BUFSIZE = 140;											// Buffer size
 int nComRate = 460800;												// Baud (Bit) rate in bits/second 
 int nComBits = 8;													// Number of bits per frame
-HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
-HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
+HANDLE hComTx;														// Pointer to the selected COM port (Transmitter)
+HANDLE hComRx;														// Pointer to the selected COM port (Receiver)
 COMMTIMEOUTS timeout;												// A commtimeout struct variable
 
 // Transmit text message
@@ -219,7 +219,7 @@ void transmitAudioComm() {
 	// save audio recording  
 	printf("Would you like to send your audio recording? (y/n): ");
 	scanf_s("%c", &cmd, 1);
-	while (getchar() != '\n') {}								// Flush other input
+	while (getchar() != '\n') {}										// Flush other input
 	if ((cmd == 'y') || (cmd == 'Y')) {
 		// TRANSMIT MESSAGE
 		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
