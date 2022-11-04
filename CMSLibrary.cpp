@@ -1,16 +1,39 @@
 /* message.cpp -Implementation: Functions for CMS project
-*  By: Ian Edwards, Noah Grant, Wyatt Richard
+*  By: Noah Grant, Wyatt Richard
 *  Version: 01.00
 */
 
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include <malloc.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <Windows.h>    
 
 #include "message.h"
-#include "Queues.h"
+#include "queues.h"
+#include "RS232Comm.h"
 #include "sound.h"
 
+// MENU
+// Print CMS menu
+void printMenu() {
+	printf("\nCMS Menu\n");
+	printf("1. Record\n");
+	printf("2. Playblack\n");
+	printf("3. Generate Quote\n");
+	printf("4. View Queue\n");
+	printf("5. Transmit Text Message\n");
+	printf("6. Receive Text Message\n");
+	printf("7. Transmit Aduio Message\n");
+	printf("8. Receive Audio Message\n");
+	printf("0. Exit\n");
+	printf("\n> ");
+	return;
+} // printMenu()
+
+// MESSAGES
 // Generate a random quote from FortuneCookies.txt file, and ask the user if they want to add it to the queue
 int generateQuote() {
 	char buff[MAX_QUOTE_LENGTH] = {};							// Buffer that holds the quote from the file
@@ -20,7 +43,6 @@ int generateQuote() {
 	int* quoteLengths = NULL;									// Array of quote lengths (index correspondes to quote number)
 	int result;													// Holds return value from generateQuote()
 	char cmd;													// User command
-	char c;														// Used to flush other input
 
 	numQuotes = fnumQuotes();									// Number of quotes
 	quoteIndices = fquoteIndices(numQuotes);					// Index locations of the quotes
@@ -36,9 +58,11 @@ int generateQuote() {
 
 	printf("\nQUOTE:\n");
 	printf("%s\n", buff);
+
+	fflush(stdin);
 	printf("\nDo you want to save the quote to the queue? (y/n) ");
 	scanf_s("%c", &cmd, 1);
-	while ((c = getchar()) != '\n' && c != EOF) {}								// Flush other input
+	while (getchar() != '\n') {}											// Flush other input
 	if (cmd == 'y' || cmd == 'Y') {
 		p = (link)malloc(sizeof(Node));
 		if (p == NULL) {														// Make sure memory was allocated
@@ -58,12 +82,11 @@ int generateQuote() {
 	return 0;
 } // generateQuote()
 
+// AUDIO
 // Playback saved audio file
 int playbackAudio() {
-	extern short iBigBuf[];													// buffer
 	extern long  lBigBufSize;												// total number of samples
 	short* iBigBufNew = (short*)malloc(lBigBufSize * sizeof(short));		// buffer used for reading recorded sound from file
-	char replay;
 	FILE* f;
 
 	// replay audio recording from file -- read and store in buffer, then use playback() to play it
@@ -86,25 +109,11 @@ int playbackAudio() {
 	return 0;
 } // playbackAudio()
 
-// Print CMS menu
-void printMenu() {
-	printf("\nCMS Menu\n");
-	printf("1. Record\n");
-	printf("2. Playblack\n");
-	printf("3. Generate Quote\n");
-	printf("4. View Queue\n");
-	printf("0. Exit\n");
-	printf("\n> ");
-	return;
-} // printMenu()
-
 // Record audio, play it back to the user, and ask if they want to save the file
 int recordAudio() {
 	extern short iBigBuf[];								// buffer
 	extern long  lBigBufSize;							// total number of samples
-
 	char save;											// Holds wether or not the user wans to save the recording			
-	char c;												// used to flush extra input
 	FILE* f;
 
 	// initialize playback and recording
@@ -123,7 +132,7 @@ int recordAudio() {
 	// save audio recording  
 	printf("Would you like to save your audio recording? (y/n): ");
 	scanf_s("%c", &save, 1);
-	while ((c = getchar()) != '\n' && c != EOF) {}								// Flush other input
+	while (getchar() != '\n') {}								// Flush other input
 	if ((save == 'y') || (save == 'Y')) {
 		/* Open input file */
 		fopen_s(&f, "C:\\myfiles\\recording.dat", "wb");
@@ -137,3 +146,114 @@ int recordAudio() {
 	}
 	return 0;
 } // recordAudio()
+
+// SERIAL COMMUNIACTION
+wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
+wchar_t COMPORT_Rx[] = L"COM7";									// COM port used for Rx (use L"COM6" for transmit program)
+const int BUFSIZE = 140;											// Buffer size
+int nComRate = 460800;												// Baud (Bit) rate in bits/second 
+int nComBits = 8;													// Number of bits per frame
+HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
+HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
+COMMTIMEOUTS timeout;												// A commtimeout struct variable
+
+// Transmit text message
+void transmitTextComm() {
+	char msgOut[BUFSIZE];
+
+	printf("\nWhat message would you link to send?\n\n");
+	fflush(stdin);													// Flush input buffer after use. Good practice in C
+	scanf_s("%[^\n]s", msgOut, sizeof(msgOut));									// Get command from user
+	while (getchar() != '\n') {}									// Flush other input
+
+	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
+	Sleep(500);
+
+	outputToPort(&hComTx, msgOut, strlen(msgOut) + 1);				// Send string to port - include space for '\0' termination
+	Sleep(500);														// Allow time for signal propagation on cable 
+
+	CloseHandle(hComTx);											// Close the handle to Tx port 
+	purgePort(&hComTx);												// Purge the Tx port
+	return;
+	// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+}
+
+// Receive text message
+void receiveTextComm() {	
+	char msgIn[BUFSIZE];
+	DWORD bytesRead;
+
+	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);		// Initialize the Rx port
+	Sleep(500);
+
+	bytesRead = inputFromPort(&hComRx, msgIn, BUFSIZE);				// Receive string from port
+	printf("Length of received msg = %d", bytesRead);
+	msgIn[bytesRead] = '\0';
+	printf("\nMessage Received: %s\n\n", msgIn);					// Display message from port
+
+	CloseHandle(hComRx);											// Close the handle to Rx port 
+	purgePort(&hComRx);												// Purge the Rx port
+	return;
+}
+
+// Transmit audio message
+void transmitAudioComm() {
+	// RECORD MESSAGE
+	extern short iBigBuf[];								// buffer
+	extern long  lBigBufSize;							// total number of samples
+	char cmd;
+
+	// initialize playback and recording
+	InitializeRecording();
+	InitializePlayback();
+
+	// start recording
+	RecordBuffer(iBigBuf, lBigBufSize);
+	CloseRecording();
+
+	// playback recording 
+	printf("\nPlaying recording from buffer\n");
+	PlayBuffer(iBigBuf, lBigBufSize);
+	ClosePlayback();
+
+	// save audio recording  
+	printf("Would you like to send your audio recording? (y/n): ");
+	scanf_s("%c", &cmd, 1);
+	while (getchar() != '\n') {}								// Flush other input
+	if ((cmd == 'y') || (cmd == 'Y')) {
+		// TRANSMIT MESSAGE
+		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
+		Sleep(500);
+
+		outputToPort(&hComTx, iBigBuf, lBigBufSize);						// Send string to port - include space for '\0' termination
+		Sleep(500);														// Allow time for signal propagation on cable 
+
+		CloseHandle(hComTx);											// Close the handle to Tx port 
+		purgePort(&hComTx);												// Purge the Tx port
+	}
+
+	return;
+}
+
+// Receive audio message
+void receiveAudioComm() {
+	// RECEIVE AUDIO
+	DWORD bytesRead;
+	extern short iBigBuf[];													// buffer
+	extern long  lBigBufSize;												// total number of samples
+
+	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);				// Initialize the Rx port
+	Sleep(500);
+
+	bytesRead = inputFromPort(&hComRx, iBigBuf, lBigBufSize);				// Receive audio from port
+	printf("Length of received msg = %d", bytesRead);
+
+	CloseHandle(hComRx);													// Close the handle to Rx port 
+	purgePort(&hComRx);														// Purge the Rx port
+
+	// PLAY BACK AUDIO
+	InitializePlayback();
+	printf("\nPlaying received recording...\n");
+	PlayBuffer(iBigBuf, lBigBufSize);
+	ClosePlayback();
+}

@@ -19,16 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\OneDrive\Desktop\RS232Test\RS232Comm.cpp" />
     <ClCompile Include="CMSLibrary.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="message.cpp" />
-    <ClCompile Include="Queues.cpp" />
+    <ClCompile Include="queues.cpp" />
     <ClCompile Include="sound.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\OneDrive\Desktop\RS232Test\RS232Comm.h" />
     <ClInclude Include="CMSLibrary.h" />
     <ClInclude Include="message.h" />
-    <ClInclude Include="Queues.h" />
+    <ClInclude Include="queues.h" />
     <ClInclude Include="sound.h" />
   </ItemGroup>
   <ItemGroup>

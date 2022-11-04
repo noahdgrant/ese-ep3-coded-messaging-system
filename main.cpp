@@ -1,5 +1,5 @@
 /* main.cpp : Mainline for CMS project
-   Author(s): Ian Edwards, Noah Grant, Wyatt Richard
+   Author(s): Noah Grant, Wyatt Richard
    Version: 01.00
 */
 
@@ -9,13 +9,12 @@
 
 #include "CMSLibrary.h"
 #include "message.h"
-#include "Queues.h"
+#include "queues.h"
 #include "sound.h"
 
 int	main(int argc, char* argv[])
 {
 	char cmd = '\0';
-	char c;
 	link q;
 
 	srand(time(NULL));											// Seed the random number generator 
@@ -24,16 +23,18 @@ int	main(int argc, char* argv[])
 	do {
 		system("cls");
 		printMenu();
+
+		// Input from user
+		fflush(stdin);											// Flush input buffer after use. Good practice in C
 		scanf_s("%c", &cmd, 1);									// Get command from user
-		while ((c = getchar()) != '\n' && c != EOF) {}			// Flush other input
-		//fflush(stdin);										// Flush input buffer after use. Good practice in C
+		while (getchar() != '\n') {}							// Flush other input
 		
 		switch (cmd) {
 			// Exit the program
 			case '0':
-				while (!isQueueEmpty()) {		// Free queue before program exits
+				while (!isQueueEmpty()) {						// Free queue before program exits
 					q = popQ();
-					free(q);					// Free memory for nodes as they pop off the queue
+					free(q);									// Free memory for nodes as they pop off the queue
 				}
 				break;
 			// Record audio message
@@ -52,6 +53,21 @@ int	main(int argc, char* argv[])
 			case '4':
 				traverse(listHead(), visit);
 				Sleep(4000);
+				break;
+			// Transmit Text Message
+			case '5':
+				transmitTextComm();
+				break;
+			// Recieve Text Message
+			case '6':
+				receiveTextComm();
+			// Transmit audio message
+			case '7':
+				transmitAudioComm();
+				break;
+			// Recieve audio message
+			case '8':
+				receiveAudioComm();
 				break;
 			// Invalid command
 			default:
