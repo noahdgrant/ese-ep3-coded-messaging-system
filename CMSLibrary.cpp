@@ -263,3 +263,30 @@ void receiveAudioComm() {
 	PlayBuffer(iBigBuf, lBigBufSize);
 	ClosePlayback();
 }
+
+
+// GUI Options
+
+//Change Com port
+void selectComPort() {
+	printf("\nSelect Com Port\n\n");
+	Sleep(4000);
+
+}
+void changeAudioSettings() {
+
+}
+void toggleXOR() {
+
+}
+void setXOR() {
+
+}
+void setRID() {
+
+}
+void setSID() {
+	printf("\nSet SID\n\n");
+	Sleep(4000);
+
+}

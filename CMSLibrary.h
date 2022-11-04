@@ -25,3 +25,11 @@ void transmitTextComm();
 void receiveTextComm();
 void transmitAudioComm();
 void receiveAudioComm();
+
+// GUI Options
+void selectComPort();
+void changeAudioSettings();
+void toggleXOR();
+void setXOR();
+void setRID();
+void setSID();
