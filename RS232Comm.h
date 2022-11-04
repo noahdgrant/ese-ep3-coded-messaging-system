@@ -2,6 +2,7 @@
  * By: Michael A. Galle
  *
  */
+
 #pragma once
 
 // Prototype the functions to be used

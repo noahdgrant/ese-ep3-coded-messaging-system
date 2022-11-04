@@ -40,7 +40,7 @@ void outputToPort(HANDLE* hCom, LPCVOID buf, DWORD szBuf) {
 	// Handle the timeout error
 	if (i == 0) {
 		printf("\nWrite Error: 0x%x\n", GetLastError());
-		ClearCommError(hCom, lpErrors, lpStat);		// Clears the device error flag to enable additional input and output operations. Retrieves information ofthe communications error.	
+		ClearCommError(hCom, lpErrors, lpStat);				// Clears the device error flag to enable additional input and output operations. Retrieves information ofthe communications error.	
 	}
 	else
 		printf("\nSuccessful transmission, there were %ld bytes transmitted\n", NumberofBytesTransmitted);
