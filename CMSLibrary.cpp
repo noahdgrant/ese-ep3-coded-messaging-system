@@ -225,9 +225,8 @@ void transmitAudioComm() {
 		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
 		Sleep(500);
 
-		outputToPort(&hComTx, iBigBuf, lBigBufSize);						// Send string to port - include space for '\0' termination
+		outputToPort(&hComTx, (char*)iBigBuf, lBigBufSize*2);						// Send string to port - include space for '\0' termination
 		Sleep(500);														// Allow time for signal propagation on cable 
-
 		CloseHandle(hComTx);											// Close the handle to Tx port 
 		purgePort(&hComTx);												// Purge the Tx port
 	}
@@ -239,13 +238,13 @@ void transmitAudioComm() {
 void receiveAudioComm() {
 	// RECEIVE AUDIO
 	DWORD bytesRead;
-	extern short iBigBuf[];													// buffer
+	short iBigBufr[SAMPLES_SEC * RECORD_TIME];													// buffer
 	extern long  lBigBufSize;												// total number of samples
 
 	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);				// Initialize the Rx port
 	Sleep(500);
 
-	bytesRead = inputFromPort(&hComRx, iBigBuf, lBigBufSize);				// Receive audio from port
+	bytesRead = inputFromPort(&hComRx, (char*)iBigBufr, lBigBufSize*2);				// Receive audio from port
 	printf("Length of received msg = %d", bytesRead);
 
 	CloseHandle(hComRx);													// Close the handle to Rx port 
@@ -254,6 +253,6 @@ void receiveAudioComm() {
 	// PLAY BACK AUDIO
 	InitializePlayback();
 	printf("\nPlaying received recording...\n");
-	PlayBuffer(iBigBuf, lBigBufSize);
+	PlayBuffer(iBigBufr, lBigBufSize);
 	ClosePlayback();
 }
