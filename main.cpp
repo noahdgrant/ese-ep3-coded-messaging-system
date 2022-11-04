@@ -57,17 +57,22 @@ int	main(int argc, char* argv[])
 			// Transmit Text Message
 			case '5':
 				transmitTextComm();
+				Sleep(4000);
 				break;
 			// Recieve Text Message
 			case '6':
 				receiveTextComm();
+				Sleep(4000);
+				break;
 			// Transmit audio message
 			case '7':
 				transmitAudioComm();
+				Sleep(4000);
 				break;
 			// Recieve audio message
 			case '8':
 				receiveAudioComm();
+				Sleep(4000);
 				break;
 			// Invalid command
 			default:
