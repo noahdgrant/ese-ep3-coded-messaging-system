@@ -270,8 +270,21 @@ void receiveAudioComm() {
 
 //Change Com port
 void selectComPort() {
-	printf("\nSelect Com Port\n\n");
-	Sleep(4000);
+	char cmd[3];
+	do {
+		system("cls");
+		printf("Enter a number between 0 and 9 coresponding to the desired Com Port (ie. 1 -> COM1)\n");
+		fflush(stdin);											// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, sizeof(cmd));
+		if (atoi(cmd) >= 0 && atoi(cmd) <= 9) {
+			printf("The new Com Port is now COM%d\n", atoi(cmd));
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < 0 || atoi(cmd) > 9);
 
 }
 
@@ -280,6 +293,7 @@ void changeAudioSettings() {
 	int recordTime;
 	char cmd[3];
 	do {
+		system("cls");
 		printf("Enter a new recording length between 1 and 15 seconds\n");
 		fflush(stdin);											// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, sizeof(cmd));
@@ -291,9 +305,8 @@ void changeAudioSettings() {
 			printf("You did not enter a valid command. Please try again.");
 		}
 		Sleep(2000);
-		break;
 
-	} while (atoi(cmd) >= 1 && atoi(cmd) <= 15);
+	} while (atoi(cmd) < 1 || atoi(cmd) > 15);
 }
 
 //toggle XOR encryption
