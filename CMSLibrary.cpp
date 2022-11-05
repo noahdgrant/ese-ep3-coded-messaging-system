@@ -15,6 +15,7 @@
 #include "queues.h"
 #include "RS232Comm.h"
 #include "sound.h"
+#include "CMSLibrary.h"
 
 // MENU
 // Print CMS menu
@@ -273,18 +274,71 @@ void selectComPort() {
 	Sleep(4000);
 
 }
+
+//change Audio Settings
 void changeAudioSettings() {
+	char cmd[3];
+	char cmd1[3];
+	do {
+		system("cls");
+		printf("\nAudio Menu\n");
+		printf("1. Change Recording Length - Current Recording Length: %d\n", recordTime);
+		printf("2. Change Sampling Frequency\n");
+		printf("0. Exit\n");
+		printf("\n> ");
+		// Input from user
+		fflush(stdin);											// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, sizeof(cmd));
 
+		while (getchar() != '\n') {}							// Flush other input
+
+		switch (atoi(cmd)) {
+			// Exit the program
+		case 0:
+			break;
+		case 1:
+			printf("Enter a new recording length between 1 and 15 seconds\n");
+			fflush(stdin);											// Flush input buffer after use. Good practice in C
+			scanf_s("%s", cmd1, sizeof(cmd1));
+			if (atoi(cmd1) >= 1 && atoi(cmd1) <= 15) {
+				printf("The new recording length is now %d\n", atoi(cmd1));
+				recordTime = atoi(cmd1);
+			}
+			else {
+				printf("You did not enter a valid command. Please try again.");
+			}
+			Sleep(2000);
+			break;
+			// Change Recording Length
+		case 2:
+			break;
+			// Change Sampling Frequency
+		default:
+			printf("You did not enter a valid command. Please try again.");
+			Sleep(2000);
+		}
+	} while (atoi(cmd) != 0);
 }
+
+//toggle XOR encryption
 void toggleXOR() {
-
+	printf("\ntoggle XOR\n\n");
+	Sleep(4000);
 }
+
+//set the XOR code
 void setXOR() {
-
+	printf("\nset XOR\n\n");
+	Sleep(4000);
 }
+
+//set the Recpeint ID
 void setRID() {
-
+	printf("\nset RID\n\n");
+	Sleep(4000);
 }
+
+//set the Sender ID
 void setSID() {
 	printf("\nSet SID\n\n");
 	Sleep(4000);

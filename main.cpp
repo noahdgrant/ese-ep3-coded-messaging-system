@@ -27,7 +27,6 @@ int	main(int argc, char* argv[])
 		// Input from user
 		fflush(stdin);											// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, sizeof(cmd));	
-		printf("\n%s\n\n",cmd);
 
 		while (getchar() != '\n') {}							// Flush other input
 		
