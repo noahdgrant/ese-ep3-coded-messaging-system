@@ -21,7 +21,7 @@ int playbackAudio();
 int recordAudio();
 
 // SERIAL COMMUNICATION
-void transmitTextComm();
+void transmitCom(char* m, unsigned long msgSz);
 void receiveTextComm();
 void transmitAudioComm();
 void receiveAudioComm();

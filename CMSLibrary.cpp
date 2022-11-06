@@ -157,25 +157,17 @@ HANDLE hComTx;														// Pointer to the selected COM port (Transmitter)
 HANDLE hComRx;														// Pointer to the selected COM port (Receiver)
 COMMTIMEOUTS timeout;												// A commtimeout struct variable
 
-// Transmit text message
-void transmitTextComm() {
-	char msgOut[BUFSIZE];
-
-	printf("\nWhat message would you link to send?\n\n");
-	fflush(stdin);													// Flush input buffer after use. Good practice in C
-	scanf_s("%[^\n]s", msgOut, sizeof(msgOut));									// Get command from user
-	while (getchar() != '\n') {}									// Flush other input
-
+// Transmit message
+void transmitCom(char* msgOut, unsigned long msgSz) {
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
 	Sleep(500);
 
-	outputToPort(&hComTx, msgOut, strlen(msgOut) + 1);				// Send string to port - include space for '\0' termination
+	outputToPort(&hComTx, msgOut, msgSz);				// Send string to port - include space for '\0' termination
 	Sleep(500);														// Allow time for signal propagation on cable 
 
 	CloseHandle(hComTx);											// Close the handle to Tx port 
 	purgePort(&hComTx);												// Purge the Tx port
 	return;
-	// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 }
 
 // Receive text message
@@ -193,44 +185,6 @@ void receiveTextComm() {
 
 	CloseHandle(hComRx);											// Close the handle to Rx port 
 	purgePort(&hComRx);												// Purge the Rx port
-	return;
-}
-
-// Transmit audio message
-void transmitAudioComm() {
-	// RECORD MESSAGE
-	extern short iBigBuf[];								// buffer
-	extern long  lBigBufSize;							// total number of samples
-	char cmd;
-
-	// initialize playback and recording
-	InitializeRecording();
-	InitializePlayback();
-
-	// start recording
-	RecordBuffer(iBigBuf, lBigBufSize);
-	CloseRecording();
-
-	// playback recording 
-	printf("\nPlaying recording from buffer\n");
-	PlayBuffer(iBigBuf, lBigBufSize);
-	ClosePlayback();
-
-		// save audio recording  
-	printf("Would you like to send your audio recording? (y/n): ");
-	scanf_s("%c", &cmd, 1);
-	while (getchar() != '\n') {}										// Flush other input
-	if ((cmd == 'y') || (cmd == 'Y')) {
-		// TRANSMIT MESSAGE
-		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
-		Sleep(500);
-
-		outputToPort(&hComTx, (char*)iBigBuf, lBigBufSize*2);						// Send string to port - include space for '\0' termination
-		Sleep(500);														// Allow time for signal propagation on cable 
-		CloseHandle(hComTx);											// Close the handle to Tx port 
-		purgePort(&hComTx);												// Purge the Tx port
-	}
-
 	return;
 }
 
