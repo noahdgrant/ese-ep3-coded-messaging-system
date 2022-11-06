@@ -25,6 +25,8 @@ char encBuf[140], decBuf[140], secretKey[140]; //key used to encrypt/decrypt mes
 int encType = 3;
 int i;
 
+char recipientID[140], senderID[140];
+
 
 // MENU
 // Print CMS menu
@@ -439,17 +441,16 @@ void setSecretKey() {
 	scanf_s("%s", secretKey, 139);
 }
 
-// Set the Recpeint ID
+// Set the recipient ID
 void setRID() {
-	printf("\nset RID\n\n");
-	Sleep(4000);
+	printf("Please enter the recipient ID: ");
+	scanf_s("%s", recipientID, 139);
 }
 
 // Set the Sender ID
 void setSID() {
-	printf("\nSet SID\n\n");
-	Sleep(4000);
-
+	printf("Please enter the sender ID: ");
+	scanf_s("%s", senderID, 139);
 }
 
 // XOR Encryption/Decryption
