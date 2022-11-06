@@ -79,14 +79,13 @@ int	main(int argc, char* argv[])
 			case 10:
 				changeAudioSettings();
 				break;
-			// Toggle Encription
+			// Set Encription Type
 			case 11:
-				toggleXOR();
-				//isEncription != isEncription;
+				setEncryption();
 				break;
 			// Set Encription Code
 			case 12:
-				setXOR();
+				setSecretKey();
 				break;
 			// Set Recipient ID
 			case 13:
