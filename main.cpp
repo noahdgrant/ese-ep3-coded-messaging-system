@@ -69,7 +69,7 @@ int	main(int argc, char* argv[])
 				break;
 			// Recieve Text Message
 			case '6':
-				receiveTextComm();
+				receiveCom();
 				Sleep(4000);
 				break;
 			// Transmit audio message
@@ -99,7 +99,7 @@ int	main(int argc, char* argv[])
 				break;
 			// Recieve audio message
 			case '8':
-				receiveAudioComm();
+				receiveCom();
 				Sleep(4000);
 				break;
 			// Invalid command

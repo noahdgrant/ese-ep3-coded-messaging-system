@@ -162,7 +162,7 @@ void transmitCom(char* msgOut, unsigned long msgSz) {
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
 	Sleep(500);
 
-	outputToPort(&hComTx, msgOut, msgSz);				// Send string to port - include space for '\0' termination
+	outputToPort(&hComTx, msgOut, msgSz);							// Send string to port - include space for '\0' termination
 	Sleep(500);														// Allow time for signal propagation on cable 
 
 	CloseHandle(hComTx);											// Close the handle to Tx port 
@@ -170,43 +170,34 @@ void transmitCom(char* msgOut, unsigned long msgSz) {
 	return;
 }
 
-// Receive text message
-void receiveTextComm() {	
-	char msgIn[BUFSIZE];
+// Receive message
+int receiveCom() {	
 	DWORD bytesRead;
+	short msgIn[SAMPLES_SEC * RECORD_TIME] = {};
+	extern long  lBigBufSize;
 
 	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);		// Initialize the Rx port
 	Sleep(500);
 
-	bytesRead = inputFromPort(&hComRx, msgIn, BUFSIZE);				// Receive string from port
-	printf("Length of received msg = %d", bytesRead);
-	msgIn[bytesRead] = '\0';
-	printf("\nMessage Received: %s\n\n", msgIn);					// Display message from port
+	bytesRead = inputFromPort(&hComRx, (char*)msgIn, lBigBufSize*2);	// Try chaning lBigBufSize*2 to unsigned long lBigBufSize
 
+	printf("Length of received msg = %d", bytesRead);
+	
 	CloseHandle(hComRx);											// Close the handle to Rx port 
 	purgePort(&hComRx);												// Purge the Rx port
-	return;
-}
 
-// Receive audio message
-void receiveAudioComm() {
-	// RECEIVE AUDIO
-	DWORD bytesRead;
-	short iBigBufr[SAMPLES_SEC * RECORD_TIME];													// buffer
-	extern long  lBigBufSize;												// total number of samples
+	// Print text message
+	if (bytesRead != lBigBufSize*2) {
+		msgIn[bytesRead] = '\0';
+		printf("\nMessage Received: %s\n\n", (char*)msgIn);					// Display message from port
+	}
+	// Play audio message
+	else {
+		InitializePlayback();
+		printf("\nPlaying received recording...\n");
+		PlayBuffer(msgIn, lBigBufSize);
+		ClosePlayback();
+	}
 
-	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);				// Initialize the Rx port
-	Sleep(500);
-
-	bytesRead = inputFromPort(&hComRx, (char*)iBigBufr, lBigBufSize*2);				// Receive audio from port
-	printf("Length of received msg = %d", bytesRead);
-
-	CloseHandle(hComRx);													// Close the handle to Rx port 
-	purgePort(&hComRx);														// Purge the Rx port
-
-	// PLAY BACK AUDIO
-	InitializePlayback();
-	printf("\nPlaying received recording...\n");
-	PlayBuffer(iBigBufr, lBigBufSize);
-	ClosePlayback();
+	return(0);
 }
