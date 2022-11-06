@@ -9,13 +9,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <Windows.h>    
+#include <Windows.h> 
+#include <wchar.h>
+
 
 #include "message.h"
 #include "queues.h"
 #include "RS232Comm.h"
 #include "sound.h"
 #include "CMSLibrary.h"
+
 
 // MENU
 // Print CMS menu
@@ -156,7 +159,11 @@ int recordAudio() {
 
 // SERIAL COMMUNIACTION
 wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
-wchar_t COMPORT_Rx[] = L"COM7";									// COM port used for Rx (use L"COM6" for transmit program)
+wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
+
+
+
+
 const int BUFSIZE = 140;											// Buffer size
 int nComRate = 460800;												// Baud (Bit) rate in bits/second 
 int nComBits = 8;													// Number of bits per frame
@@ -278,6 +285,51 @@ void selectComPort() {
 		scanf_s("%s", cmd, sizeof(cmd));
 		if (atoi(cmd) >= 0 && atoi(cmd) <= 9) {
 			printf("The new Com Port is now COM%d\n", atoi(cmd));
+			switch (atoi(cmd)) {
+			case 0:
+				wcscpy(COMPORT_Tx, L"COM0");
+				wcscpy(COMPORT_Rx, L"COM0");
+				break;
+			case 1:
+				wcscpy(COMPORT_Tx, L"COM1");
+				wcscpy(COMPORT_Rx, L"COM1");
+				break;
+			case 2:
+				wcscpy(COMPORT_Tx, L"COM2");
+				wcscpy(COMPORT_Rx, L"COM2");
+				break;
+			case 3:
+				wcscpy(COMPORT_Tx, L"COM3");
+				wcscpy(COMPORT_Rx, L"COM3");
+				break;
+			case 4:
+				wcscpy(COMPORT_Tx, L"COM4");
+				wcscpy(COMPORT_Rx, L"COM4");
+				break;
+			case 5:
+				wcscpy(COMPORT_Tx, L"COM5");
+				wcscpy(COMPORT_Rx, L"COM5");
+				break;
+			case 6:
+				wcscpy(COMPORT_Tx, L"COM6");
+				wcscpy(COMPORT_Rx, L"COM6");
+				break;
+			case 7:
+				wcscpy(COMPORT_Tx, L"COM7");
+				wcscpy(COMPORT_Rx, L"COM7");
+				break;
+			case 8:
+				wcscpy(COMPORT_Tx, L"COM8");
+				wcscpy(COMPORT_Rx, L"COM8");
+				break;
+			case 9:
+				wcscpy(COMPORT_Tx, L"COM9");
+				wcscpy(COMPORT_Rx, L"COM9");
+				break;
+			default:
+				printf("Something went wrong with the com assignment");
+				Sleep(2000);
+			}
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");

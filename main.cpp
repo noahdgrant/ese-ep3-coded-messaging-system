@@ -62,6 +62,7 @@ int	main(int argc, char* argv[])
 			// Recieve Text Message
 			case 6:
 				receiveTextComm();
+				break;
 			// Transmit audio message
 			case 7:
 				transmitAudioComm();
