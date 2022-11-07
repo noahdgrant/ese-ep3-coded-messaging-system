@@ -13,25 +13,27 @@
 #include <wchar.h>
 #include <ctype.h>
 
-
 #include "message.h"
 #include "queues.h"
 #include "RS232Comm.h"
 #include "sound.h"
 #include "CMSLibrary.h"
 
-
 char encBuf[140], decBuf[140], secretKey[140]; //key used to encrypt/decrypt messages
 int encType = 3;
 int i;
-
 char recipientID[140], senderID[140];
-
 int recordTime;
-
 int currentCom = 6;
 
-
+wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
+wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
+const int BUFSIZE = 140;										// Buffer size
+int nComRate = 460800;											// Baud (Bit) rate in bits/second 
+int nComBits = 8;												// Number of bits per frame
+HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
+HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
+COMMTIMEOUTS timeout;											// A commtimeout struct variable
 
 // MENU
 // Print CMS menu
@@ -182,16 +184,6 @@ int recordAudio() {
 } // recordAudio()
 
 // SERIAL COMMUNIACTION
-wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
-wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
-
-const int BUFSIZE = 140;										// Buffer size
-int nComRate = 460800;											// Baud (Bit) rate in bits/second 
-int nComBits = 8;												// Number of bits per frame
-HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
-HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
-COMMTIMEOUTS timeout;											// A commtimeout struct variable
-
 // Transmit text message
 void transmitCom(char* msgOut, unsigned long msgSz) {
 
@@ -270,71 +262,7 @@ void receiveCom() {
 	return;
 }
 
-// Transmit audio message
-void transmitAudioComm() {
-	// RECORD MESSAGE
-	extern short iBigBuf[];													// buffer
-	extern long  lBigBufSize;												// total number of samples
-	char cmd;
-
-	// initialize playback and recording
-	InitializeRecording();
-	InitializePlayback();
-
-	// start recording
-	RecordBuffer(iBigBuf, lBigBufSize);
-	CloseRecording();
-
-	// playback recording 
-	printf("\nPlaying recording from buffer\n");
-	PlayBuffer(iBigBuf, lBigBufSize);
-	ClosePlayback();
-
-	// save audio recording  
-	printf("Would you like to send your audio recording? (y/n): ");
-	scanf_s("%c", &cmd, 1);
-	while (getchar() != '\n') {}											// Flush other input
-	if ((cmd == 'y') || (cmd == 'Y')) {
-		// TRANSMIT MESSAGE
-		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);			// Initialize the Tx port
-		Sleep(500);
-
-		outputToPort(&hComTx, iBigBuf, lBigBufSize);						// Send string to port - include space for '\0' termination
-		Sleep(500);															// Allow time for signal propagation on cable 
-
-		CloseHandle(hComTx);												// Close the handle to Tx port 
-		purgePort(&hComTx);													// Purge the Tx port
-	}
-
-	return;
-}
-
-// Receive audio message
-void receiveAudioComm() {
-	// RECEIVE AUDIO
-	DWORD bytesRead;
-	extern short iBigBuf[];													// buffer
-	extern long  lBigBufSize;												// total number of samples
-
-	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);				// Initialize the Rx port
-	Sleep(500);
-
-	bytesRead = inputFromPort(&hComRx, iBigBuf, lBigBufSize);				// Receive audio from port
-	printf("Length of received msg = %d", bytesRead);
-
-	CloseHandle(hComRx);													// Close the handle to Rx port 
-	purgePort(&hComRx);														// Purge the Rx port
-
-	// PLAY BACK AUDIO
-	InitializePlayback();
-	printf("\nPlaying received recording...\n");
-	PlayBuffer(iBigBuf, lBigBufSize);
-	ClosePlayback();
-}
-
-
-// GUI Options
-
+// GUI OPTIONS
 // Change Com port
 void selectComPort() {
 	char cmd[3];
