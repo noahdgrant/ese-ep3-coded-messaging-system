@@ -16,6 +16,9 @@ int	main(int argc, char* argv[])
 {
 	char cmd[3];
 	link q;
+	char msg[140] = "\0";
+	extern short iBigBuf[];								// buffer
+	extern long  lBigBufSize;							// total number of samples
 
 	srand(time(NULL));											// Seed the random number generator 
 	initQueue();
@@ -56,22 +59,49 @@ int	main(int argc, char* argv[])
 				Sleep(4000);
 				break;
 			// Transmit Text Message
-			case 5:
-				transmitTextComm();
+			case '5':
+				printf("\nWhat message would you link to send?\n\n");
+				fflush(stdin);													// Flush input buffer after use. Good practice in C
+				scanf_s("%[^\n]s", msg, sizeof(msg));						// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+				while (getchar() != '\n') {}									// Flush other input
+
+				transmitCom(msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
 			// Recieve Text Message
-			case 6:
-				receiveTextComm();
+			case '6':
+				receiveCom();
 				Sleep(4000);
 				break;
 			// Transmit audio message
-			case 7:
-				transmitAudioComm();
+			case '7':
+				// RECORD MESSAGE
+				// initialize playback and recording
+				InitializeRecording();
+				InitializePlayback();
+
+				// start recording
+				RecordBuffer(iBigBuf, lBigBufSize);
+				CloseRecording();
+
+				// playback recording 
+				printf("\nPlaying recording from buffer\n");
+				PlayBuffer(iBigBuf, lBigBufSize);
+				ClosePlayback();
+
+				// save audio recording  
+				printf("Would you like to send your audio recording? (y/n): ");
+				scanf_s("%c", &cmd, 1);
+				while (getchar() != '\n') {}										// Flush other input
+				if ((cmd == 'y') || (cmd == 'Y')) {
+					transmitCom((char*) iBigBuf, (unsigned long) lBigBufSize*2);
+					Sleep(4000);
+				}
 				break;
 			// Recieve audio message
-			case 8:
-				receiveAudioComm();
+			case '8':
+				receiveCom();
+				Sleep(4000);
 				break;
 			// Change Com Port
 			case 9:
