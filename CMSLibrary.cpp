@@ -280,7 +280,7 @@ void transmitAudioComm() {
 	// save audio recording  
 	printf("Would you like to send your audio recording? (y/n): ");
 	scanf_s("%c", &cmd, 1);
-	while (getchar() != '\n') {}								// Flush other input
+	while (getchar() != '\n') {}										// Flush other input
 	if ((cmd == 'y') || (cmd == 'Y')) {
 		// TRANSMIT MESSAGE
 		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
