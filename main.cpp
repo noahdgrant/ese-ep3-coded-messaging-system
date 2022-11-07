@@ -57,22 +57,47 @@ int	main(int argc, char* argv[])
 				break;
 			// Transmit Text Message
 			case 5:
-				transmitTextComm();
+				printf("\nWhat message would you link to send?\n\n");
+				fflush(stdin);													// Flush input buffer after use. Good practice in C
+				scanf_s("%[^\n]s", msg, sizeof(msg));						// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+				while (getchar() != '\n') {}									// Flush other input
+
+				transmitCom(msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
 			// Recieve Text Message
 			case 6:
-				receiveTextComm();
+				receiveCom();
 				Sleep(4000);
 				break;
 			// Transmit audio message
 			case 7:
-				transmitAudioComm();
-				Sleep(4000);
+				// RECORD MESSAGE
+				// initialize playback and recording
+				InitializeRecording();
+				InitializePlayback();
+
+				// start recording
+				RecordBuffer(iBigBuf, lBigBufSize);
+				CloseRecording();
+
+				// playback recording 
+				printf("\nPlaying recording from buffer\n");
+				PlayBuffer(iBigBuf, lBigBufSize);
+				ClosePlayback();
+
+				// save audio recording  
+				printf("Would you like to send your audio recording? (y/n): ");
+				scanf_s("%c", &cmd, 1);
+				while (getchar() != '\n') {}										// Flush other input
+				if ((cmd == 'y') || (cmd == 'Y')) {
+					transmitCom((char*) iBigBuf, (unsigned long) lBigBufSize*2);
+					Sleep(4000);
+				}
 				break;
 			// Recieve audio message
 			case 8:
-				receiveAudioComm();
+				receiveCom();
 				Sleep(4000);
 				break;
 			// Change Com Port
