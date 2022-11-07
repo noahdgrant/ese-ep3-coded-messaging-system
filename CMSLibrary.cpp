@@ -229,9 +229,8 @@ void receiveCom() {
 	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);										// Initialize the Rx port
 	Sleep(500);
 
-	bytesRead = inputFromPort(&hComRx, (char*)msgIn, BUFSIZE);										// Receive string from port
+	bytesRead = inputFromPort(&hComRx, (char*)msgIn, lBigBufSize*2);										// Receive string from port
 	printf("Length of received msg = %d", bytesRead);
-	msgIn[bytesRead] = '\0';
 
 	if (bytesRead != lBigBufSize * 2) {
 		if (encType == 1) {
@@ -253,7 +252,7 @@ void receiveCom() {
 	else {
 		InitializePlayback();
 		printf("\nPlaying received recording...\n");
-		PlayBuffer(msgIn, lBigBufSize);
+		PlayBuffer(msgIn, lBigBufSize*2);
 		ClosePlayback();
 	}
 
