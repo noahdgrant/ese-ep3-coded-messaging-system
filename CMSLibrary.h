@@ -25,3 +25,15 @@ void transmitTextComm();
 void receiveTextComm();
 void transmitAudioComm();
 void receiveAudioComm();
+
+// GUI Options
+void selectComPort();
+void changeAudioSettings();
+void setSecretKey();
+void setRID();
+void setSID();
+void setEncryption();
+
+// Encryption
+void xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, void* encBuf);
+void vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, void* encBuf, bool encOrDec);
