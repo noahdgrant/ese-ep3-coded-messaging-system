@@ -21,10 +21,8 @@ int playbackAudio();
 int recordAudio();
 
 // SERIAL COMMUNICATION
-void transmitTextComm();
-void receiveTextComm();
-void transmitAudioComm();
-void receiveAudioComm();
+void transmitCom();
+void receiveCom();
 
 // GUI Options
 void selectComPort();

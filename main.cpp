@@ -16,6 +16,9 @@ int	main(int argc, char* argv[])
 {
 	char cmd[3];
 	link q;
+	extern short iBigBuf[];								// buffer
+	extern long  lBigBufSize;
+	char msg[140];
 
 	srand(time(NULL));											// Seed the random number generator 
 	initQueue();
@@ -72,6 +75,12 @@ int	main(int argc, char* argv[])
 				break;
 			// Transmit audio message
 			case 7:
+				transmitCom();
+				Sleep(4000);
+				break;
+			// Recieve audio message
+			case 8:
+				receiveCom();
 				// RECORD MESSAGE
 				// initialize playback and recording
 				InitializeRecording();
@@ -90,15 +99,10 @@ int	main(int argc, char* argv[])
 				printf("Would you like to send your audio recording? (y/n): ");
 				scanf_s("%c", &cmd, 1);
 				while (getchar() != '\n') {}										// Flush other input
-				if ((cmd == 'y') || (cmd == 'Y')) {
+				if ((cmd == "y") || (cmd == "Y")) {
 					transmitCom((char*) iBigBuf, (unsigned long) lBigBufSize*2);
 					Sleep(4000);
 				}
-				break;
-			// Recieve audio message
-			case 8:
-				receiveCom();
-				Sleep(4000);
 				break;
 			// Change Com Port
 			case 9:
