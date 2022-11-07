@@ -212,7 +212,7 @@ void transmitTextComm() {
 		Sleep(500);
 	}
 	else {
-		outputToPort(&hComTx, encBuf, strlen(encBuf) + 1);				// Send string to port - include space for '\0' termination
+		outputToPort(&hComTx, msgOut, strlen(msgOut) + 1);				// Send string to port - include space for '\0' termination
 		Sleep(500);
 	}
 														// Allow time for signal propagation on cable 
