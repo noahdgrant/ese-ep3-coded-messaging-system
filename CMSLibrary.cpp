@@ -47,7 +47,18 @@ void printMenu() {
 	printf("8. Receive Audio Message\n");
 	printf("9. Select Com Port					Com Port:		COM%d\n", currentCom);
 	printf("10. Change Audio Recording Length			Length:			%d\n", recordTime);
-	printf("11. Set Encription Type					Encription type:	%d\n", encType);
+	printf("11. Set Encription Type					Encription type:	");
+	switch (encType) {
+	case 1:
+		printf("XOR\n");
+		break;
+	case 2:
+		printf("Viginere\n");
+		break;
+	case 3:
+		printf("None\n");
+		break;
+	}
 	printf("12. Set Encription Code					Encription Code:	%s\n", secretKey);
 	printf("13. Set Recipient ID					RID:				%s\n", recipientID);
 	printf("14. Set Sender ID					SID:				%s\n", senderID);
