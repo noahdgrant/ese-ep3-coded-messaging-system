@@ -195,35 +195,35 @@ COMMTIMEOUTS timeout;											// A commtimeout struct variable
 // Transmit text message
 void transmitCom(char* msgOut, unsigned long msgSz) {
 
-	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
+	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
 	Sleep(500);
 
 	if (encType == 1) {
 		// Encrypt the message (xor)
 		xorCipher(msgOut, strlen(msgOut), secretKey, strlen(secretKey), encBuf);
-		printf("XOR Encrypted message in hex:");                               // Will not print as a string so print in HEX, one byte ata a time
+		printf("XOR Encrypted message in hex:");											// Will not print as a string so print in HEX, one byte ata a time
 		for (i = 0; i < strlen(msgOut); i++) {
 			printf(" %02x", encBuf[i]);
 		}
-		outputToPort(&hComTx, encBuf, strlen(encBuf) + 1);				// Send string to port - include space for '\0' termination
+		outputToPort(&hComTx, encBuf, strlen(encBuf) + 1);									// Send string to port - include space for '\0' termination
 		Sleep(500);
 	}
 	else if (encType == 2) {
 		// Encrypt the message (Viginere)
 		vigCipher(msgOut, strlen(msgOut), secretKey, strlen(secretKey), encBuf, true);
-		printf("Viginere Encrypted message:");                                // Can print as a string
+		printf("Viginere Encrypted message:");												// Can print as a string
 		printf("%s\n", encBuf);
-		outputToPort(&hComTx, encBuf, strlen(encBuf) + 1);				// Send string to port - include space for '\0' termination
+		outputToPort(&hComTx, encBuf, strlen(encBuf) + 1);									// Send string to port - include space for '\0' termination
 		Sleep(500);
 	}
 	else {
-		outputToPort(&hComTx, msgOut, msgSz);				// Send string to port - include space for '\0' termination
+		outputToPort(&hComTx, msgOut, msgSz);												// Send string to port - include space for '\0' termination
 		Sleep(500);
 	}
-														// Allow time for signal propagation on cable 
-
-	CloseHandle(hComTx);											// Close the handle to Tx port 
-	purgePort(&hComTx);												// Purge the Tx port
+																							// Allow time for signal propagation on cable 
+		
+	CloseHandle(hComTx);																	// Close the handle to Tx port 
+	purgePort(&hComTx);																		// Purge the Tx port
 	return;
 	// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 }
@@ -234,10 +234,10 @@ void receiveCom() {
 	short msgIn[SAMPLES_SEC * RECORD_TIME] = {};
 	extern long  lBigBufSize;
 
-	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);		// Initialize the Rx port
+	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);										// Initialize the Rx port
 	Sleep(500);
 
-	bytesRead = inputFromPort(&hComRx, (char*)msgIn, BUFSIZE);				// Receive string from port
+	bytesRead = inputFromPort(&hComRx, (char*)msgIn, BUFSIZE);										// Receive string from port
 	printf("Length of received msg = %d", bytesRead);
 	msgIn[bytesRead] = '\0';
 
@@ -245,17 +245,17 @@ void receiveCom() {
 		if (encType == 1) {
 			// Decrypt the message (xor)
 			xorCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf);
-			printf("\nXOR Decrypted Message: %s\n\n\n\n", decBuf);                          // Can print as a string
+			printf("\nXOR Decrypted Message: %s\n\n\n\n", decBuf);											// Can print as a string
 		}
 		else if (encType == 2) {
 			// Decrypt the message (Viginere)
 			vigCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf, false);
-			printf("Viginere Decrypted message:");                                // Can print as a string
+			printf("Viginere Decrypted message:");															// Can print as a string
 			printf("%s\n\n\n\n", decBuf);
 		}
 		else {
 			msgIn[bytesRead] = '\0';
-			printf("\nMessage Received: %s\n\n", (char*)msgIn);					// Display message from port
+			printf("\nMessage Received: %s\n\n", (char*)msgIn);												// Display message from port
 		}
 	}
 	else {
@@ -265,18 +265,16 @@ void receiveCom() {
 		ClosePlayback();
 	}
 
-	
-
-	CloseHandle(hComRx);											// Close the handle to Rx port 
-	purgePort(&hComRx);												// Purge the Rx port
+	CloseHandle(hComRx);													// Close the handle to Rx port 
+	purgePort(&hComRx);														// Purge the Rx port
 	return;
 }
 
 // Transmit audio message
 void transmitAudioComm() {
 	// RECORD MESSAGE
-	extern short iBigBuf[];								// buffer
-	extern long  lBigBufSize;							// total number of samples
+	extern short iBigBuf[];													// buffer
+	extern long  lBigBufSize;												// total number of samples
 	char cmd;
 
 	// initialize playback and recording
@@ -295,17 +293,17 @@ void transmitAudioComm() {
 	// save audio recording  
 	printf("Would you like to send your audio recording? (y/n): ");
 	scanf_s("%c", &cmd, 1);
-	while (getchar() != '\n') {}										// Flush other input
+	while (getchar() != '\n') {}											// Flush other input
 	if ((cmd == 'y') || (cmd == 'Y')) {
 		// TRANSMIT MESSAGE
-		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
+		initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);			// Initialize the Tx port
 		Sleep(500);
 
 		outputToPort(&hComTx, iBigBuf, lBigBufSize);						// Send string to port - include space for '\0' termination
-		Sleep(500);														// Allow time for signal propagation on cable 
+		Sleep(500);															// Allow time for signal propagation on cable 
 
-		CloseHandle(hComTx);											// Close the handle to Tx port 
-		purgePort(&hComTx);												// Purge the Tx port
+		CloseHandle(hComTx);												// Close the handle to Tx port 
+		purgePort(&hComTx);													// Purge the Tx port
 	}
 
 	return;
@@ -343,7 +341,7 @@ void selectComPort() {
 	do {
 		system("cls");
 		printf("Enter a number between 0 and 9 coresponding to the desired Com Port (ie. 1 -> COM1)\n");
-		fflush(stdin);											// Flush input buffer after use. Good practice in C
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, sizeof(cmd));
 		if (atoi(cmd) >= 0 && atoi(cmd) <= 9) {
 			printf("The new Com Port is now COM%d\n", atoi(cmd));
@@ -418,7 +416,7 @@ void changeAudioSettings() {
 	do {
 		system("cls");
 		printf("Enter a new recording length between 1 and 15 seconds\n");
-		fflush(stdin);											// Flush input buffer after use. Good practice in C
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, sizeof(cmd));
 		if (atoi(cmd) >= 1 && atoi(cmd) <= 15) {
 			printf("The new recording length is now %d\n", atoi(cmd));
@@ -442,7 +440,7 @@ void setEncryption() {
 		printf("2. Viginere\n");
 		printf("3. No Encryption\n");
 
-		fflush(stdin);											// Flush input buffer after use. Good practice in C
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, sizeof(cmd));
 		if (atoi(cmd) == 1) {
 			printf("now using XOR encryption\n");

@@ -16,7 +16,7 @@ int	main(int argc, char* argv[])
 {
 	char cmd[3];
 	link q;
-	extern short iBigBuf[];								// buffer
+	extern short iBigBuf[];										// buffer
 	extern long  lBigBufSize;
 	char msg[140];
 
@@ -62,7 +62,7 @@ int	main(int argc, char* argv[])
 			case 5:
 				printf("\nWhat message would you link to send?\n\n");
 				fflush(stdin);													// Flush input buffer after use. Good practice in C
-				scanf_s("%[^\n]s", msg, sizeof(msg));						// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+				scanf_s("%[^\n]s", msg, sizeof(msg));							// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 				while (getchar() != '\n') {}									// Flush other input
 
 				transmitCom(msg, strlen(msg) + 1);
