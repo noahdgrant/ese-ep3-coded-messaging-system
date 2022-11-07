@@ -58,10 +58,12 @@ int	main(int argc, char* argv[])
 			// Transmit Text Message
 			case 5:
 				transmitTextComm();
+				Sleep(4000);
 				break;
 			// Recieve Text Message
 			case 6:
 				receiveTextComm();
+				Sleep(4000);
 				break;
 			// Transmit audio message
 			case 7:
