@@ -27,6 +27,11 @@ int i;
 
 char recipientID[140], senderID[140];
 
+int recordTime;
+
+int currentCom = 6;
+
+
 
 // MENU
 // Print CMS menu
@@ -40,12 +45,12 @@ void printMenu() {
 	printf("6. Receive Text Message\n");
 	printf("7. Transmit Aduio Message\n");
 	printf("8. Receive Audio Message\n");
-	printf("9. Select Com Port\n");
-	printf("10. Change Audio Recording Length\n");
-	printf("11. Set Encription Type\n");
-	printf("12. Set Encription Code\n");
-	printf("13. Set Recipient ID\n");
-	printf("14. Set Sender ID\n");
+	printf("9. Select Com Port					Com Port:		COM%d\n", currentCom);
+	printf("10. Change Audio Recording Length			Length:			%d\n", recordTime);
+	printf("11. Set Encription Type					Encription type:	%d\n", encType);
+	printf("12. Set Encription Code					Encription Code:	%s\n", secretKey);
+	printf("13. Set Recipient ID					RID:				%s\n", recipientID);
+	printf("14. Set Sender ID					SID:				%s\n", senderID);
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;
@@ -331,42 +336,52 @@ void selectComPort() {
 			case 0:
 				wcscpy(COMPORT_Tx, L"COM0");
 				wcscpy(COMPORT_Rx, L"COM0");
+				currentCom = 0;
 				break;
 			case 1:
 				wcscpy(COMPORT_Tx, L"COM1");
 				wcscpy(COMPORT_Rx, L"COM1");
+				currentCom = 1;
 				break;
 			case 2:
 				wcscpy(COMPORT_Tx, L"COM2");
 				wcscpy(COMPORT_Rx, L"COM2");
+				currentCom = 2;
 				break;
 			case 3:
 				wcscpy(COMPORT_Tx, L"COM3");
 				wcscpy(COMPORT_Rx, L"COM3");
+				currentCom = 3;
 				break;
 			case 4:
 				wcscpy(COMPORT_Tx, L"COM4");
 				wcscpy(COMPORT_Rx, L"COM4");
+				currentCom = 4;
 				break;
 			case 5:
 				wcscpy(COMPORT_Tx, L"COM5");
 				wcscpy(COMPORT_Rx, L"COM5");
+				currentCom = 5;
 				break;
 			case 6:
 				wcscpy(COMPORT_Tx, L"COM6");
 				wcscpy(COMPORT_Rx, L"COM6");
+				currentCom = 6;
 				break;
 			case 7:
 				wcscpy(COMPORT_Tx, L"COM7");
 				wcscpy(COMPORT_Rx, L"COM7");
+				currentCom = 7;
 				break;
 			case 8:
 				wcscpy(COMPORT_Tx, L"COM8");
 				wcscpy(COMPORT_Rx, L"COM8");
+				currentCom = 8;
 				break;
 			case 9:
 				wcscpy(COMPORT_Tx, L"COM9");
 				wcscpy(COMPORT_Rx, L"COM9");
+				currentCom = 9;
 				break;
 			default:
 				printf("Something went wrong with the com assignment");
@@ -384,7 +399,6 @@ void selectComPort() {
 
 // Change Audio Settings
 void changeAudioSettings() {
-	int recordTime;
 	char cmd[3];
 	do {
 		system("cls");
