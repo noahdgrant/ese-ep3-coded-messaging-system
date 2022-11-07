@@ -75,14 +75,7 @@ int	main(int argc, char* argv[])
 				break;
 			// Transmit audio message
 			case 7:
-				transmitCom();
-				Sleep(4000);
-				break;
-			// Recieve audio message
-			case 8:
-				receiveCom();
 				// RECORD MESSAGE
-				// initialize playback and recording
 				InitializeRecording();
 				InitializePlayback();
 
@@ -95,14 +88,20 @@ int	main(int argc, char* argv[])
 				PlayBuffer(iBigBuf, lBigBufSize);
 				ClosePlayback();
 
-				// save audio recording  
+				// SEND AUDIO MESSAGE
 				printf("Would you like to send your audio recording? (y/n): ");
 				scanf_s("%c", &cmd, 1);
 				while (getchar() != '\n') {}										// Flush other input
-				if ((cmd == "y") || (cmd == "Y")) {
-					transmitCom((char*) iBigBuf, (unsigned long) lBigBufSize*2);
+				if (strcmp(cmd, "y") || strcmp(cmd, "Y")) {
+					transmitCom((char*)iBigBuf, (unsigned long)lBigBufSize * 2);
 					Sleep(4000);
 				}
+				Sleep(4000);
+				break;
+			// Recieve audio message
+			case 8:
+				receiveCom();
+				Sleep(4000);
 				break;
 			// Change Com Port
 			case 9:

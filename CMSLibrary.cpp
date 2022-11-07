@@ -193,13 +193,7 @@ HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
 COMMTIMEOUTS timeout;											// A commtimeout struct variable
 
 // Transmit text message
-void transmitTextComm() {
-	char msgOut[BUFSIZE];
-
-	printf("\nWhat message would you link to send?\n\n");
-	fflush(stdin);													// Flush input buffer after use. Good practice in C
-	scanf_s("%[^\n]s", msgOut, sizeof(msgOut));						// Get command from user
-	while (getchar() != '\n') {}									// Flush other input
+void transmitCom(char* msgOut, unsigned long msgSz) {
 
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);		// Initialize the Tx port
 	Sleep(500);
@@ -223,7 +217,7 @@ void transmitTextComm() {
 		Sleep(500);
 	}
 	else {
-		outputToPort(&hComTx, msgOut, strlen(msgOut) + 1);				// Send string to port - include space for '\0' termination
+		outputToPort(&hComTx, msgOut, msgSz);				// Send string to port - include space for '\0' termination
 		Sleep(500);
 	}
 														// Allow time for signal propagation on cable 
@@ -235,30 +229,40 @@ void transmitTextComm() {
 }
 
 // Receive text message
-void receiveTextComm() {	
-	char msgIn[BUFSIZE];
+void receiveCom() {	
 	DWORD bytesRead;
+	short msgIn[SAMPLES_SEC * RECORD_TIME] = {};
+	extern long  lBigBufSize;
 
 	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);		// Initialize the Rx port
 	Sleep(500);
 
-	bytesRead = inputFromPort(&hComRx, msgIn, BUFSIZE);				// Receive string from port
+	bytesRead = inputFromPort(&hComRx, (char*)msgIn, BUFSIZE);				// Receive string from port
 	printf("Length of received msg = %d", bytesRead);
 	msgIn[bytesRead] = '\0';
 
-	if (encType == 1) {
-		// Decrypt the message (xor)
-		xorCipher(msgIn, strlen(msgIn), secretKey, strlen(secretKey), decBuf);
-		printf("\nXOR Decrypted Message: %s\n\n\n\n", decBuf);                          // Can print as a string
+	if (bytesRead != lBigBufSize * 2) {
+		if (encType == 1) {
+			// Decrypt the message (xor)
+			xorCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf);
+			printf("\nXOR Decrypted Message: %s\n\n\n\n", decBuf);                          // Can print as a string
+		}
+		else if (encType == 2) {
+			// Decrypt the message (Viginere)
+			vigCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf, false);
+			printf("Viginere Decrypted message:");                                // Can print as a string
+			printf("%s\n\n\n\n", decBuf);
+		}
+		else {
+			msgIn[bytesRead] = '\0';
+			printf("\nMessage Received: %s\n\n", (char*)msgIn);					// Display message from port
+		}
 	}
-	else if (encType == 2) {
-		// Decrypt the message (Viginere)
-		vigCipher(msgIn, strlen(msgIn), secretKey, strlen(secretKey), decBuf, false);
-		printf("Viginere Decrypted message:");                                // Can print as a string
-		printf("%s\n\n\n\n", decBuf);
-	}
-	else{
-		printf("\nMessage Received: %s\n\n", msgIn);					// Display message from port
+	else {
+		InitializePlayback();
+		printf("\nPlaying received recording...\n");
+		PlayBuffer(msgIn, lBigBufSize);
+		ClosePlayback();
 	}
 
 	
