@@ -14,24 +14,27 @@
 
 int	main(int argc, char* argv[])
 {
-	char cmd[3];
-	link q;
-	extern short iBigBuf[];										// buffer
-	extern long  lBigBufSize;
-	char msg[140];
+	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
+	char cmd[3] = {};											// Holds the user's command
+	extern short iBigBuf[];										// Buffer that holds audio recording
+	extern long  lBigBufSize;									// Size of audio buffer
+	char msg[MAX_QUOTE_LENGTH] = {};							// Text message to transmit
+	link q = NULL;												// Pointer to start of queue
+	char sendMsg[3] = {};										// Holds wether the user wants to send the audio message or not
 
+	// START-UP PROCESSES
 	srand(time(NULL));											// Seed the random number generator 
 	initQueue();
 
+	// MAIN LOOP
 	do {
 		system("cls");
 		printMenu();
 
 		// Input from user
-		fflush(stdin);											// Flush input buffer after use. Good practice in C
-		scanf_s("%s", cmd, sizeof(cmd));	
-
-		while (getchar() != '\n') {}							// Flush other input
+		fflush(stdin);											// Flush input buffer before use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));	
+		while (getchar() != '\n') {}							// Flush other input buffer
 		
 		switch (atoi(cmd)) {
 			// Exit the program
@@ -61,70 +64,57 @@ int	main(int argc, char* argv[])
 			// Transmit Text Message
 			case 5:
 				printf("\nWhat message would you link to send?\n\n");
-				fflush(stdin);													// Flush input buffer after use. Good practice in C
-				scanf_s("%[^\n]s", msg, sizeof(msg));							// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
-				while (getchar() != '\n') {}									// Flush other input
+				fflush(stdin);													
+				scanf_s("%[^\n]s", msg, (unsigned int)sizeof(msg));				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+				while (getchar() != '\n') {}									
 
 				transmitCom(msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
-			// Recieve Text Message
-			case 6:
-				receiveCom();
-				Sleep(4000);
-				break;
 			// Transmit audio message
-			case 7:
+			case 6:
 				// RECORD MESSAGE
 				InitializeRecording();
-				InitializePlayback();
-
-				// start recording
 				RecordBuffer(iBigBuf, lBigBufSize);
 				CloseRecording();
 
-				// playback recording 
-				printf("\nPlaying recording from buffer\n");
-				PlayBuffer(iBigBuf, lBigBufSize);
-				ClosePlayback();
-
 				// SEND AUDIO MESSAGE
-				printf("Would you like to send your audio recording? (y/n): ");
-				scanf_s("%c", &cmd, 1);
-				while (getchar() != '\n') {}										// Flush other input
-				if (strcmp(cmd, "y") || strcmp(cmd, "Y")) {
+				printf("\n\nWould you like to send your audio recording? (y/n): ");
+				fflush(stdin);
+				scanf_s("%s", sendMsg, 2);
+				while (getchar() != '\n') {}										
+				if (sendMsg[0] == 'y' || sendMsg[0] == 'Y') {
 					transmitCom((char*)iBigBuf, (unsigned long)lBigBufSize * 2);
-					Sleep(4000);
 				}
 				Sleep(4000);
 				break;
-			// Recieve audio message
-			case 8:
+			// Recieve message
+			case 7:
 				receiveCom();
 				Sleep(4000);
 				break;
 			// Change Com Port
-			case 9:
+			case 8:
 				selectComPort();
 				break;
 			// Change Audio Settings
-			case 10:
+			case 9:
 				changeAudioSettings();
 				break;
 			// Set Encription Type
-			case 11:
+			case 10:
 				setEncryption();
 				break;
 			// Set Encription Code
-			case 12:
+			case 11:
 				setSecretKey();
 				break;
 			// Set Recipient ID
-			case 13:
+			case 12:
 				setRID();
 				break;
 			// Set Sender ID
-			case 14:
+			case 13:
 				setSID();
 				break;
 			// Invalid command
