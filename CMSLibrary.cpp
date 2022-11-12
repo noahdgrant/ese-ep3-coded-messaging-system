@@ -19,11 +19,12 @@
 #include "sound.h"
 #include "CMSLibrary.h"
 
-char encBuf[SAMPLES_SEC * RECORD_TIME] = {};
-char decBuf[SAMPLES_SEC * RECORD_TIME] = {};
+short encBuf[SAMPLES_SEC * RECORD_TIME] = {};
+short decBuf[SAMPLES_SEC * RECORD_TIME] = {};
 char secretKey[MAX_QUOTE_LENGTH] = {};			//key used to encrypt/decrypt messages
-int encType = 3;
-char recipientID[140], senderID[140];
+int encType = 1;
+char recipientID[140] = {};
+char senderID[140] = {};
 int recordTime = RECORD_TIME;
 int currentCom = 6;
 
@@ -48,21 +49,21 @@ void printMenu() {
 	printf("7. Receive Message\n");
 	printf("8. Select Com Port					Com Port:		COM%d\n", currentCom);
 	printf("9. Change Audio Recording Length			Length:			%d\n", recordTime);
-	printf("10. Set Encription Type					Encription type:	");
+	printf("10. Set Encryption Type					Encryption Type:	");
 	switch (encType) {
 	case 1:
-		printf("XOR\n");
-		break;
-	case 2:
-		printf("Viginere\n");
-		break;
-	case 3:
 		printf("None\n");
 		break;
+	case 2:
+		printf("XOR\n");
+		break;
+	case 3:
+		printf("Viginere\n");
+		break;
 	}
-	printf("11. Set Encription Code					Encription Code:	%s\n", secretKey);
-	printf("12. Set Recipient ID					RID:				%s\n", recipientID);
-	printf("13. Set Sender ID					SID:				%s\n", senderID);
+	printf("11. Set Encryption Key					Encryption Key:	%s\n", secretKey);
+	printf("12. Set Recipient ID					RID:			%s\n", recipientID);
+	printf("13. Set Sender ID					SID:			%s\n", senderID);
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;
@@ -188,7 +189,7 @@ int recordAudio() {
 
 // SERIAL COMMUNIACTION
 // Transmit text message
-void transmitCom(char msgOut[SAMPLES_SEC * RECORD_TIME], unsigned long msgSz) {
+void transmitCom(short* msgOut, long msgSz) {
 
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
 	Sleep(500);
@@ -234,13 +235,19 @@ void receiveCom() {
 	// Decrypt message
 	if (encType == 1) {
 		// Decrypt the message (xor)
-		xorCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf);
-		strcpy((char*)msgIn, decBuf);
+		xorCipher(msgIn, (int)bytesRead, secretKey, strlen(secretKey), decBuf);
+
+		for (unsigned long i = 0; i < lBigBufSize; i++) {
+			msgIn[i] = decBuf[i];
+		}
 	}
 	else if (encType == 2) {
 		// Decrypt the message (Viginere)
-		vigCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf, false);
-		strcpy((char*)msgIn, decBuf);
+		vigCipher(msgIn, (int)bytesRead, secretKey, strlen(secretKey), decBuf, false);
+
+		for (unsigned long i = 0; i < lBigBufSize; i++) {
+			msgIn[i] = decBuf[i];
+		}
 	}
 
 	// Play audio message
@@ -266,11 +273,12 @@ void selectComPort() {
 	do {
 		system("cls");
 		printf("Enter a number between 0 and 9 coresponding to the desired Com Port (ie. 1 -> COM1)\n");
+		printf("\n> ");
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 		while (getchar() != '\n') {}										// Flush other input buffer
 		if (atoi(cmd) >= 0 && atoi(cmd) <= 9) {
-			printf("The new Com Port is now COM%d\n", atoi(cmd));
+			printf("\nThe new Com Port is now COM%d\n", atoi(cmd));
 			switch (atoi(cmd)) {
 			case 0:
 				wcscpy(COMPORT_Tx, L"COM0");
@@ -359,27 +367,29 @@ void changeAudioSettings() {
 
 // Set encryption Type
 void setEncryption() {
-	char cmd[2];
+	char cmd[2] = {};
 	do {
 		system("cls");
-		printf("\nPlease enter type of encryption/decryption\n");
-		printf("1. XOR\n");
-		printf("2. Viginere\n");
-		printf("3. No Encryption\n");
+		printf("\nEnter type of encryption/decryption\n");
+		printf("1. No Encryption\n");
+		printf("2. XOR\n");
+		printf("3. Viginere\n");
+		printf("\n> ");
 
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 		while (getchar() != '\n') {}										// Flush other input buffer
+
 		if (atoi(cmd) == 1) {
-			printf("now using XOR encryption\n");
+			printf("\nNow using no encryption\n");
 			encType = 1;
 		}
 		else if (atoi(cmd) == 2) {
-			printf("now using Viginere encryption\n");
+			printf("\nNow using XOR encryption\n");
 			encType = 2;
 		}
 		else if (atoi(cmd) == 3) {
-			printf("now using no encryption\n");
+			printf("\nNow using Viginere encryption\n");
 			encType = 3;
 		}
 		else {
@@ -392,19 +402,19 @@ void setEncryption() {
 
 // set the XOR code
 void setSecretKey() {
-	printf("Please enter encryption key: ");
+	printf("\nEnter encryption key: ");
 	scanf_s("%s", secretKey, MAX_QUOTE_LENGTH - 1);
 }
 
 // Set the recipient ID
 void setRID() {
-	printf("Please enter the recipient ID: ");
+	printf("\nEnter the recipient ID: ");
 	scanf_s("%s", recipientID, MAX_QUOTE_LENGTH - 1);
 }
 
 // Set the Sender ID
 void setSID() {
-	printf("Please enter the sender ID: ");
+	printf("\nEnter the sender ID: ");
 	scanf_s("%s", senderID, MAX_QUOTE_LENGTH - 1);
 }
 

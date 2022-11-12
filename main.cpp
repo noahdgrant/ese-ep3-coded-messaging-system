@@ -70,7 +70,7 @@ int	main(int argc, char* argv[])
 				while (getchar() != '\n') {}									
 				//encrypt(msg)
 				//compress(msg)
-				transmitCom(msg, strlen(msg) + 1);
+				transmitCom((short*)msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
 			// Transmit audio message
@@ -86,7 +86,7 @@ int	main(int argc, char* argv[])
 				scanf_s("%s", sendMsg, 2);
 				while (getchar() != '\n') {}										
 				if (sendMsg[0] == 'y' || sendMsg[0] == 'Y') {
-					transmitCom((char*)audioMsg, (unsigned long)lBigBufSize * 2);
+					transmitCom(audioMsg, lBigBufSize * 2);
 				}
 				Sleep(4000);
 				break;
