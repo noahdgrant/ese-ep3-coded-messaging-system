@@ -19,11 +19,12 @@
 #include "sound.h"
 #include "CMSLibrary.h"
 
-char encBuf[MAX_QUOTE_LENGTH], decBuf[MAX_QUOTE_LENGTH], secretKey[MAX_QUOTE_LENGTH];			//key used to encrypt/decrypt messages
+char encBuf[SAMPLES_SEC * RECORD_TIME] = {};
+char decBuf[SAMPLES_SEC * RECORD_TIME] = {};
+char secretKey[MAX_QUOTE_LENGTH] = {};			//key used to encrypt/decrypt messages
 int encType = 3;
-int i;
 char recipientID[140], senderID[140];
-int recordTime;
+int recordTime = RECORD_TIME;
 int currentCom = 6;
 
 wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
@@ -149,22 +150,22 @@ int playbackAudio() {
 
 // Record audio, play it back to the user, and ask if they want to save the file
 int recordAudio() {
-	extern short iBigBuf[];								// buffer
-	extern long  lBigBufSize;							// total number of samples
-	char save;											// Holds wether or not the user wans to save the recording			
-	FILE* f;
+	short audioMsg[SAMPLES_SEC * RECORD_TIME] = {};
+	long msgSz = SAMPLES_SEC * RECORD_TIME;
+	char save = '\0';											// Holds wether or not the user wans to save the recording			
+	FILE* f = NULL;
 
 	// initialize playback and recording
 	InitializePlayback();
 	InitializeRecording();
 
 	// start recording
-	RecordBuffer(iBigBuf, lBigBufSize);
+	RecordBuffer(audioMsg, msgSz);
 	CloseRecording();
 
 	// playback recording 
 	printf("\nPlaying recording from buffer\n");
-	PlayBuffer(iBigBuf, lBigBufSize);
+	PlayBuffer(audioMsg, msgSz);
 	ClosePlayback();
 
 	// save audio recording  
@@ -179,7 +180,7 @@ int recordAudio() {
 			return 0;
 		}
 		printf("Writing to sound file ...\n");
-		fwrite(iBigBuf, sizeof(short), lBigBufSize, f);
+		fwrite(audioMsg, sizeof(short), msgSz, f);
 		fclose(f);
 	}
 	return 0;
@@ -187,39 +188,31 @@ int recordAudio() {
 
 // SERIAL COMMUNIACTION
 // Transmit text message
-void transmitCom(char* msgOut, unsigned long msgSz) {
+void transmitCom(char msgOut[SAMPLES_SEC * RECORD_TIME], unsigned long msgSz) {
 
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
 	Sleep(500);
 
 	if (encType == 1) {
 		// Encrypt the message (xor)
-		xorCipher(msgOut, strlen(msgOut), secretKey, strlen(secretKey), encBuf);
-		printf("XOR Encrypted message in hex:");											// Will not print as a string so print in HEX, one byte ata a time
-		for (i = 0; i < strlen(msgOut); i++) {
-			printf(" %02x", encBuf[i]);
-		}
-		outputToPort(&hComTx, encBuf, strlen(encBuf) + 1);									// Send string to port - include space for '\0' termination
+		xorCipher(msgOut, (int)msgSz, secretKey, strlen(secretKey), encBuf);
+		outputToPort(&hComTx, encBuf, msgSz);									// Send string to port - include space for '\0' termination
 		Sleep(500);
 	}
 	else if (encType == 2) {
 		// Encrypt the message (Viginere)
-		vigCipher(msgOut, strlen(msgOut), secretKey, strlen(secretKey), encBuf, true);
-		printf("Viginere Encrypted message:");												// Can print as a string
-		printf("%s\n", encBuf);
-		outputToPort(&hComTx, encBuf, strlen(encBuf) + 1);									// Send string to port - include space for '\0' termination
+		vigCipher(msgOut, (int)msgSz, secretKey, strlen(secretKey), encBuf, true);
+		outputToPort(&hComTx, encBuf, msgSz);									// Send string to port - include space for '\0' termination
 		Sleep(500);
 	}
 	else {
 		outputToPort(&hComTx, msgOut, msgSz);												// Send string to port - include space for '\0' termination
 		Sleep(500);
-	}
-																							// Allow time for signal propagation on cable 
+	}																					// Allow time for signal propagation on cable 
 		
 	CloseHandle(hComTx);																	// Close the handle to Tx port 
 	purgePort(&hComTx);																		// Purge the Tx port
 	return;
-	// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 }
 
 // Receive audio message
@@ -238,30 +231,29 @@ void receiveCom() {
 	CloseHandle(hComRx);											// Close the handle to Rx port 
 	purgePort(&hComRx);												// Purge the Rx port
 
-	// Print text message
-	if (bytesRead != lBigBufSize * 2) {
-		if (encType == 1) {
-			// Decrypt the message (xor)
-			xorCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf);
-			printf("\nXOR Decrypted Message: %s\n\n\n\n", decBuf);											// Can print as a string
-		}
-		else if (encType == 2) {
-			// Decrypt the message (Viginere)
-			vigCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf, false);
-			printf("Viginere Decrypted message:");															// Can print as a string
-			printf("%s\n\n\n\n", decBuf);
-		}
-		else {
-			msgIn[bytesRead] = '\0';
-			printf("\nMessage Received: %s\n\n", (char*)msgIn);												// Display message from port
-		}
+	// Decrypt message
+	if (encType == 1) {
+		// Decrypt the message (xor)
+		xorCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf);
+		strcpy((char*)msgIn, decBuf);
 	}
+	else if (encType == 2) {
+		// Decrypt the message (Viginere)
+		vigCipher((char*)msgIn, strlen((char*)msgIn), secretKey, strlen(secretKey), decBuf, false);
+		strcpy((char*)msgIn, decBuf);
+	}
+
 	// Play audio message
-	else {
-		InitializePlayback();
+	if (bytesRead == lBigBufSize * 2) {
 		printf("\nPlaying received recording...\n");
+		InitializePlayback();
 		PlayBuffer(msgIn, lBigBufSize);
 		ClosePlayback();
+	}
+	// Print text message
+	else {
+		msgIn[bytesRead] = '\0';
+		printf("\nMessage Received: %s\n\n", (char*)msgIn);												// Display message from port
 	}
 
 	return;

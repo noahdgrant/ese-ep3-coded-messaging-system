@@ -21,9 +21,10 @@ int	main(int argc, char* argv[])
 	char msg[MAX_QUOTE_LENGTH] = {};							// Text message to transmit
 	link q = NULL;												// Pointer to start of queue
 	char sendMsg[3] = {};										// Holds wether the user wants to send the audio message or not
+	short audioMsg[SAMPLES_SEC * RECORD_TIME] = {};
 
 	// START-UP PROCESSES
-	srand(time(NULL));											// Seed the random number generator 
+	srand(time(NULL));					 						// Seed the random number generator 
 	initQueue();
 
 	// MAIN LOOP
@@ -67,7 +68,8 @@ int	main(int argc, char* argv[])
 				fflush(stdin);													
 				scanf_s("%[^\n]s", msg, (unsigned int)sizeof(msg));				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 				while (getchar() != '\n') {}									
-
+				//encrypt(msg)
+				//compress(msg)
 				transmitCom(msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
@@ -75,7 +77,7 @@ int	main(int argc, char* argv[])
 			case 6:
 				// RECORD MESSAGE
 				InitializeRecording();
-				RecordBuffer(iBigBuf, lBigBufSize);
+				RecordBuffer(audioMsg, lBigBufSize);
 				CloseRecording();
 
 				// SEND AUDIO MESSAGE
@@ -84,7 +86,7 @@ int	main(int argc, char* argv[])
 				scanf_s("%s", sendMsg, 2);
 				while (getchar() != '\n') {}										
 				if (sendMsg[0] == 'y' || sendMsg[0] == 'Y') {
-					transmitCom((char*)iBigBuf, (unsigned long)lBigBufSize * 2);
+					transmitCom((char*)audioMsg, (unsigned long)lBigBufSize * 2);
 				}
 				Sleep(4000);
 				break;
