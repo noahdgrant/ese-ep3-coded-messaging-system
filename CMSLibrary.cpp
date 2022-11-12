@@ -19,10 +19,9 @@
 #include "sound.h"
 #include "CMSLibrary.h"
 
-short encBuf[SAMPLES_SEC * RECORD_TIME] = {};
-short decBuf[SAMPLES_SEC * RECORD_TIME] = {};
 char secretKey[MAX_QUOTE_LENGTH] = {};			//key used to encrypt/decrypt messages
-int encType = 1;
+enum encTypes {ERR, NONE, XOR, VIG, numOfEnc};
+enum encTypes encType = NONE;
 char recipientID[140] = {};
 char senderID[140] = {};
 int recordTime = RECORD_TIME;
@@ -51,17 +50,17 @@ void printMenu() {
 	printf("9. Change Audio Recording Length			Length:			%d\n", recordTime);
 	printf("10. Set Encryption Type					Encryption Type:	");
 	switch (encType) {
-	case 1:
+	case NONE:
 		printf("None\n");
 		break;
-	case 2:
+	case XOR:
 		printf("XOR\n");
 		break;
-	case 3:
+	case VIG:
 		printf("Viginere\n");
 		break;
 	}
-	printf("11. Set Encryption Key					Encryption Key:	%s\n", secretKey);
+	printf("11. Set Encryption Key					Encryption Key:		%s\n", secretKey);
 	printf("12. Set Recipient ID					RID:			%s\n", recipientID);
 	printf("13. Set Sender ID					SID:			%s\n", senderID);
 	printf("0. Exit\n");
@@ -189,27 +188,23 @@ int recordAudio() {
 
 // SERIAL COMMUNIACTION
 // Transmit text message
-void transmitCom(short* msgOut, long msgSz) {
-
+void transmitCom(void* messageOut, long msgSz) {
+	short* msgOut = (short*)messageOut;
+	
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
 	Sleep(500);
 
-	if (encType == 1) {
-		// Encrypt the message (xor)
-		xorCipher(msgOut, (int)msgSz, secretKey, strlen(secretKey), encBuf);
-		outputToPort(&hComTx, encBuf, msgSz);									// Send string to port - include space for '\0' termination
-		Sleep(500);
+	// XOR Encryption
+	if (encType == XOR) {
+		xorCipher(msgOut, (int)msgSz, secretKey, strlen(secretKey));
 	}
-	else if (encType == 2) {
-		// Encrypt the message (Viginere)
-		vigCipher(msgOut, (int)msgSz, secretKey, strlen(secretKey), encBuf, true);
-		outputToPort(&hComTx, encBuf, msgSz);									// Send string to port - include space for '\0' termination
-		Sleep(500);
+	// Viginere encryption
+	else if (encType == VIG) {
+		vigCipher(msgOut, (int)msgSz, secretKey, strlen(secretKey), true);
 	}
-	else {
-		outputToPort(&hComTx, msgOut, msgSz);												// Send string to port - include space for '\0' termination
-		Sleep(500);
-	}																					// Allow time for signal propagation on cable 
+
+	outputToPort(&hComTx, msgOut, msgSz);													// Send string to port - include space for '\0' termination
+	Sleep(500);																				// Allow time for signal propagation on cable 
 		
 	CloseHandle(hComTx);																	// Close the handle to Tx port 
 	purgePort(&hComTx);																		// Purge the Tx port
@@ -233,21 +228,13 @@ void receiveCom() {
 	purgePort(&hComRx);												// Purge the Rx port
 
 	// Decrypt message
-	if (encType == 1) {
+	if (encType == XOR) {
 		// Decrypt the message (xor)
-		xorCipher(msgIn, (int)bytesRead, secretKey, strlen(secretKey), decBuf);
-
-		for (unsigned long i = 0; i < lBigBufSize; i++) {
-			msgIn[i] = decBuf[i];
-		}
+		xorCipher(msgIn, (int)bytesRead, secretKey, strlen(secretKey));
 	}
-	else if (encType == 2) {
+	else if (encType == VIG) {
 		// Decrypt the message (Viginere)
-		vigCipher(msgIn, (int)bytesRead, secretKey, strlen(secretKey), decBuf, false);
-
-		for (unsigned long i = 0; i < lBigBufSize; i++) {
-			msgIn[i] = decBuf[i];
-		}
+		vigCipher(msgIn, (int)bytesRead, secretKey, strlen(secretKey), false);
 	}
 
 	// Play audio message
@@ -341,7 +328,6 @@ void selectComPort() {
 		Sleep(2000);
 
 	} while (atoi(cmd) < 0 || atoi(cmd) > 9);
-
 }
 
 // Change Audio Settings
@@ -353,6 +339,7 @@ void changeAudioSettings() {
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 		while (getchar() != '\n') {}										// Flush other input buffer
+
 		if (atoi(cmd) >= 1 && atoi(cmd) <= 15) {
 			printf("The new recording length is now %d\n", atoi(cmd));
 			recordTime = atoi(cmd);
@@ -370,7 +357,7 @@ void setEncryption() {
 	char cmd[2] = {};
 	do {
 		system("cls");
-		printf("\nEnter type of encryption/decryption\n");
+		printf("Enter type of encryption/decryption\n");
 		printf("1. No Encryption\n");
 		printf("2. XOR\n");
 		printf("3. Viginere\n");
@@ -380,24 +367,24 @@ void setEncryption() {
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 		while (getchar() != '\n') {}										// Flush other input buffer
 
-		if (atoi(cmd) == 1) {
+		if (atoi(cmd) == NONE) {
 			printf("\nNow using no encryption\n");
-			encType = 1;
+			encType = NONE;
 		}
-		else if (atoi(cmd) == 2) {
+		else if (atoi(cmd) == XOR) {
 			printf("\nNow using XOR encryption\n");
-			encType = 2;
+			encType = XOR;
 		}
-		else if (atoi(cmd) == 3) {
+		else if (atoi(cmd) == VIG) {
 			printf("\nNow using Viginere encryption\n");
-			encType = 3;
+			encType = VIG;
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");
 		}
 		Sleep(2000);
 
-	} while (atoi(cmd) < 1 || atoi(cmd) > 3);
+	} while (atoi(cmd) < NONE || atoi(cmd) > numOfEnc);
 }
 
 // set the XOR code
@@ -419,26 +406,64 @@ void setSID() {
 }
 
 // XOR Encryption/Decryption
-void xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, void* encBuf) {
-	char* msg, * key, * enc;                          // Cast buffers to single byte (char) arrays 
+int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength) {
+	short* encBuf = NULL;
+	char* msg, * key, * enc;												// Cast buffers to single byte (char) arrays 
 	msg = (char*)message;
 	key = (char*)secretKey;
-	enc = (char*)encBuf;
-	for (int i = 0; i < messageLength; i++) {
-		enc[i] = msg[i] ^ key[i % secretKeyLength];  // XOR encrypt bytewise (loop the key as many times as required
+
+	// Check that there is a secent key
+	if (secretKeyLength == 0) {
+		printf("\nERROR: Secret key length is 0.\n");
+		Sleep(3000);
+		return(-1);
 	}
-	enc[messageLength] = '\0';                       // Null terminate the ecrypted message
-	encBuf = (void*)enc;                             // Encrypted/decrypted buffer   
+
+	// Get memmory for encryption buffer
+	encBuf = (short*)malloc(sizeof(short) * messageLength);
+	if (encBuf == NULL) {
+		printf("\nERROR: Unable to malloc memory for encryption/decryption.\n");
+		Sleep(3000);
+		return(-1);
+	}
+	enc = (char*)encBuf;
+
+	// Encrypt message
+	for (int i = 0; i < messageLength; i++) {
+		enc[i] = msg[i] ^ key[i % secretKeyLength];						// XOR encrypt bytewise (loop the key as many times as required
+	}
+	enc[messageLength] = '\0';											// Null terminate the ecrypted message
+	strcpy((char*)message, enc);												// Encrypted/decrypted buffer   
+	
+	free(enc);
+	enc = NULL;
+	return(0);
 }
 
 // Viginere Encryption/Decryption
-void vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, void* encBuf, bool encOrDec) {
+int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec) {
 	// encOrDec determines if the function is used for encryption or decryption
+	char* enc = NULL;
+	char* msg, * key;								// Cast buffers to single byte (char) arrays 
 	char n;                                          // Shift amount
-	char* msg, * key, * enc;                         // Cast buffers to single byte (char) arrays 
 	msg = (char*)message;
 	key = (char*)secretKey;
-	enc = (char*)encBuf;
+
+	// Check that there is a secret key
+	if (secretKeyLength == 0) {
+		printf("\nERROR: Secret key length is 0.\n");
+		Sleep(3000);
+		return(-1);
+	}
+
+	// Get memmory for encryption buffer
+	enc = (char*)malloc(sizeof(short) * SAMPLES_SEC * RECORD_TIME);
+	if (enc == NULL) {
+		printf("\nERROR: Unable to malloc memory for encryption/decryption.\n");
+		Sleep(3000);
+		return(-1);
+	}
+
 	for (int i = 0; i < messageLength; i++) {
 		// Convert key to upper case and get n from (distance from 'A' % 26)
 		// key[i % secretKeyLength] just loops around the key as many times as necessary to match the legth of hte message
@@ -451,5 +476,9 @@ void vigCipher(void* message, int messageLength, void* secretKey, int secretKeyL
 		}
 	}
 	enc[messageLength] = '\0';                       // Null terminate the ecrypted message
-	encBuf = (void*)enc;                             // Encrypted/decrypted buffer   
+	strcpy((char*)message, enc);                             // Encrypted/decrypted buffer   
+
+	free(enc);
+	enc = NULL;
+	return(0);
 }
