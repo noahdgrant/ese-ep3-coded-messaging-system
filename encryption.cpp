@@ -10,14 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h> 
-#include <wchar.h>
-#include <ctype.h>
-
-#include "message.h"
-#include "queues.h"
-#include "RS232Comm.h"
-#include "sound.h"
-#include "CMSLibrary.h"
 
 // XOR Encryption/Decryption
 int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength) {

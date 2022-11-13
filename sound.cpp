@@ -11,10 +11,14 @@ Details: Implementation - Contains functions for Windows sound API (sound record
 #include <mmsystem.h>					
 #include <math.h>
 #include "sound.h"
+#include "CMSLibrary.h"
 
 // BUFFERS
-short iBigBuf[SAMPLES_SEC * RECORD_TIME];
-long  lBigBufSize = SAMPLES_SEC * RECORD_TIME;	// total number of samples
+extern int recordTime;
+extern long numAudioBytes;			// total number of samples
+
+//short iBigBuf[SAMPLES_SEC * RECORD_TIME];
+long  lBigBufSize = SAMPLES_SEC * recordTime;	
 
 // output and input channel parameters 
 static	int			g_nSamplesPerSec = SAMPLES_SEC;
@@ -31,7 +35,7 @@ static  WAVEHDR WaveHeaderIn;
 
 int	InitializePlayback(void)
 {
-	int		rc;
+	int	rc;
 	// set up the format structure, needed for playback (and recording)
 	SetupFormat(&WaveFormat);
 	// open the playback device
@@ -47,8 +51,8 @@ int PlayBuffer(short *piBuf, long lSamples)
 {
 	static	WAVEFORMATEX WaveFormat;	/* WAVEFORMATEX structure for reading in the WAVE fmt chunk */
 	static  WAVEHDR	WaveHeader;			/* WAVEHDR structure for this buffer */
-	MMRESULT	mmErr;
-	int		rc;
+	MMRESULT mmErr;
+	int	rc;
 
 	// stop previous note (just in case)
 	waveOutReset(HWaveOut);   // is this good?
@@ -88,6 +92,13 @@ void ClosePlayback(void)
 int InitializeRecording(void)
 {
 	MMRESULT rc;
+	short* iBigBuf;
+
+	iBigBuf = (short*)malloc(numAudioBytes * sizeof(short));
+	if (iBigBuf == NULL) {
+		printf("\nERROR: Couldn't malloc memory to record audio.\n");
+		return(-1);
+	}
 
 	// set up the format structure, needed for recording.
 	SetupFormat(&WaveFormat);
@@ -101,15 +112,14 @@ int InitializeRecording(void)
 
 	// prepare the buffer header for use later on
 	WaveHeaderIn.lpData = (char *)iBigBuf;
-	WaveHeaderIn.dwBufferLength = lBigBufSize * sizeof(short);
+	WaveHeaderIn.dwBufferLength = numAudioBytes * sizeof(short);
 	rc = waveInPrepareHeader(HWaveIn, &WaveHeaderIn, sizeof(WAVEHDR));
 	if (rc) {
 		printf("Failed preparing input WAVEHDR, error 0x%x.", rc);
-		return(0);
+		return(-1);
 	}
 
-	return(1);
-
+	return(0);
 }
 
 int	RecordBuffer(short *piBuf, long lBufSize)

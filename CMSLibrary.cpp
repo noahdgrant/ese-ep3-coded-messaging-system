@@ -25,7 +25,8 @@ enum encTypes {ERR, NONE, XOR, VIG, numOfEnc};
 enum encTypes encType = NONE;
 char recipientID[140] = {};
 char senderID[140] = {};
-int recordTime = RECORD_TIME;
+int recordTime = 2;
+long numAudioBytes = SAMPLES_SEC * recordTime;
 int currentCom = 6;
 
 wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
@@ -121,11 +122,10 @@ int generateQuote() {
 // AUDIO
 // Playback saved audio file
 int playbackAudio() {
-	extern long  lBigBufSize;												// total number of samples
-	short* iBigBufNew = (short*)malloc(lBigBufSize * sizeof(short));		// buffer used for reading recorded sound from file
+	short* playbackBuf = (short*)malloc(numAudioBytes * sizeof(short));		// buffer used for reading recorded sound from file
 	FILE* f;
 
-	if (iBigBufNew == NULL) {
+	if (playbackBuf == NULL) {
 		return(-1);
 	}
 
@@ -137,36 +137,41 @@ int playbackAudio() {
 		return 0;
 	}
 	printf("Reading from sound file ...\n");
-	fread(iBigBufNew, sizeof(short), lBigBufSize, f);				// Record to new buffer iBigBufNew
+	fread(playbackBuf, sizeof(short), numAudioBytes, f);				// Record to new buffer iBigBufNew
 	fclose(f);
 	InitializePlayback();
 	printf("\nPlaying recording from saved file ...\n");
-	PlayBuffer(iBigBufNew, lBigBufSize);
+	PlayBuffer(playbackBuf, numAudioBytes);
 	ClosePlayback();
 
-	free(iBigBufNew);
+	free(playbackBuf);
 
 	return 0;
 } // playbackAudio()
 
 // Record audio, play it back to the user, and ask if they want to save the file
 int recordAudio() {
-	short audioMsg[SAMPLES_SEC * RECORD_TIME] = {};
-	long msgSz = SAMPLES_SEC * RECORD_TIME;
-	char save = '\0';											// Holds wether or not the user wans to save the recording			
 	FILE* f = NULL;
+	short* recordBuf = NULL;
+	char save = '\0';											// Holds wether or not the user wans to save the recording			
+
+	recordBuf = (short*)malloc(numAudioBytes * sizeof(short));
+	if (recordBuf == NULL) {
+		printf("\nERROR: Couldn't malloc memory to record audio.\n");
+		return(-1);
+	}
 
 	// initialize playback and recording
 	InitializePlayback();
 	InitializeRecording();
 
 	// start recording
-	RecordBuffer(audioMsg, msgSz);
+	RecordBuffer(recordBuf, numAudioBytes);
 	CloseRecording();
 
 	// playback recording 
 	printf("\nPlaying recording from buffer\n");
-	PlayBuffer(audioMsg, msgSz);
+	PlayBuffer(recordBuf, numAudioBytes);
 	ClosePlayback();
 
 	// save audio recording  
@@ -181,9 +186,10 @@ int recordAudio() {
 			return 0;
 		}
 		printf("Writing to sound file ...\n");
-		fwrite(audioMsg, sizeof(short), msgSz, f);
+		fwrite(recordBuf, sizeof(short), numAudioBytes, f);
 		fclose(f);
 	}
+	free(recordBuf);
 	return 0;
 } // recordAudio()
 
@@ -202,33 +208,38 @@ void transmitCom(short* msgOut, long msgSz) {
 }
 
 // Receive audio message
-void receiveCom(short* msg, long &msgSz) {
+int receiveCom(short* msg, long &msgSz) {
 	DWORD bytesRead;
-	short msgIn[SAMPLES_SEC * RECORD_TIME] = {};
+	short* msgRe = NULL;
 	int len = 0;
+
+	msgRe = (short*)malloc(numAudioBytes * sizeof(short));
+	if (msgRe == NULL) {
+		printf("\nERROR: Couldn't malloc memory to record audio.\n");
+		return(-1);
+	}
 
 	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);		// Initialize the Rx port
 	Sleep(500);
 
-	bytesRead = inputFromPort(&hComRx, (char*)msgIn, (SAMPLES_SEC * RECORD_TIME) * 2);
+	bytesRead = inputFromPort(&hComRx, (char*)msgRe, numAudioBytes * 2);
 	len = (int)bytesRead;
 
 	msgSz = (long)bytesRead;
 
-	if (len == SAMPLES_SEC * RECORD_TIME * 2) {
+	if (len == numAudioBytes * 2) {
 		len /= 2;
 	}
 
 	for (int i = 0; i < len; i++) {
-		msg[i] = msgIn[i];
+		msg[i] = msgRe[i];
 	}
-
-	//printf("Length of received msg = %d", bytesRead);
 
 	CloseHandle(hComRx);											// Close the handle to Rx port 
 	purgePort(&hComRx);												// Purge the Rx port
 
-	return;
+	free(msgRe);
+	return(0);
 }
 
 // GUI OPTIONS
@@ -314,13 +325,16 @@ void changeAudioSettings() {
 	do {
 		system("cls");
 		printf("Enter a new recording length between 1 and 15 seconds\n");
+		printf("\n> ");
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		cmd[2] = '\0';
 		while (getchar() != '\n') {}										// Flush other input buffer
 
 		if (atoi(cmd) >= 1 && atoi(cmd) <= 15) {
-			printf("The new recording length is now %d\n", atoi(cmd));
+			printf("\nThe new recording length is now %d\n", atoi(cmd));
 			recordTime = atoi(cmd);
+			numAudioBytes = SAMPLES_SEC * recordTime;
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");

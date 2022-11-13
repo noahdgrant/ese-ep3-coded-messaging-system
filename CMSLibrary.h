@@ -22,7 +22,7 @@ int recordAudio();
 
 // SERIAL COMMUNICATION
 void transmitCom(short* msgOut, long msgSz);
-void receiveCom(short* msg, long &msgSz);
+int receiveCom(short* msg, long &msgSz);
 
 // GUI Options
 void selectComPort();

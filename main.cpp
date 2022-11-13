@@ -17,14 +17,12 @@ int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
 	char cmd[3] = {};											// Holds the user's command
-	extern short iBigBuf[];										// Buffer that holds audio recording
-	extern long  lBigBufSize;									// Size of audio buffer
+	extern long  numAudioBytes;									// Size of audio buffer
 	char msg[MAX_QUOTE_LENGTH] = {};							// Text message to transmit
 	link q = NULL;												// Pointer to start of queue
-	char sendMsg[3] = {};										// Holds wether the user wants to send the audio message or not
-	short audioMsg[SAMPLES_SEC * RECORD_TIME] = {};
-
-	short msgIn[SAMPLES_SEC * RECORD_TIME] = {};
+	char sendCmd[3] = {};										// Holds wether the user wants to send the audio message or not
+	short* audioMsg = NULL;
+	short* msgIn = NULL;
 	long msgInSz = 0;
 
 	// START-UP PROCESSES
@@ -79,32 +77,48 @@ int	main(int argc, char* argv[])
 				break;
 			// Transmit audio message
 			case 6:
+				// Get memory for recording
+				audioMsg = (short*)malloc(numAudioBytes * sizeof(short));
+				if (audioMsg == NULL) {
+					printf("\nERROR: Couldn't malloc memory to record audio.\n");
+					return(-1);
+				}
+
 				// RECORD MESSAGE
 				InitializeRecording();
-				RecordBuffer(audioMsg, lBigBufSize);
+				RecordBuffer(audioMsg, numAudioBytes);
 				CloseRecording();
 
 				// SEND AUDIO MESSAGE
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
 				fflush(stdin);
-				scanf_s("%s", sendMsg, 2);
+				scanf_s("%s", sendCmd, 2);
 				while (getchar() != '\n') {}		
 
-				if (sendMsg[0] == 'y' || sendMsg[0] == 'Y') {
-					encrypt(audioMsg, lBigBufSize * 2);
-					transmitCom(audioMsg, lBigBufSize * 2);
+				if (sendCmd[0] == 'y' || sendCmd[0] == 'Y') {
+					encrypt(audioMsg, numAudioBytes * 2);
+					transmitCom(audioMsg, numAudioBytes * 2);
 				}
+
 				Sleep(4000);
+				free(audioMsg);
 				break;
 			// Recieve message
 			case 7:
+				// Get memory for recording
+				msgIn = (short*)malloc(numAudioBytes * sizeof(short));
+				if (msgIn == NULL) {
+					printf("\nERROR: Couldn't malloc memory to record audio.\n");
+					return(-1);
+				}
+
 				receiveCom(msgIn, msgInSz);
 				decrypt(msgIn, (int)msgInSz);
 				// Play audio message
-				if (msgInSz == lBigBufSize * 2) {
+				if (msgInSz == numAudioBytes * 2) {
 					printf("\nPlaying received recording...\n");
 					InitializePlayback();
-					PlayBuffer(msgIn, lBigBufSize);
+					PlayBuffer(msgIn, numAudioBytes);
 					ClosePlayback();
 				}
 				// Print text message
@@ -113,6 +127,7 @@ int	main(int argc, char* argv[])
 					printf("\nMessage Received: %s\n\n", (char*)msgIn);												// Display message from port
 				}
 
+				free(msgIn);
 				Sleep(4000);
 				break;
 			// Change Com Port
