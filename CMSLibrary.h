@@ -21,8 +21,8 @@ int playbackAudio();
 int recordAudio();
 
 // SERIAL COMMUNICATION
-void transmitCom(void* messagOut, long msgSz);
-void receiveCom();
+void transmitCom(short* msgOut, long msgSz);
+void receiveCom(short* msg, long &msgSz);
 
 // GUI Options
 void selectComPort();
@@ -32,6 +32,5 @@ void setRID();
 void setSID();
 void setEncryption();
 
-// Encryption
-int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength);
-int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec);
+void encrypt(void* msg, int msgSz);
+void decrypt(void* msg, int msgSz);

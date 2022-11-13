@@ -11,6 +11,7 @@
 #include "message.h"
 #include "queues.h"
 #include "sound.h"
+#include "encryption.h"
 
 int	main(int argc, char* argv[])
 {
@@ -22,6 +23,9 @@ int	main(int argc, char* argv[])
 	link q = NULL;												// Pointer to start of queue
 	char sendMsg[3] = {};										// Holds wether the user wants to send the audio message or not
 	short audioMsg[SAMPLES_SEC * RECORD_TIME] = {};
+
+	short msgIn[SAMPLES_SEC * RECORD_TIME] = {};
+	long msgInSz = 0;
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -68,8 +72,8 @@ int	main(int argc, char* argv[])
 				fflush(stdin);													
 				scanf_s("%[^\n]s", msg, (unsigned int)sizeof(msg));				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 				while (getchar() != '\n') {}									
-				//encrypt(msg)
-				//compress(msg)
+				
+				encrypt(msg, strlen(msg) + 1);
 				transmitCom((short*)msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
@@ -84,15 +88,31 @@ int	main(int argc, char* argv[])
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
 				fflush(stdin);
 				scanf_s("%s", sendMsg, 2);
-				while (getchar() != '\n') {}										
+				while (getchar() != '\n') {}		
+
 				if (sendMsg[0] == 'y' || sendMsg[0] == 'Y') {
+					encrypt(audioMsg, lBigBufSize * 2);
 					transmitCom(audioMsg, lBigBufSize * 2);
 				}
 				Sleep(4000);
 				break;
 			// Recieve message
 			case 7:
-				receiveCom();
+				receiveCom(msgIn, msgInSz);
+				decrypt(msgIn, (int)msgInSz);
+				// Play audio message
+				if (msgInSz == lBigBufSize * 2) {
+					printf("\nPlaying received recording...\n");
+					InitializePlayback();
+					PlayBuffer(msgIn, lBigBufSize);
+					ClosePlayback();
+				}
+				// Print text message
+				else {
+					msgIn[msgInSz] = '\0';
+					printf("\nMessage Received: %s\n\n", (char*)msgIn);												// Display message from port
+				}
+
 				Sleep(4000);
 				break;
 			// Change Com Port
