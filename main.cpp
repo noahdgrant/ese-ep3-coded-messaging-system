@@ -16,14 +16,14 @@
 int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
-	char cmd[3] = {};											// Holds the user's command
+	char cmd[3] = {};											// User command
 	extern long  numAudioBytes;									// Size of audio buffer
 	char msg[MAX_QUOTE_LENGTH] = {};							// Text message to transmit
 	link q = NULL;												// Pointer to start of queue
-	char sendCmd[3] = {};										// Holds wether the user wants to send the audio message or not
-	short* audioMsg = NULL;
-	short* msgIn = NULL;
-	long msgInSz = 0;
+	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
+	short* audioMsg = NULL;										// Pointer to audio message buffer
+	short* msgIn = NULL;										// Pointer to recieved message buffer
+	long msgInSz = 0;											// Number of bytes received
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -59,7 +59,7 @@ int	main(int argc, char* argv[])
 			case 3:
 				generateQuote();
 				break;
-			// Print out each message in the linked-list
+			// Print out each message in the queue
 			case 4:
 				traverse(listHead(), visit);
 				Sleep(4000);
@@ -84,24 +84,28 @@ int	main(int argc, char* argv[])
 					return(-1);
 				}
 
-				// RECORD MESSAGE
+				// Record message
 				InitializeRecording();
 				RecordBuffer(audioMsg, numAudioBytes);
 				CloseRecording();
 
-				// SEND AUDIO MESSAGE
+				// Transmit message
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
 				fflush(stdin);
-				scanf_s("%s", sendCmd, 2);
+				scanf_s("%c", &sendCmd, 1);
 				while (getchar() != '\n') {}		
 
-				if (sendCmd[0] == 'y' || sendCmd[0] == 'Y') {
-					encrypt(audioMsg, numAudioBytes * 2);
+				if (sendCmd == 'y' || sendCmd == 'Y') {
+					/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
+					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
+					of space it needs to be multiplied by 2. */
+					encrypt(audioMsg, numAudioBytes * 2);								
 					transmitCom(audioMsg, numAudioBytes * 2);
 				}
 
 				Sleep(4000);
 				free(audioMsg);
+				audioMsg = NULL;
 				break;
 			// Recieve message
 			case 7:
@@ -112,8 +116,10 @@ int	main(int argc, char* argv[])
 					return(-1);
 				}
 
+				// Receive message
 				receiveCom(msgIn, msgInSz);
 				decrypt(msgIn, (int)msgInSz);
+
 				// Play audio message
 				if (msgInSz == numAudioBytes * 2) {
 					printf("\nPlaying received recording...\n");
@@ -124,10 +130,11 @@ int	main(int argc, char* argv[])
 				// Print text message
 				else {
 					msgIn[msgInSz] = '\0';
-					printf("\nMessage Received: %s\n\n", (char*)msgIn);												// Display message from port
+					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
 				}
 
 				free(msgIn);
+				msgIn = NULL;
 				Sleep(4000);
 				break;
 			// Change Com Port

@@ -27,10 +27,8 @@ int receiveCom(short* msg, long &msgSz);
 // GUI Options
 void selectComPort();
 void changeAudioSettings();
-void setSecretKey();
+
 void setRID();
 void setSID();
-void setEncryption();
 
-void encrypt(void* msg, int msgSz);
-void decrypt(void* msg, int msgSz);
+

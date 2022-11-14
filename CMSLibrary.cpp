@@ -20,22 +20,23 @@
 #include "CMSLibrary.h"
 #include "encryption.h"
 
-char secretKey[MAX_QUOTE_LENGTH] = {};			//key used to encrypt/decrypt messages
-enum encTypes {ERR, NONE, XOR, VIG, numOfEnc};
-enum encTypes encType = NONE;
-char recipientID[140] = {};
-char senderID[140] = {};
-int recordTime = 2;
-long numAudioBytes = SAMPLES_SEC * recordTime;
-int currentCom = 6;
-
-wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
-wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for Rx (use L"COM6" for transmit program)
+char recipientID[140] = {};										// ID of message reciever
+char senderID[140] = {};										// ID of message sender
+int currentCom = 6;												// Default COM port
+wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for transmitting
+wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for recieving
 int nComRate = 460800;											// Baud (Bit) rate in bits/second 
 int nComBits = 8;												// Number of bits per frame
 HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
 HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
 COMMTIMEOUTS timeout;											// A commtimeout struct variable
+
+extern char secretKey[MAX_QUOTE_LENGTH];						// Key used to encrypt/decrypt messages
+extern enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };			// Types of encryption
+extern enum encTypes encType;									// Default encryption is NONE
+
+int recordTime = 2;
+long numAudioBytes = SAMPLES_SEC * recordTime;
 
 // MENU
 // Print CMS menu
@@ -87,7 +88,6 @@ int generateQuote() {
 
 	// Get the random message from the file
 	result = GetMessageFromFile(buff, frandNum(0, numQuotes), quoteIndices, quoteLengths);
-
 	if (result != 0) {
 		printf("\nERROR: Did not get message from file.\n");
 		return (-1);
@@ -122,9 +122,10 @@ int generateQuote() {
 // AUDIO
 // Playback saved audio file
 int playbackAudio() {
-	short* playbackBuf = (short*)malloc(numAudioBytes * sizeof(short));		// buffer used for reading recorded sound from file
-	FILE* f;
+	FILE* f;						// pointer to file
+	short* playbackBuf = NULL;		// buffer used for reading recorded sound from file
 
+	playbackBuf = (short*)malloc(numAudioBytes * sizeof(short));		
 	if (playbackBuf == NULL) {
 		return(-1);
 	}
@@ -139,21 +140,22 @@ int playbackAudio() {
 	printf("Reading from sound file ...\n");
 	fread(playbackBuf, sizeof(short), numAudioBytes, f);				// Record to new buffer iBigBufNew
 	fclose(f);
+
 	InitializePlayback();
 	printf("\nPlaying recording from saved file ...\n");
 	PlayBuffer(playbackBuf, numAudioBytes);
 	ClosePlayback();
 
 	free(playbackBuf);
-
+	playbackBuf = NULL;
 	return 0;
 } // playbackAudio()
 
 // Record audio, play it back to the user, and ask if they want to save the file
 int recordAudio() {
-	FILE* f = NULL;
-	short* recordBuf = NULL;
-	char save = '\0';											// Holds wether or not the user wans to save the recording			
+	FILE* f = NULL;								// Pointer to file
+	short* recordBuf = NULL;					// Pointer to record buffer
+	char save = '\0';							// Holds wether or not the user wans to save the recording			
 
 	recordBuf = (short*)malloc(numAudioBytes * sizeof(short));
 	if (recordBuf == NULL) {
@@ -177,7 +179,8 @@ int recordAudio() {
 	// save audio recording  
 	printf("Would you like to save your audio recording? (y/n): ");
 	scanf_s("%c", &save, 1);
-	while (getchar() != '\n') {}								// Flush other input
+	while (getchar() != '\n') {}										// Flush other input
+
 	if ((save == 'y') || (save == 'Y')) {
 		/* Open input file */
 		fopen_s(&f, "C:\\myfiles\\recording.dat", "wb");
@@ -189,7 +192,9 @@ int recordAudio() {
 		fwrite(recordBuf, sizeof(short), numAudioBytes, f);
 		fclose(f);
 	}
+
 	free(recordBuf);
+	recordBuf = NULL;
 	return 0;
 } // recordAudio()
 
@@ -209,9 +214,9 @@ void transmitCom(short* msgOut, long msgSz) {
 
 // Receive audio message
 int receiveCom(short* msg, long &msgSz) {
-	DWORD bytesRead;
-	short* msgRe = NULL;
-	int len = 0;
+	DWORD bytesRead;						// Number of bytes recieved from incomming message
+	short* msgRe = NULL;					// Pointer to buffer where recieved message is stored
+	int len = 0;							// length of received message
 
 	msgRe = (short*)malloc(numAudioBytes * sizeof(short));
 	if (msgRe == NULL) {
@@ -219,33 +224,35 @@ int receiveCom(short* msg, long &msgSz) {
 		return(-1);
 	}
 
-	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);		// Initialize the Rx port
+	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);					// Initialize the Rx port
 	Sleep(500);
 
 	bytesRead = inputFromPort(&hComRx, (char*)msgRe, numAudioBytes * 2);
-	len = (int)bytesRead;
+	len = (int)bytesRead;														// For some reason the program breaks if bytesRead is changed so len is needed to alter the value
 
 	msgSz = (long)bytesRead;
 
-	if (len == numAudioBytes * 2) {
+	if (len == numAudioBytes * 2) {												// If audio was recived, we only want to copy has as many bytes since msgRe is short* but the data was sent as char*
 		len /= 2;
 	}
 
-	for (int i = 0; i < len; i++) {
+	// Copy received message to message buffer that is in main.cpp
+	for (int i = 0; i < len; i++) {												
 		msg[i] = msgRe[i];
 	}
 
-	CloseHandle(hComRx);											// Close the handle to Rx port 
-	purgePort(&hComRx);												// Purge the Rx port
+	CloseHandle(hComRx);														// Close the handle to Rx port 
+	purgePort(&hComRx);															// Purge the Rx port
 
 	free(msgRe);
+	msgRe = NULL;
 	return(0);
 }
 
 // GUI OPTIONS
 // Change Com port
 void selectComPort() {
-	char cmd[3] = {};
+	char cmd[3] = {};			// Holds the COM port the user wants to use
 	do {
 		system("cls");
 		printf("Enter a number between 0 and 9 coresponding to the desired Com Port (ie. 1 -> COM1)\n");
@@ -253,6 +260,7 @@ void selectComPort() {
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 		while (getchar() != '\n') {}										// Flush other input buffer
+
 		if (atoi(cmd) >= 0 && atoi(cmd) <= 9) {
 			printf("\nThe new Com Port is now COM%d\n", atoi(cmd));
 			switch (atoi(cmd)) {
@@ -321,20 +329,19 @@ void selectComPort() {
 
 // Change Audio Settings
 void changeAudioSettings() {
-	char cmd[3];
+	char cmd[3];				// Holds the length of time the user wants to record audio
 	do {
 		system("cls");
 		printf("Enter a new recording length between 1 and 15 seconds\n");
 		printf("\n> ");
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
-		cmd[2] = '\0';
 		while (getchar() != '\n') {}										// Flush other input buffer
 
 		if (atoi(cmd) >= 1 && atoi(cmd) <= 15) {
 			printf("\nThe new recording length is now %d\n", atoi(cmd));
-			recordTime = atoi(cmd);
-			numAudioBytes = SAMPLES_SEC * recordTime;
+			recordTime = atoi(cmd);								
+			numAudioBytes = SAMPLES_SEC * recordTime;						
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");
@@ -342,47 +349,6 @@ void changeAudioSettings() {
 		Sleep(2000);
 
 	} while (atoi(cmd) < 1 || atoi(cmd) > 15);
-}
-
-// Set encryption Type 
-void setEncryption() {
-	char cmd[2] = {};
-	do {
-		system("cls");
-		printf("Enter type of encryption/decryption\n");
-		printf("1. No Encryption\n");
-		printf("2. XOR\n");
-		printf("3. Viginere\n");
-		printf("\n> ");
-
-		fflush(stdin);														// Flush input buffer after use. Good practice in C
-		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
-		while (getchar() != '\n') {}										// Flush other input buffer
-
-		if (atoi(cmd) == NONE) {
-			printf("\nNow using no encryption\n");
-			encType = NONE;
-		}
-		else if (atoi(cmd) == XOR) {
-			printf("\nNow using XOR encryption\n");
-			encType = XOR;
-		}
-		else if (atoi(cmd) == VIG) {
-			printf("\nNow using Viginere encryption\n");
-			encType = VIG;
-		}
-		else {
-			printf("You did not enter a valid command. Please try again.");
-		}
-		Sleep(2000);
-
-	} while (atoi(cmd) < NONE || atoi(cmd) > numOfEnc);
-}
-
-// set the XOR code
-void setSecretKey() {
-	printf("\nEnter encryption key: ");
-	scanf_s("%s", secretKey, MAX_QUOTE_LENGTH - 1);
 }
 
 // Set the recipient ID
@@ -397,28 +363,3 @@ void setSID() {
 	scanf_s("%s", senderID, MAX_QUOTE_LENGTH - 1);
 }
 
-void encrypt(void* msg, int msgSz) {
-	// XOR Encryption
-	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
-	}
-	// Viginere encryption
-	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, strlen(secretKey), true);
-	}
-
-	return;
-}
-
-void decrypt(void* msg, int msgSz) {
-	// Decrypt the message (xor)
-	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
-	}
-	// Decrypt the message (Viginere)
-	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, strlen(secretKey), false);
-	}
-
-	return;
-}
