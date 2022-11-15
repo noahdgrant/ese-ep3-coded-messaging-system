@@ -11,19 +11,22 @@
 #include "message.h"
 #include "queues.h"
 #include "sound.h"
+#include "encryption.h"
 
 int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
-	char cmd[3] = {};											// Holds the user's command
-	extern short iBigBuf[];										// Buffer that holds audio recording
-	extern long  lBigBufSize;									// Size of audio buffer
+	char cmd[3] = {};											// User command
+	extern long  numAudioBytes;									// Size of audio buffer
 	char msg[MAX_QUOTE_LENGTH] = {};							// Text message to transmit
 	link q = NULL;												// Pointer to start of queue
-	char sendMsg[3] = {};										// Holds wether the user wants to send the audio message or not
+	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
+	short* audioMsg = NULL;										// Pointer to audio message buffer
+	void* msgIn = NULL;										// Pointer to recieved message buffer
+	long msgInSz = 0;											// Number of bytes received
 
 	// START-UP PROCESSES
-	srand(time(NULL));											// Seed the random number generator 
+	srand(time(NULL));					 						// Seed the random number generator 
 	initQueue();
 
 	// MAIN LOOP
@@ -56,7 +59,7 @@ int	main(int argc, char* argv[])
 			case 3:
 				generateQuote();
 				break;
-			// Print out each message in the linked-list
+			// Print out each message in the queue
 			case 4:
 				traverse(listHead(), visit);
 				Sleep(4000);
@@ -67,31 +70,65 @@ int	main(int argc, char* argv[])
 				fflush(stdin);													
 				scanf_s("%[^\n]s", msg, (unsigned int)sizeof(msg));				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 				while (getchar() != '\n') {}									
-
-				transmitCom(msg, strlen(msg) + 1);
+				
+				encrypt(msg, strlen(msg) + 1);
+				transmitCom((short*)msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
 			// Transmit audio message
 			case 6:
-				// RECORD MESSAGE
+				// Get memory for recording
+				audioMsg = (short*)malloc(numAudioBytes * sizeof(short));
+				if (audioMsg == NULL) {
+					printf("\nERROR: Couldn't malloc memory to record audio.\n");
+					return(-1);
+				}
+
+				// Record message
 				InitializeRecording();
-				RecordBuffer(iBigBuf, lBigBufSize);
+				RecordBuffer(audioMsg, numAudioBytes);
 				CloseRecording();
 
-				// SEND AUDIO MESSAGE
+				// Transmit message
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
 				fflush(stdin);
-				scanf_s("%s", sendMsg, 2);
-				while (getchar() != '\n') {}										
-				if (sendMsg[0] == 'y' || sendMsg[0] == 'Y') {
-					transmitCom((char*)iBigBuf, (unsigned long)lBigBufSize * 2);
+				scanf_s("%c", &sendCmd, 1);
+				while (getchar() != '\n') {}		
+
+				if (sendCmd == 'y' || sendCmd == 'Y') {
+					/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
+					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
+					of space it needs to be multiplied by 2. */
+					encrypt(audioMsg, numAudioBytes * 2);								
+					transmitCom(audioMsg, numAudioBytes * 2);
 				}
+
 				Sleep(4000);
+				free(audioMsg);
+				audioMsg = NULL;
 				break;
 			// Recieve message
 			case 7:
-				receiveCom();
-				Sleep(4000);
+				// Receive message
+				receiveCom(&msgIn, msgInSz);
+				decrypt(msgIn, (int)msgInSz);
+
+				// Play audio message
+				if (msgInSz == numAudioBytes * 2) {
+					printf("\nPlaying received recording...\n");
+					InitializePlayback();
+					PlayBuffer((short*)msgIn, numAudioBytes);
+					ClosePlayback();
+					Sleep(1000);
+				}
+				// Print text message
+				else {
+					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
+					Sleep(4000);
+				}
+
+				free(msgIn);
+				msgIn = NULL;
 				break;
 			// Change Com Port
 			case 8:

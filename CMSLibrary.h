@@ -21,17 +21,17 @@ int playbackAudio();
 int recordAudio();
 
 // SERIAL COMMUNICATION
-void transmitCom(char* msgOut, unsigned long msgSz);
-void receiveCom();
+void transmitCom(void* txMsg, long txMsgSz);
+int receiveCom(void** rxMsg, long &rxMsgSz);
 
 // GUI Options
 void selectComPort();
 void changeAudioSettings();
-void setSecretKey();
 void setRID();
 void setSID();
 void setEncryption();
+void setSecretKey();
 
-// Encryption
-void xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, void* encBuf);
-void vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, void* encBuf, bool encOrDec);
+// ENCRYPT/DECRYPT MESSAGE
+void decrypt(void* msg, int msgSz);
+void encrypt(void* msg, int msgSz);
