@@ -21,14 +21,17 @@ int playbackAudio();
 int recordAudio();
 
 // SERIAL COMMUNICATION
-void transmitCom(short* msgOut, long msgSz);
-int receiveCom(short* msg, long &msgSz);
+void transmitCom(void* txMsg, long txMsgSz);
+int receiveCom(void** rxMsg, long &rxMsgSz);
 
 // GUI Options
 void selectComPort();
 void changeAudioSettings();
-
 void setRID();
 void setSID();
+void setEncryption();
+void setSecretKey();
 
-
+// ENCRYPT/DECRYPT MESSAGE
+void decrypt(void* msg, int msgSz);
+void encrypt(void* msg, int msgSz);

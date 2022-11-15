@@ -10,11 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h> 
-#include "message.h"
-
-char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
-enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
-enum encTypes encType = NONE;									// Default encryption is NONE
 
 // ENCRYPTION TYPES
 // // Viginere Encryption/Decryption
@@ -94,73 +89,3 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 	enc = NULL;
 	return(0);
 }
-
-// ENCRYPT/DECRYPT MESSAGE
-void decrypt(void* msg, int msgSz) {
-	// Decrypt the message (xor)
-	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
-	}
-	// Decrypt the message (Viginere)
-	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, strlen(secretKey), false);
-	}
-
-	return;
-}
-
-void encrypt(void* msg, int msgSz) {
-	// XOR Encryption
-	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
-	}
-	// Viginere encryption
-	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, strlen(secretKey), true);
-	}
-
-	return;
-}
-
-// SETTINGS
-// // Set encryption Type 
-void setEncryption() {
-	char cmd[2] = {};		// Holds the user's encryption choice
-	do {
-		system("cls");
-		printf("Enter type of encryption/decryption\n");
-		printf("1. No Encryption\n");
-		printf("2. XOR\n");
-		printf("3. Viginere\n");
-		printf("\n> ");
-
-		fflush(stdin);														// Flush input buffer after use. Good practice in C
-		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
-		while (getchar() != '\n') {}										// Flush other input buffer
-
-		if (atoi(cmd) == NONE) {
-			printf("\nNow using no encryption\n");
-			encType = NONE;
-		}
-		else if (atoi(cmd) == XOR) {
-			printf("\nNow using XOR encryption\n");
-			encType = XOR;
-		}
-		else if (atoi(cmd) == VIG) {
-			printf("\nNow using Viginere encryption\n");
-			encType = VIG;
-		}
-		else {
-			printf("You did not enter a valid command. Please try again.");
-		}
-		Sleep(2000);
-
-	} while (atoi(cmd) < NONE || atoi(cmd) > numOfEnc);
-}
-
-// set the XOR code
-void setSecretKey() {
-	printf("\nEnter encryption key: ");
-	scanf_s("%s", secretKey, MAX_QUOTE_LENGTH - 1);
-}
-

@@ -22,7 +22,7 @@ int	main(int argc, char* argv[])
 	link q = NULL;												// Pointer to start of queue
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
 	short* audioMsg = NULL;										// Pointer to audio message buffer
-	short* msgIn = NULL;										// Pointer to recieved message buffer
+	void* msgIn = NULL;										// Pointer to recieved message buffer
 	long msgInSz = 0;											// Number of bytes received
 
 	// START-UP PROCESSES
@@ -109,33 +109,26 @@ int	main(int argc, char* argv[])
 				break;
 			// Recieve message
 			case 7:
-				// Get memory for recording
-				msgIn = (short*)malloc(numAudioBytes * sizeof(short));
-				if (msgIn == NULL) {
-					printf("\nERROR: Couldn't malloc memory to record audio.\n");
-					return(-1);
-				}
-
 				// Receive message
-				receiveCom(msgIn, msgInSz);
+				receiveCom(&msgIn, msgInSz);
 				decrypt(msgIn, (int)msgInSz);
 
 				// Play audio message
 				if (msgInSz == numAudioBytes * 2) {
 					printf("\nPlaying received recording...\n");
 					InitializePlayback();
-					PlayBuffer(msgIn, numAudioBytes);
+					PlayBuffer((short*)msgIn, numAudioBytes);
 					ClosePlayback();
+					Sleep(1000);
 				}
 				// Print text message
 				else {
-					msgIn[msgInSz] = '\0';
 					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
+					Sleep(4000);
 				}
 
 				free(msgIn);
 				msgIn = NULL;
-				Sleep(4000);
 				break;
 			// Change Com Port
 			case 8:
