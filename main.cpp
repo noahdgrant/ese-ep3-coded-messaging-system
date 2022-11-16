@@ -8,10 +8,11 @@
 #include <time.h>
 
 #include "CMSLibrary.h"
+#include "encryption.h"
+#include "header.h"
 #include "message.h"
 #include "queues.h"
 #include "sound.h"
-#include "encryption.h"
 
 int	main(int argc, char* argv[])
 {
@@ -22,7 +23,7 @@ int	main(int argc, char* argv[])
 	link q = NULL;												// Pointer to start of queue
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
 	short* audioMsg = NULL;										// Pointer to audio message buffer
-	void* msgIn = NULL;										// Pointer to recieved message buffer
+	void* msgIn = NULL;											// Pointer to recieved message buffer
 	long msgInSz = 0;											// Number of bytes received
 
 	// START-UP PROCESSES

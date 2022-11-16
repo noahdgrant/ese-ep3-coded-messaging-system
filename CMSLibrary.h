@@ -5,6 +5,8 @@
 
 #pragma once
 
+enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
+
 // MENU
 // Print CMS menu
 void printMenu();

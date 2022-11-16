@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="CMSLibrary.cpp" />
     <ClCompile Include="encryption.cpp" />
+    <ClCompile Include="header.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="queues.cpp" />
@@ -30,6 +31,7 @@
   <ItemGroup>
     <ClInclude Include="CMSLibrary.h" />
     <ClInclude Include="encryption.h" />
+    <ClInclude Include="header.h" />
     <ClInclude Include="message.h" />
     <ClInclude Include="queues.h" />
     <ClInclude Include="RS232Comm.h" />
