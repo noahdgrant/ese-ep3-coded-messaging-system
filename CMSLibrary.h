@@ -5,6 +5,10 @@
 
 #pragma once
 
+#include "header.h"
+
+enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
+
 // MENU
 // Print CMS menu
 void printMenu();
@@ -21,8 +25,8 @@ int playbackAudio();
 int recordAudio();
 
 // SERIAL COMMUNICATION
-void transmitCom(void* txMsg, long txMsgSz);
-int receiveCom(void** rxMsg, long &rxMsgSz);
+void transmitCom(Header* txHeader, void* txMsg);
+int receiveCom(Header* rxHeader, void** rxMsg);
 
 // GUI Options
 void selectComPort();

@@ -13,15 +13,16 @@
 #include <wchar.h>
 #include <ctype.h>
 
+#include "CMSLibrary.h"
+#include "encryption.h"
+#include "header.h"
 #include "message.h"
 #include "queues.h"
 #include "RS232Comm.h"
 #include "sound.h"
-#include "CMSLibrary.h"
-#include "encryption.h"
 
-char recipientID[140] = {};										// ID of message reciever
-char senderID[140] = {};										// ID of message sender
+int rid = 2;													// Default receiver ID
+int sid = 1;													// Default sender ID
 int currentCom = 6;												// Default COM port
 wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for transmitting
 wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for recieving
@@ -31,7 +32,6 @@ HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
 HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
 COMMTIMEOUTS timeout;											// A commtimeout struct variable
 char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
-enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
 enum encTypes encType = NONE;									// Default encryption is NONE
 int recordTime = 2;												// Default record time
 long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
@@ -62,8 +62,8 @@ void printMenu() {
 		break;
 	}
 	printf("11. Set Encryption Key					Encryption Key:		%s\n", secretKey);
-	printf("12. Set Recipient ID					RID:			%s\n", recipientID);
-	printf("13. Set Sender ID					SID:			%s\n", senderID);
+	printf("12. Set Recipient ID					RID:			%d\n", rid);
+	printf("13. Set Sender ID					SID:			%d\n", sid);
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;
@@ -198,11 +198,12 @@ int recordAudio() {
 
 // SERIAL COMMUNIACTION
 // Transmit text message
-void transmitCom(void* txMsg, long txMsgSz) {
+void transmitCom(Header* txHeader, void* txMsg) {
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
 	Sleep(500);
-
-	outputToPort(&hComTx, txMsg, txMsgSz);													// Send string to port - include space for '\0' termination
+	outputToPort(&hComTx, txHeader, sizeof(Header));										// Send Header
+	Sleep(500);
+	outputToPort(&hComTx, txMsg, (*txHeader).payloadSize);									// Send string to port - include space for '\0' termination
 	Sleep(500);																				// Allow time for signal propagation on cable 
 		
 	CloseHandle(hComTx);																	// Close the handle to Tx port 
@@ -211,21 +212,19 @@ void transmitCom(void* txMsg, long txMsgSz) {
 }
 
 // Receive audio message
-int receiveCom(void** rxMsg, long &rxMsgSz) {
+int receiveCom(Header* rxHeader, void** rxMsg) {
 	DWORD bytesRead;						// Number of bytes recieved from incomming message
 
-	*rxMsg = (void*)malloc(sizeof(void*) * numAudioBytes);
+	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);					// Initialize the Rx port
+	Sleep(500);
+	inputFromPort(&hComRx, rxHeader, sizeof(Header));
+	*rxMsg = (void*)malloc((*rxHeader).payloadSize);
 	if (rxMsg == NULL) {
 		printf("\nERROR: Couldn't malloc memory to record audio.\n");
 		return(-1);
 	}
 
-	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);					// Initialize the Rx port
-	Sleep(500);
-
-	bytesRead = inputFromPort(&hComRx, *rxMsg, numAudioBytes * 2);							
-
-	rxMsgSz = (long)bytesRead;
+	bytesRead = inputFromPort(&hComRx, *rxMsg, (*rxHeader).payloadSize);
 
 	CloseHandle(hComRx);														// Close the handle to Rx port 
 	purgePort(&hComRx);															// Purge the Rx port
@@ -321,6 +320,7 @@ void changeAudioSettings() {
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 		while (getchar() != '\n') {}										// Flush other input buffer
 
+		cmd[2] = '\0';
 		if (atoi(cmd) >= 1 && atoi(cmd) <= 15) {
 			printf("\nThe new recording length is now %d\n", atoi(cmd));
 			recordTime = atoi(cmd);								
@@ -337,13 +337,13 @@ void changeAudioSettings() {
 // Set the recipient ID
 void setRID() {
 	printf("\nEnter the recipient ID: ");
-	scanf_s("%s", recipientID, MAX_QUOTE_LENGTH - 1);
+	scanf_s("%d", &rid);
 }
 
 // Set the Sender ID
 void setSID() {
 	printf("\nEnter the sender ID: ");
-	scanf_s("%s", senderID, MAX_QUOTE_LENGTH - 1);
+	scanf_s("%d", &sid);
 }
 
 // Set encryption Type 
@@ -387,7 +387,7 @@ void setSecretKey() {
 	scanf_s("%s", secretKey, MAX_QUOTE_LENGTH - 1);
 }
 
-// ENCRYPT/DECRYPT MESSAGE
+// decrypt message
 void decrypt(void* msg, int msgSz) {
 	// Decrypt the message (xor)
 	if (encType == XOR) {
@@ -401,6 +401,7 @@ void decrypt(void* msg, int msgSz) {
 	return;
 }
 
+// encrypt message
 void encrypt(void* msg, int msgSz) {
 	// XOR Encryption
 	if (encType == XOR) {
