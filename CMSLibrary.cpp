@@ -19,6 +19,7 @@
 #include "sound.h"
 #include "CMSLibrary.h"
 #include "encryption.h"
+#include "huffman.h"
 
 char recipientID[140] = {};										// ID of message reciever
 char senderID[140] = {};										// ID of message sender
@@ -33,6 +34,9 @@ COMMTIMEOUTS timeout;											// A commtimeout struct variable
 char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
 enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
 enum encTypes encType = NONE;									// Default encryption is NONE
+enum compTypes {cERR, cNONE, cHUF, cRLE, numCompTypes};			// Types of compression
+enum compTypes compType = cNONE;								// Default compression is NONE
+
 int recordTime = 2;												// Default record time
 long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
 
@@ -64,6 +68,18 @@ void printMenu() {
 	printf("11. Set Encryption Key					Encryption Key:		%s\n", secretKey);
 	printf("12. Set Recipient ID					RID:			%s\n", recipientID);
 	printf("13. Set Sender ID					SID:			%s\n", senderID);
+	printf("14. Set Compression Type				Compression Type:	");
+	switch (compType) {
+	case cNONE:
+		printf("None\n");
+		break;
+	case cHUF:
+		printf("Huffman\n");
+		break;
+	case cRLE:
+		printf("RLE\n");
+		break;
+	}
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;
@@ -411,5 +427,30 @@ void encrypt(void* msg, int msgSz) {
 		vigCipher(msg, msgSz, secretKey, strlen(secretKey), true);
 	}
 
+	return;
+}
+
+void compress(void* msg) {
+	if (compType == cHUF) {
+		char buf[MAX_QUOTE_LENGTH + 384];
+		Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
+		strcpy((char*)msg, buf);
+	}
+
+	else if (compType == cRLE) {
+
+	}
+	return;
+}
+void decompress(void* msg) {
+	if (compType == cHUF) {
+		char buf[MAX_QUOTE_LENGTH + 384];
+		Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
+		strcpy((char*)msg, buf);
+	}
+
+	else if (compType == cRLE) {
+
+	}
 	return;
 }

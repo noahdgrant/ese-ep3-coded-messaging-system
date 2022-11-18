@@ -72,6 +72,8 @@ int	main(int argc, char* argv[])
 				while (getchar() != '\n') {}									
 				
 				encrypt(msg, strlen(msg) + 1);
+
+				compress(msg);
 				transmitCom((short*)msg, strlen(msg) + 1);
 				Sleep(4000);
 				break;
@@ -111,6 +113,7 @@ int	main(int argc, char* argv[])
 			case 7:
 				// Receive message
 				receiveCom(&msgIn, msgInSz);
+				decompress(msgIn);
 				decrypt(msgIn, (int)msgInSz);
 
 				// Play audio message
