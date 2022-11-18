@@ -20,6 +20,7 @@
 #include "queues.h"
 #include "RS232Comm.h"
 #include "sound.h"
+#include "huffman.h"
 
 int rid = 2;													// Default receiver ID
 int sid = 1;													// Default sender ID
@@ -33,6 +34,9 @@ HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
 COMMTIMEOUTS timeout;											// A commtimeout struct variable
 char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
 enum encTypes encType = NONE;									// Default encryption is NONE
+enum compTypes {cERR, cNONE, cHUF, cRLE, numCompTypes};			// Types of compression
+enum compTypes compType = cNONE;								// Default compression is NONE
+
 int recordTime = 2;												// Default record time
 long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
 
@@ -62,8 +66,20 @@ void printMenu() {
 		break;
 	}
 	printf("11. Set Encryption Key					Encryption Key:		%s\n", secretKey);
-	printf("12. Set Recipient ID					RID:			%d\n", rid);
-	printf("13. Set Sender ID					SID:			%d\n", sid);
+	printf("12. Set Recipient ID					RID:			%s\n", recipientID);
+	printf("13. Set Sender ID					SID:			%s\n", senderID);
+	printf("14. Set Compression Type				Compression Type:	");
+	switch (compType) {
+	case cNONE:
+		printf("None\n");
+		break;
+	case cHUF:
+		printf("Huffman\n");
+		break;
+	case cRLE:
+		printf("RLE\n");
+		break;
+	}
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;
@@ -413,4 +429,62 @@ void encrypt(void* msg, int msgSz) {
 	}
 
 	return;
+}
+
+void compress(void* msg) {
+	if (compType == cHUF) {
+		char buf[MAX_QUOTE_LENGTH + 384];
+		Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
+		strcpy((char*)msg, buf);
+	}
+
+	else if (compType == cRLE) {
+
+	}
+	return;
+}
+void decompress(void* msg) {
+	if (compType == cHUF) {
+		char buf[MAX_QUOTE_LENGTH + 384];
+		Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
+		strcpy((char*)msg, buf);
+	}
+
+	else if (compType == cRLE) {
+
+	}
+	return;
+}
+void setCompression() {
+	char cmd[2] = {};		// Holds the user's encryption choice
+	do {
+		system("cls");
+		printf("Enter type of compression/decompression\n");
+		printf("1. No compression\n");
+		printf("2. Huffman\n");
+		printf("3. RLE\n");
+		printf("\n> ");
+
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		while (getchar() != '\n') {}										// Flush other input buffer
+
+		if (atoi(cmd) == cNONE) {
+			printf("\nNow using no compression\n");
+			compType = cNONE;
+		}
+		else if (atoi(cmd) == cHUF) {
+			printf("\nNow using Huffman compression\n");
+			compType = cHUF;
+		}
+		else if (atoi(cmd) == cRLE) {
+			printf("\nNow using RLE compression\n");
+			compType = cRLE;
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < cNONE || atoi(cmd) > numCompTypes);
 }

@@ -78,6 +78,7 @@ int	main(int argc, char* argv[])
 				txHeader.payloadSize = strlen(msg) + 1;
 				
 				encrypt(msg, strlen(msg) + 1);
+				compress(msg);
 				transmitCom(&txHeader, msg);
 				Sleep(4000);
 				break;
@@ -121,6 +122,7 @@ int	main(int argc, char* argv[])
 			case 7:
 				// Receive message
 				receiveCom(&rxHeader, &msgIn);
+        decompress(msgIn);
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message
@@ -163,6 +165,9 @@ int	main(int argc, char* argv[])
 			// Set Sender ID
 			case 13:
 				setSID();
+				break;
+			case 14:
+				setCompression();
 				break;
 			// Invalid command
 			default:

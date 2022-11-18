@@ -39,3 +39,8 @@ void setSecretKey();
 // ENCRYPT/DECRYPT MESSAGE
 void decrypt(void* msg, int msgSz);
 void encrypt(void* msg, int msgSz);
+
+// COMPRESS/DECOMPRESS MESSAGE
+void compress(void* msg);
+void decompress(void* msg);
+void setCompression();
