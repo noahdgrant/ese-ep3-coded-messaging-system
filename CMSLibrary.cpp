@@ -198,11 +198,12 @@ int recordAudio() {
 
 // SERIAL COMMUNIACTION
 // Transmit text message
-void transmitCom(void* txMsg, long txMsgSz) {
+void transmitCom(Header* txHeader, void* txMsg) {
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
 	Sleep(500);
-
-	outputToPort(&hComTx, txMsg, txMsgSz);													// Send string to port - include space for '\0' termination
+	outputToPort(&hComTx, txHeader, sizeof(Header));										// Send Header
+	Sleep(500);
+	outputToPort(&hComTx, txMsg, (*txHeader).payloadSize);									// Send string to port - include space for '\0' termination
 	Sleep(500);																				// Allow time for signal propagation on cable 
 		
 	CloseHandle(hComTx);																	// Close the handle to Tx port 
@@ -211,21 +212,19 @@ void transmitCom(void* txMsg, long txMsgSz) {
 }
 
 // Receive audio message
-int receiveCom(void** rxMsg, long &rxMsgSz) {
+int receiveCom(Header* rxHeader, void** rxMsg) {
 	DWORD bytesRead;						// Number of bytes recieved from incomming message
 
-	*rxMsg = (void*)malloc(sizeof(void*) * numAudioBytes);
+	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);					// Initialize the Rx port
+	Sleep(500);
+	inputFromPort(&hComRx, rxHeader, sizeof(Header));
+	*rxMsg = (void*)malloc((*rxHeader).payloadSize);
 	if (rxMsg == NULL) {
 		printf("\nERROR: Couldn't malloc memory to record audio.\n");
 		return(-1);
 	}
 
-	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);					// Initialize the Rx port
-	Sleep(500);
-
-	bytesRead = inputFromPort(&hComRx, *rxMsg, numAudioBytes * 2);							
-
-	rxMsgSz = (long)bytesRead;
+	bytesRead = inputFromPort(&hComRx, *rxMsg, (*rxHeader).payloadSize);
 
 	CloseHandle(hComRx);														// Close the handle to Rx port 
 	purgePort(&hComRx);															// Purge the Rx port

@@ -9,18 +9,27 @@
 #include "header.h"
 #include "RS232Comm.h"
 
-// Initializing header to default values
-void initHeader() {
-	header txHeader = {};
+extern encTypes encType;
+extern int currentCom;
 
-	txHeader.sid = 1;
-	txHeader.rid = 2;
-	txHeader.priority = '\0';
-	txHeader.seqNum = 0;
-	txHeader.payloadSize = 0;
-	txHeader.payloadType = ERR;
-	txHeader.encryption = NONE;
-	txHeader.compression = NONE;
+msgTypes msgType = mNONE;
+compTypes compType = cNONE;
+
+// Initializing header to default values (or user pereference saved values)
+void initHeader(Header &header) {
+
+	header.sid = currentCom;						// Should match COM port being used
+	header.rid = 0;
+	header.priority = 0;
+	header.seqNum = 0;
+	header.payloadSize = 0;
+	header.payloadType = msgType;
+	header.encryption = encType;
+	header.compression = compType;
 
 	return;
 }
+
+// Need to update header.sid when comport is updated
+// update encryption
+// update compression

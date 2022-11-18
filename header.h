@@ -5,18 +5,23 @@
 
 #pragma once
 
-typedef struct Header header;
+typedef struct header Header;
 
-struct Header {
+struct header {
 	int sid;					// Sender ID
 	int rid;					// Receiver ID
-	char priority;						
+	int priority;						
 	int seqNum;			 
-	int payloadSize;			// Number of bytes in payload after this header
-	char payloadType;			// ERR, TXT, AUD
-	char encryption;			// NONE, XOR, VIG
-	char compression;			// NONE, RLE, HUF
+	long payloadSize;			// Number of bytes in payload after this header
+	int payloadType;			// ERR, TXT, AUD
+	int encryption;				// NONE, XOR, VIG
+	int compression;			// NONE, RLE, HUF
 };
 
+// Temp until compress implemented
+enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };
+
+enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
+
 // Initializing header to default values
-void initHeader();
+void initHeader(Header &header);
