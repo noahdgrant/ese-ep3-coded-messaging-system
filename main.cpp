@@ -8,10 +8,11 @@
 #include <time.h>
 
 #include "CMSLibrary.h"
+#include "encryption.h"
+#include "header.h"
 #include "message.h"
 #include "queues.h"
 #include "sound.h"
-#include "encryption.h"
 
 int	main(int argc, char* argv[])
 {
@@ -22,14 +23,16 @@ int	main(int argc, char* argv[])
 	link q = NULL;												// Pointer to start of queue
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
 	short* audioMsg = NULL;										// Pointer to audio message buffer
-	void* msgIn = NULL;										// Pointer to recieved message buffer
-	long msgInSz = 0;											// Number of bytes received
+	void* msgIn = NULL;											// Pointer to recieved message buffer										// Number of bytes received
+	Header txHeader = {};
+	Header rxHeader = {};
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
 	initQueue();
+	initHeader(txHeader);										// Set header to default values
 
-	// MAIN LOOP
+	// MAIN LOOP 
 	do {
 		system("cls");
 		printMenu();
@@ -71,10 +74,12 @@ int	main(int argc, char* argv[])
 				scanf_s("%[^\n]s", msg, (unsigned int)sizeof(msg));				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 				while (getchar() != '\n') {}									
 				
+				txHeader.payloadType = mTXT;
+				txHeader.payloadSize = strlen(msg) + 1;
+				
 				encrypt(msg, strlen(msg) + 1);
-
 				compress(msg);
-				transmitCom((short*)msg, strlen(msg) + 1);
+				transmitCom(&txHeader, msg);
 				Sleep(4000);
 				break;
 			// Transmit audio message
@@ -90,6 +95,10 @@ int	main(int argc, char* argv[])
 				InitializeRecording();
 				RecordBuffer(audioMsg, numAudioBytes);
 				CloseRecording();
+				
+				// Update header
+				txHeader.payloadType = mAUD;
+				txHeader.payloadSize = numAudioBytes * 2;
 
 				// Transmit message
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
@@ -102,7 +111,7 @@ int	main(int argc, char* argv[])
 					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
 					of space it needs to be multiplied by 2. */
 					encrypt(audioMsg, numAudioBytes * 2);								
-					transmitCom(audioMsg, numAudioBytes * 2);
+					transmitCom(&txHeader, audioMsg);
 				}
 
 				Sleep(4000);
@@ -112,15 +121,15 @@ int	main(int argc, char* argv[])
 			// Recieve message
 			case 7:
 				// Receive message
-				receiveCom(&msgIn, msgInSz);
-				decompress(msgIn);
-				decrypt(msgIn, (int)msgInSz);
+				receiveCom(&rxHeader, &msgIn);
+        decompress(msgIn);
+				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message
-				if (msgInSz == numAudioBytes * 2) {
+				if (rxHeader.payloadType == mAUD) {
 					printf("\nPlaying received recording...\n");
 					InitializePlayback();
-					PlayBuffer((short*)msgIn, numAudioBytes);
+					PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
 					ClosePlayback();
 					Sleep(1000);
 				}
