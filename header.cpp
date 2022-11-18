@@ -13,7 +13,7 @@ extern encTypes encType;
 extern int currentCom;
 
 msgTypes msgType = mNONE;
-compTypes compType = cNONE;
+extern compTypes compType;
 
 // Initializing header to default values (or user pereference saved values)
 void initHeader(Header &header) {
