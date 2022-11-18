@@ -32,7 +32,7 @@ int	main(int argc, char* argv[])
 	initQueue();
 	initHeader(txHeader);										// Set header to default values
 
-	// MAIN LOOP
+	// MAIN LOOP 
 	do {
 		system("cls");
 		printMenu();
