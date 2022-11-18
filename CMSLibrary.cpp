@@ -454,3 +454,36 @@ void decompress(void* msg) {
 	}
 	return;
 }
+void setCompression() {
+	char cmd[2] = {};		// Holds the user's encryption choice
+	do {
+		system("cls");
+		printf("Enter type of compression/decompression\n");
+		printf("1. No compression\n");
+		printf("2. Huffman\n");
+		printf("3. RLE\n");
+		printf("\n> ");
+
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		while (getchar() != '\n') {}										// Flush other input buffer
+
+		if (atoi(cmd) == cNONE) {
+			printf("\nNow using no compression\n");
+			compType = cNONE;
+		}
+		else if (atoi(cmd) == cHUF) {
+			printf("\nNow using Huffman compression\n");
+			compType = cHUF;
+		}
+		else if (atoi(cmd) == cRLE) {
+			printf("\nNow using RLE compression\n");
+			compType = cRLE;
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < cNONE || atoi(cmd) > numCompTypes);
+}

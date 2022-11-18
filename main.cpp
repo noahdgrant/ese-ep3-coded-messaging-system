@@ -157,6 +157,9 @@ int	main(int argc, char* argv[])
 			case 13:
 				setSID();
 				break;
+			case 14:
+				setCompression();
+				break;
 			// Invalid command
 			default:
 				printf("You did not enter a valid command. Please try again.");
