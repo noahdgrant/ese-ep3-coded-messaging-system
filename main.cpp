@@ -78,7 +78,7 @@ int	main(int argc, char* argv[])
 				txHeader.payloadSize = strlen(msg) + 1;
 				
 				encrypt(msg, strlen(msg) + 1);
-				compress(msg);
+				compress(msg, txHeader.payloadType);
 				transmitCom(&txHeader, msg);
 				Sleep(4000);
 				break;
@@ -122,7 +122,7 @@ int	main(int argc, char* argv[])
 			case 7:
 				// Receive message
 				receiveCom(&rxHeader, &msgIn);
-        decompress(msgIn);
+				decompress(msgIn, rxHeader.payloadType);
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message

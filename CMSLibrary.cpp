@@ -21,6 +21,7 @@
 #include "RS232Comm.h"
 #include "sound.h"
 #include "huffman.h"
+#include "RLE.h"
 
 int rid = 2;													// Default receiver ID
 int sid = 1;													// Default sender ID
@@ -430,7 +431,7 @@ void encrypt(void* msg, int msgSz) {
 	return;
 }
 
-void compress(void* msg) {
+void compress(void* msg, int payloadType) {
 	if (compType == cHUF) {
 		char buf[MAX_QUOTE_LENGTH + 384];
 		Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
@@ -438,11 +439,13 @@ void compress(void* msg) {
 	}
 
 	else if (compType == cRLE) {
-
+		char buf[MAX_QUOTE_LENGTH];
+		RLEncode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
+		strcpy((char*)msg, buf);
 	}
 	return;
 }
-void decompress(void* msg) {
+void decompress(void* msg, int payloadType) {
 	if (compType == cHUF) {
 		char buf[MAX_QUOTE_LENGTH + 384];
 		Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
@@ -450,7 +453,9 @@ void decompress(void* msg) {
 	}
 
 	else if (compType == cRLE) {
-
+		char buf[MAX_QUOTE_LENGTH];
+		RLDecode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
+		strcpy((char*)msg, buf);
 	}
 	return;
 }
