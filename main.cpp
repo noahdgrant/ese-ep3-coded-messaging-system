@@ -78,7 +78,7 @@ int	main(int argc, char* argv[])
 				txHeader.payloadSize = strlen(msg) + 1;
 				
 				encrypt(msg, strlen(msg) + 1);
-				compress(msg, txHeader.payloadType);
+				compress(msg, txHeader.compression, txHeader.payloadType);
 				transmitCom(&txHeader, msg);
 				Sleep(4000);
 				break;
@@ -110,7 +110,8 @@ int	main(int argc, char* argv[])
 					/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
 					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
 					of space it needs to be multiplied by 2. */
-					encrypt(audioMsg, numAudioBytes * 2);								
+					encrypt(audioMsg, numAudioBytes * 2);
+					compress(msg, txHeader.compression, txHeader.payloadType);
 					transmitCom(&txHeader, audioMsg);
 				}
 
@@ -122,7 +123,7 @@ int	main(int argc, char* argv[])
 			case 7:
 				// Receive message
 				receiveCom(&rxHeader, &msgIn);
-				decompress(msgIn, rxHeader.payloadType);
+				decompress(msgIn,rxHeader.compression, rxHeader.payloadType);
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message
