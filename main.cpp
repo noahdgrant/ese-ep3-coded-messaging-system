@@ -23,7 +23,7 @@ int	main(int argc, char* argv[])
 	link q = NULL;												// Pointer to start of queue
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
 	short* audioMsg = NULL;										// Pointer to audio message buffer
-	void* msgIn = NULL;											// Pointer to recieved message buffer										// Number of bytes received
+	void* msgIn = NULL;											// Pointer to recieved message buffer
 	Header txHeader = {};
 	Header rxHeader = {};
 
