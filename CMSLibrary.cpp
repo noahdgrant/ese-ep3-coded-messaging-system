@@ -49,7 +49,7 @@ void printMenu() {
 	printf("3. Generate Quote\n");
 	printf("4. View Queue\n");
 	printf("5. Transmit Text Message\n");
-	printf("6. Transmit Aduio Message\n");
+	printf("6. Transmit Audio Message\n");
 	printf("7. Receive Message\n");
 	printf("8. Select Com Port					Com Port:		COM%d\n", currentCom);
 	printf("9. Change Audio Recording Length			Length:			%d\n", recordTime);
