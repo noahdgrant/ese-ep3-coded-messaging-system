@@ -1,29 +1,80 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="CMSLibrary.cpp" />
-    <ClCompile Include="encryption.cpp" />
-    <ClCompile Include="huffman.c" />
-    <ClCompile Include="header.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="message.cpp" />
-    <ClCompile Include="queues.cpp" />
-    <ClCompile Include="RS232Comm.cpp" />
-    <ClCompile Include="sound.cpp" />
-    <ClCompile Include="RLE.cpp" />
+    <ClCompile Include="CMSLibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="encryption.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="header.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="huffman.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="message.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="queues.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RLE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RS232Comm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CMSLibrary.h" />
-    <ClInclude Include="encryption.h" />
-    <ClInclude Include="huffman.h" />
-    <ClInclude Include="header.h" />
-    <ClInclude Include="message.h" />
-    <ClInclude Include="queues.h" />
-    <ClInclude Include="RS232Comm.h" />
-    <ClInclude Include="sound.h" />
-    <ClInclude Include="RLE.h" />
+    <ClInclude Include="CMSLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="encryption.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="huffman.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="queues.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RLE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RS232Comm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="FortuneCookies.txt" />
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{7fe2cd8d-34d2-42ab-a015-e130d56ad733}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{2c64d8eb-29dc-407b-8910-46216833b00e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{9ee39023-a858-4756-a34c-015d6883eec7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="FortuneCookies.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
