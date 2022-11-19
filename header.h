@@ -18,6 +18,9 @@ struct header {
 	int compression;			// NONE, RLE, HUF
 };
 
+// Temp until compress implemented
+enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };
+
 enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
 
 // Initializing header to default values

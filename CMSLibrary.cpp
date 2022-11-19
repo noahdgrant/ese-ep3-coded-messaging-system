@@ -34,6 +34,7 @@ HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
 COMMTIMEOUTS timeout;											// A commtimeout struct variable
 char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
 enum encTypes encType = NONE;									// Default encryption is NONE
+enum compTypes {cERR, cNONE, cHUF, cRLE, numCompTypes};			// Types of compression
 enum compTypes compType = cNONE;								// Default compression is NONE
 
 int recordTime = 2;												// Default record time
@@ -65,8 +66,8 @@ void printMenu() {
 		break;
 	}
 	printf("11. Set Encryption Key					Encryption Key:		%s\n", secretKey);
-	printf("12. Set Recipient ID					RID:			%d\n", rid);
-	printf("13. Set Sender ID					SID:			%d\n", sid);
+	printf("12. Set Recipient ID					RID:			%s\n", recipientID);
+	printf("13. Set Sender ID					SID:			%s\n", senderID);
 	printf("14. Set Compression Type				Compression Type:	");
 	switch (compType) {
 	case cNONE:

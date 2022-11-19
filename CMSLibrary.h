@@ -8,7 +8,6 @@
 #include "header.h"
 
 enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
-enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };			// Types of compression
 
 // MENU
 // Print CMS menu
