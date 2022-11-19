@@ -21,7 +21,6 @@
 #include "RS232Comm.h"
 #include "sound.h"
 #include "huffman.h"
-#include "RLE.h"
 
 int rid = 2;													// Default receiver ID
 int sid = 1;													// Default sender ID
@@ -49,7 +48,7 @@ void printMenu() {
 	printf("3. Generate Quote\n");
 	printf("4. View Queue\n");
 	printf("5. Transmit Text Message\n");
-	printf("6. Transmit Audio Message\n");
+	printf("6. Transmit Aduio Message\n");
 	printf("7. Receive Message\n");
 	printf("8. Select Com Port					Com Port:		COM%d\n", currentCom);
 	printf("9. Change Audio Recording Length			Length:			%d\n", recordTime);
@@ -431,60 +430,28 @@ void encrypt(void* msg, int msgSz) {
 	return;
 }
 
-void compress(void* msg, int payloadType) {
-	if (payloadType == mTXT) {
-		if (compType == cHUF) {
-			char buf[MAX_QUOTE_LENGTH + 384];
-			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
-			strcpy((char*)msg, buf);
-		}
-
-		else if (compType == cRLE) {
-			char buf[MAX_QUOTE_LENGTH];
-			RLEncode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
-			strcpy((char*)msg, buf);
-		}
-	}
-	else if (payloadType == mAUD) {
-		if (compType == cHUF) {
-			int lsize = strlen((const char*)msg) + 384;
-			char* buf = (char*)malloc(sizeof(char) * lsize);
-			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2);
-			strcpy((char*)msg, buf);
-			free(buf);
-		}
-		else if (compType == cRLE) {
-			//not done yet
-		}
+void compress(void* msg, int compType) {
+	if (compType == cHUF) {
+		char buf[MAX_QUOTE_LENGTH + 384];
+		Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
+		strcpy((char*)msg, buf);
 	}
 
-	
+	else if (compType == cRLE) {
+
+	}
 	return;
 }
-void decompress(void* msg, int payloadType) {
-	if (payloadType == mTXT) {
-		if (compType == cHUF) {
-			char buf[MAX_QUOTE_LENGTH + 384];
-			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
-			strcpy((char*)msg, buf);
-		}
-
-		else if (compType == cRLE) {
-			char buf[MAX_QUOTE_LENGTH];
-			RLDecode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
-			strcpy((char*)msg, buf);
-		}
+void decompress(void* msg, int compType) {
+	if (compType == cHUF) {
+		char buf[MAX_QUOTE_LENGTH + 384];
+		Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
+		strcpy((char*)msg, buf);
 	}
-	else if (payloadType == mAUD) {
-		if (compType == cHUF) {
-			//Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, lBigBufSize + 384, lBigBufSize * 2);
-		}
-		else if (compType == cRLE) {
-			//havent done RLE yet
-		}
+
+	else if (compType == cRLE) {
 
 	}
-	
 	return;
 }
 void setCompression() {

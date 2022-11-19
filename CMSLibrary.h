@@ -42,6 +42,6 @@ void decrypt(void* msg, int msgSz);
 void encrypt(void* msg, int msgSz);
 
 // COMPRESS/DECOMPRESS MESSAGE
-void compress(void* msg, int payloadType);
-void decompress(void* msg, int payloadType);
+void compress(void* msg, int compType);
+void decompress(void* msg, int compType);
 void setCompression();
