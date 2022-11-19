@@ -432,31 +432,59 @@ void encrypt(void* msg, int msgSz) {
 }
 
 void compress(void* msg, int payloadType) {
-	if (compType == cHUF) {
-		char buf[MAX_QUOTE_LENGTH + 384];
-		Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
-		strcpy((char*)msg, buf);
+	if (payloadType == mTXT) {
+		if (compType == cHUF) {
+			char buf[MAX_QUOTE_LENGTH + 384];
+			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
+			strcpy((char*)msg, buf);
+		}
+
+		else if (compType == cRLE) {
+			char buf[MAX_QUOTE_LENGTH];
+			RLEncode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
+			strcpy((char*)msg, buf);
+		}
+	}
+	else if (payloadType == mAUD) {
+		if (compType == cHUF) {
+			lsize = strlen(msg) + 384;
+			char* buf = (char*)malloc(sizeof(char) * lSize);
+			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, strlen(msg) * 2);
+			strcpy((char*)msg, buf);
+			free(buf);
+		}
+		else if (compType == cRLE) {
+			//not done yet
+		}
 	}
 
-	else if (compType == cRLE) {
-		char buf[MAX_QUOTE_LENGTH];
-		RLEncode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
-		strcpy((char*)msg, buf);
-	}
+	
 	return;
 }
 void decompress(void* msg, int payloadType) {
-	if (compType == cHUF) {
-		char buf[MAX_QUOTE_LENGTH + 384];
-		Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
-		strcpy((char*)msg, buf);
-	}
+	if (payloadType == mTXT) {
+		if (compType == cHUF) {
+			char buf[MAX_QUOTE_LENGTH + 384];
+			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
+			strcpy((char*)msg, buf);
+		}
 
-	else if (compType == cRLE) {
-		char buf[MAX_QUOTE_LENGTH];
-		RLDecode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
-		strcpy((char*)msg, buf);
+		else if (compType == cRLE) {
+			char buf[MAX_QUOTE_LENGTH];
+			RLDecode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
+			strcpy((char*)msg, buf);
+		}
 	}
+	else if (payloadType == mAUD) {
+		if (compType == cHUF) {
+			//Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, lBigBufSize + 384, lBigBufSize * 2);
+		}
+		else if (compType == cRLE) {
+			//havent done RLE yet
+		}
+
+	}
+	
 	return;
 }
 void setCompression() {
