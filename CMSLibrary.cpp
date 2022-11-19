@@ -441,15 +441,15 @@ void compress(void* msg, int payloadType) {
 
 		else if (compType == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
-			RLEncode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
+			RLEncode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
 			strcpy((char*)msg, buf);
 		}
 	}
 	else if (payloadType == mAUD) {
 		if (compType == cHUF) {
-			lsize = strlen(msg) + 384;
-			char* buf = (char*)malloc(sizeof(char) * lSize);
-			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, strlen(msg) * 2);
+			int lsize = strlen((const char*)msg) + 384;
+			char* buf = (char*)malloc(sizeof(char) * lsize);
+			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2);
 			strcpy((char*)msg, buf);
 			free(buf);
 		}
@@ -471,7 +471,7 @@ void decompress(void* msg, int payloadType) {
 
 		else if (compType == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
-			RLDecode(msg, strlen(msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
+			RLDecode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, escapeCharacter);
 			strcpy((char*)msg, buf);
 		}
 	}
