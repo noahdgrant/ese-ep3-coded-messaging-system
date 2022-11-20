@@ -123,7 +123,7 @@ int	main(int argc, char* argv[])
 			case 7:
 				// Receive message
 				receiveCom(&rxHeader, &msgIn);
-				decompress(msgIn,rxHeader.compression, rxHeader.payloadType);
+				rxHeader.payloadSize = decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.payloadSize);
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message
