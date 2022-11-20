@@ -21,6 +21,7 @@
 #include "RS232Comm.h"
 #include "sound.h"
 #include "huffman.h"
+#include "RLE.h"
 
 int rid = 2;													// Default receiver ID
 int sid = 1;													// Default sender ID
@@ -431,27 +432,56 @@ void encrypt(void* msg, int msgSz) {
 	return;
 }
 
-void compress(void* msg) {
-	if (compType == cHUF) {
-		char buf[MAX_QUOTE_LENGTH + 384];
-		Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
-		strcpy((char*)msg, buf);
-	}
+void compress(void* msg, int compType, int payloadType) {
+	if (payloadType == mTXT) {
+		if (compType == cHUF) {
+			char buf[MAX_QUOTE_LENGTH + 384];
+			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
+			strcpy((char*)msg, buf);
+		}
 
-	else if (compType == cRLE) {
-
+		else if (compType == cRLE) {
+			char buf[MAX_QUOTE_LENGTH];
+			RLEncode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
+			strcpy((char*)msg, buf);
+		}
 	}
+	else if (payloadType == mAUD) {
+		if (compType == cHUF) {
+			/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
+			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2);
+			strcpy((char*)msg, (char*)buf);
+			free(buf);*/
+		}
+		else if (compType == cRLE) {
+		}
+	}
+	
 	return;
 }
-void decompress(void* msg) {
-	if (compType == cHUF) {
-		char buf[MAX_QUOTE_LENGTH + 384];
-		Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
-		strcpy((char*)msg, buf);
+void decompress(void* msg, int compType, int payloadType, int payloadSize) {
+	if (payloadType == mTXT) {
+		if (compType == cHUF) {
+			char buf[MAX_QUOTE_LENGTH + 384];
+			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
+			strcpy((char*)msg, buf);
+		}
+
+		else if (compType == cRLE) {
+			char buf[MAX_QUOTE_LENGTH];
+			RLDecode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
+			strcpy((char*)msg, buf);
+		}
 	}
-
-	else if (compType == cRLE) {
-
+	if (payloadType == mAUD) {
+		if (compType == cHUF) {
+			/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
+			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2, 1);
+			strcpy((char*)msg, (char*)buf);
+			free(buf);*/
+		}
+		else if (compType == cRLE) {
+		}
 	}
 	return;
 }

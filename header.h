@@ -16,6 +16,7 @@ struct header {
 	int payloadType;			// ERR, TXT, AUD
 	int encryption;				// NONE, XOR, VIG
 	int compression;			// NONE, RLE, HUF
+	long uncompLen;				// Uncompressed message length
 };
 
 // Temp until compress implemented
@@ -25,3 +26,7 @@ enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
 
 // Initializing header to default values
 void initHeader(Header &header);
+void updateHeaderSID(Header& header);
+void updateHeaderRID(Header& header);
+void updateHeaderCompression(Header& header);
+void updateHeaderEncryption(Header& header);
