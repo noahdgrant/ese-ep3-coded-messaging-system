@@ -123,7 +123,7 @@ int	main(int argc, char* argv[])
 			case 7:
 				// Receive message
 				receiveCom(&rxHeader, &msgIn);
-				rxHeader.payloadSize = decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.payloadSize);
+				decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.payloadSize); //rxHeader.payloadSize = 
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message
@@ -154,6 +154,7 @@ int	main(int argc, char* argv[])
 			// Set Encription Type
 			case 10:
 				setEncryption();
+				updateHeaderEncryption(txHeader);
 				break;
 			// Set Encription Code
 			case 11:
@@ -162,13 +163,16 @@ int	main(int argc, char* argv[])
 			// Set Recipient ID
 			case 12:
 				setRID();
+				updateHeaderRID(txHeader);
 				break;
 			// Set Sender ID
 			case 13:
 				setSID();
+				updateHeaderSID(txHeader);
 				break;
 			case 14:
 				setCompression();
+				updateHeaderCompression(txHeader);
 				break;
 			// Invalid command
 			default:
