@@ -14,7 +14,7 @@ extern int sid;
 extern int rid;
 
 msgTypes msgType = mNONE;
-compTypes compType = cNONE;
+extern compTypes compType;
 
 // Initializing header to default values (or user pereference saved values)
 void initHeader(Header &header) {
