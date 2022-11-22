@@ -23,7 +23,7 @@
 #include "huffman.h"
 #include "RLE.h"
 
-int rid = 2;													// Default receiver ID
+int rid = 0;													// Default receiver ID
 int sid = 1;													// Default sender ID
 int currentCom = 6;												// Default COM port
 wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for transmitting
@@ -80,6 +80,7 @@ void printMenu() {
 		printf("RLE\n");
 		break;
 	}
+	printf("15. Print recieved messages\n");
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;

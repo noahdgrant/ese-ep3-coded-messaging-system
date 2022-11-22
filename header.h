@@ -23,7 +23,7 @@ enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
 
 // Initializing header to default values
 void initHeader(Header &header);
-void updateHeaderSID(Header& header);
-void updateHeaderRID(Header& header);
-void updateHeaderCompression(Header& header);
-void updateHeaderEncryption(Header& header);
+void updateHeaderSID(Header &header);
+void updateHeaderRID(Header &header);
+void updateHeaderCompression(Header &header);
+void updateHeaderEncryption(Header &header);

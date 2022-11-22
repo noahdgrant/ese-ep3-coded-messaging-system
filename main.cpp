@@ -115,7 +115,7 @@ int	main(int argc, char* argv[])
 					transmitCom(&txHeader, audioMsg);
 				}
 
-				Sleep(4000);
+				Sleep(2000);
 				free(audioMsg);
 				audioMsg = NULL;
 				break;
@@ -137,8 +137,11 @@ int	main(int argc, char* argv[])
 				// Print text message
 				else {
 					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
-					Sleep(4000);
+					system("pause");					// Wait for user to press key before returning to main menu
 				}
+
+				// Queue recieved message
+				qRxMsg(rxHeader, msgIn);
 
 				free(msgIn);
 				msgIn = NULL;
@@ -173,6 +176,11 @@ int	main(int argc, char* argv[])
 			case 14:
 				setCompression();
 				updateHeaderCompression(txHeader);
+				break;
+			// Print recieved messages
+			case 15:
+				printRxMsgs();
+				system("pause");					// Wait for user to press key before returning to main menu
 				break;
 			// Invalid command
 			default:

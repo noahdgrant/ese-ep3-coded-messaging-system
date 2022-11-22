@@ -20,7 +20,7 @@ extern compTypes compType;
 void initHeader(Header &header) {
 
 	header.sid = sid;						// Should match COM port being used
-	header.rid = 0;
+	header.rid = rid;
 	header.priority = 0;
 	header.seqNum = 0;
 	header.payloadSize = 0;

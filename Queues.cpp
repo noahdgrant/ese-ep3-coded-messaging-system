@@ -4,11 +4,14 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "header.h"
 #include "Queues.h"
 
 static link pHead, pTail;
 
+// BASIC QUEUE FUNCTIONALITY
 // Start a new linked-list
 void initQueue(void) {
 	pHead = pTail = NULL;
@@ -56,10 +59,10 @@ int count(link h) {
 	return (1 + count(h->pNext));				// Recursively go to the end of the linked and add one each time
 } // count
 
-// Delete a node in the linked-list
+// Delete a node in the linked-list based on SID
 link deleteR(link parent, link child, Item v) {
 	if (child == NULL) return(NULL);
-	if (child->Data.sid == v.sid) {				// If the SID of the child matches what we are looking for, delete the child node
+	if (child->Data.msgHeader.sid == v.msgHeader.sid) {				// If the SID of the child matches what we are looking for, delete the child node
 		parent->pNext = child->pNext;			// Set the parent to point at the node the child currently points to
 		free(child);
 		deleteR(parent, parent->pNext, v);		// Recursively check the new child element to see if it matches the search
@@ -69,7 +72,7 @@ link deleteR(link parent, link child, Item v) {
 	}
 } // deleteR
 
-// Prints the SID of the current node
+// Prints the message of the current node
 void visit(link h) {
 	printf("\nNODE MESSAGE:\n%s\n", h->Data.message);	// Print the SID of the current node in the linked-list
 }
@@ -87,3 +90,53 @@ void traverseR(link h, void (*visit)(link)) {
 	traverseR(h->pNext, visit);					// Recursively go to the next node until the end is reached
 	(*visit)(h);								// Call visit() for reach node as the recursion unwinds. Prints the linked-list backwards
 } // traverse R
+
+/****************************************************/
+
+// Queue recieved message
+int qRxMsg(Header rxHeader, void* rxMsg) {
+	link p = NULL;															// Pointer to memory where quere node will be stored
+
+	p = (link)malloc(sizeof(Node));
+	if (p == NULL) {														// Make sure memory was allocated
+		printf("\nERROR: Couldn't malloc memory for recieved message.\n");
+		return (-1);
+	}
+
+	strcpy_s(p->Data.message, (char*)rxMsg);		// Copy recieved message to node
+	p->Data.msgHeader = rxHeader;					// Copy recieved header to node
+	pushQ(p);
+
+	return(0);
+}
+
+// Print current node
+void printNode(link h) {
+	// Print message header
+	printf("\nMESSAGE HEADER\n");
+	printf("SID: %d\n", h->Data.msgHeader.sid);
+	printf("RID: %d\n", h->Data.msgHeader.rid);
+	printf("Priority: %d\n", h->Data.msgHeader.priority);
+	if (h->Data.msgHeader.payloadType == mTXT) {
+		printf("Payload Type: Text\n");
+	}
+	else if (h->Data.msgHeader.payloadType == mAUD) {
+		printf("Payload Type: Audio\n");
+	}
+	printf("Payload Size: %d\n", h->Data.msgHeader.payloadSize);
+
+	// Print message
+	printf("\nMESSAGE:\n");
+	if (h->Data.msgHeader.payloadType == mTXT) {
+		printf("% s\n", h->Data.message);
+	}
+	else if (h->Data.msgHeader.payloadType == mAUD) {
+		// playback audio
+	}
+	printf("\n*********************************\n");
+}
+
+// Print recieved messages from oldest to newest
+void printRxMsgs() {
+	traverse(listHead(), printNode);
+}
