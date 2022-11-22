@@ -14,17 +14,6 @@ enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };		// Types of compressi
 // Print CMS menu
 void printMenu();
 
-//AUDIO
-// Playback saved audio file
-int playbackAudio();
-
-// Record audio, play it back to the user, and ask if they want to save the file
-int recordAudio();
-
-// SERIAL COMMUNICATION
-void transmitCom(Header* txHeader, void* txMsg);
-int receiveCom(Header* rxHeader, void** rxMsg);
-
 // GUI Options
 void selectComPort();
 void changeAudioSettings();

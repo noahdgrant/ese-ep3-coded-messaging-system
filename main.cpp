@@ -12,6 +12,7 @@
 #include "header.h"
 #include "message.h"
 #include "queues.h"
+#include "RS232Comm.h"
 #include "sound.h"
 
 int	main(int argc, char* argv[])
@@ -27,6 +28,7 @@ int	main(int argc, char* argv[])
 	Header txHeader = {};
 	Header rxHeader = {};
 	int numRxMsgs = 0;											// The number of messages in the Rx queue
+	int returnCode = 0;											// Holds return value from functions to check success
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -123,8 +125,10 @@ int	main(int argc, char* argv[])
 			// Recieve message
 			case 7:
 				// Receive message
-				receiveCom(&rxHeader, &msgIn);
-				decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.payloadSize); //rxHeader.payloadSize = 
+				returnCode = receiveCom(&rxHeader, &msgIn);
+				if (returnCode == -1) break;
+
+				decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.payloadSize); 
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message

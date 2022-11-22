@@ -16,3 +16,7 @@ DWORD inputFromPort(HANDLE* hCom, LPVOID buf, DWORD szBuf);
 // Sub functions
 void createPortFile(HANDLE* hCom, wchar_t* COMPORT);
 static int SetComParms(HANDLE* hCom, int nComRate, int nComBits, COMMTIMEOUTS timeout);
+
+// SERIAL COMMUNICATION
+void transmitCom(Header* txHeader, void* txMsg);
+int receiveCom(Header* rxHeader, void** rxMsg);

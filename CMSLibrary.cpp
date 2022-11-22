@@ -25,20 +25,14 @@
 
 int rid = 0;													// Default receiver ID
 int sid = 1;													// Default sender ID
-int currentCom = 6;												// Default COM port
-wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for transmitting
-wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for recieving
-int nComRate = 460800;											// Baud (Bit) rate in bits/second 
-int nComBits = 8;												// Number of bits per frame
-HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
-HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
-COMMTIMEOUTS timeout;											// A commtimeout struct variable
 char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
 enum encTypes encType = NONE;									// Default encryption is NONE
 enum compTypes compType = cNONE;								// Default compression is NONE
 
 int recordTime = 2;												// Default record time
 long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
+
+extern int currentCom;
 
 // MENU
 // Print CMS menu
@@ -86,198 +80,7 @@ void printMenu() {
 	return;
 } // printMenu()
 
-// AUDIO
-// Playback saved audio file
-int playbackAudio() {
-	FILE* f;						// pointer to file
-	short* playbackBuf = NULL;		// buffer used for reading recorded sound from file
-
-	playbackBuf = (short*)malloc(numAudioBytes * sizeof(short));		
-	if (playbackBuf == NULL) {
-		return(-1);
-	}
-
-	// replay audio recording from file -- read and store in buffer, then use playback() to play it
-	/* Open input file */
-	fopen_s(&f, "C:\\myfiles\\recording.dat", "rb");
-	if (!f) {
-		printf("unable to open %s\n", "C:\\myfiles\\recording.dat");
-		return 0;
-	}
-	printf("Reading from sound file ...\n");
-	fread(playbackBuf, sizeof(short), numAudioBytes, f);				// Record to new buffer iBigBufNew
-	fclose(f);
-
-	InitializePlayback();
-	printf("\nPlaying recording from saved file ...\n");
-	PlayBuffer(playbackBuf, numAudioBytes);
-	ClosePlayback();
-
-	free(playbackBuf);
-	playbackBuf = NULL;
-	return 0;
-} // playbackAudio()
-
-// Record audio, play it back to the user, and ask if they want to save the file
-int recordAudio() {
-	FILE* f = NULL;								// Pointer to file
-	short* recordBuf = NULL;					// Pointer to record buffer
-	char save = '\0';							// Holds wether or not the user wans to save the recording			
-
-	recordBuf = (short*)malloc(numAudioBytes * sizeof(short));
-	if (recordBuf == NULL) {
-		printf("\nERROR: Couldn't malloc memory to record audio.\n");
-		return(-1);
-	}
-
-	// initialize playback and recording
-	InitializePlayback();
-	InitializeRecording();
-
-	// start recording
-	RecordBuffer(recordBuf, numAudioBytes);
-	CloseRecording();
-
-	// playback recording 
-	printf("\nPlaying recording from buffer\n");
-	PlayBuffer(recordBuf, numAudioBytes);
-	ClosePlayback();
-
-	// save audio recording  
-	printf("Would you like to save your audio recording? (y/n): ");
-	scanf_s("%c", &save, 1);
-	while (getchar() != '\n') {}										// Flush other input
-
-	if ((save == 'y') || (save == 'Y')) {
-		/* Open input file */
-		fopen_s(&f, "C:\\myfiles\\recording.dat", "wb");
-		if (!f) {
-			printf("unable to open %s\n", "C:\\myfiles\\recording.dat");
-			return 0;
-		}
-		printf("Writing to sound file ...\n");
-		fwrite(recordBuf, sizeof(short), numAudioBytes, f);
-		fclose(f);
-	}
-
-	free(recordBuf);
-	recordBuf = NULL;
-	return 0;
-} // recordAudio()
-
-// SERIAL COMMUNIACTION
-// Transmit text message
-void transmitCom(Header* txHeader, void* txMsg) {
-	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
-	Sleep(500);
-	outputToPort(&hComTx, txHeader, sizeof(Header));										// Send Header
-	Sleep(500);
-	outputToPort(&hComTx, txMsg, (*txHeader).payloadSize);									// Send string to port - include space for '\0' termination
-	Sleep(500);																				// Allow time for signal propagation on cable 
-		
-	CloseHandle(hComTx);																	// Close the handle to Tx port 
-	purgePort(&hComTx);																		// Purge the Tx port
-	return;
-}
-
-// Receive audio message
-int receiveCom(Header* rxHeader, void** rxMsg) {
-	DWORD bytesRead;						// Number of bytes recieved from incomming message
-
-	initPort(&hComRx, COMPORT_Rx, nComRate, nComBits, timeout);					// Initialize the Rx port
-	Sleep(500);
-	inputFromPort(&hComRx, rxHeader, sizeof(Header));
-	*rxMsg = (void*)malloc((*rxHeader).payloadSize);
-	if (rxMsg == NULL) {
-		printf("\nERROR: Couldn't malloc memory to record audio.\n");
-		return(-1);
-	}
-
-	bytesRead = inputFromPort(&hComRx, *rxMsg, (*rxHeader).payloadSize);
-
-	CloseHandle(hComRx);														// Close the handle to Rx port 
-	purgePort(&hComRx);															// Purge the Rx port
-	return(0);
-}
-
 // GUI OPTIONS
-// Change Com port
-void selectComPort() {
-	char cmd[3] = {};			// Holds the COM port the user wants to use
-	do {
-		system("cls");
-		printf("Enter a number between 0 and 9 coresponding to the desired Com Port (ie. 1 -> COM1)\n");
-		printf("\n> ");
-		fflush(stdin);														// Flush input buffer after use. Good practice in C
-		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
-		while (getchar() != '\n') {}										// Flush other input buffer
-
-		if (atoi(cmd) >= 0 && atoi(cmd) <= 9) {
-			printf("\nThe new Com Port is now COM%d\n", atoi(cmd));
-			switch (atoi(cmd)) {
-			case 0:
-				wcscpy(COMPORT_Tx, L"COM0");
-				wcscpy(COMPORT_Rx, L"COM0");
-				currentCom = 0;
-				break;
-			case 1:
-				wcscpy(COMPORT_Tx, L"COM1");
-				wcscpy(COMPORT_Rx, L"COM1");
-				currentCom = 1;
-				break;
-			case 2:
-				wcscpy(COMPORT_Tx, L"COM2");
-				wcscpy(COMPORT_Rx, L"COM2");
-				currentCom = 2;
-				break;
-			case 3:
-				wcscpy(COMPORT_Tx, L"COM3");
-				wcscpy(COMPORT_Rx, L"COM3");
-				currentCom = 3;
-				break;
-			case 4:
-				wcscpy(COMPORT_Tx, L"COM4");
-				wcscpy(COMPORT_Rx, L"COM4");
-				currentCom = 4;
-				break;
-			case 5:
-				wcscpy(COMPORT_Tx, L"COM5");
-				wcscpy(COMPORT_Rx, L"COM5");
-				currentCom = 5;
-				break;
-			case 6:
-				wcscpy(COMPORT_Tx, L"COM6");
-				wcscpy(COMPORT_Rx, L"COM6");
-				currentCom = 6;
-				break;
-			case 7:
-				wcscpy(COMPORT_Tx, L"COM7");
-				wcscpy(COMPORT_Rx, L"COM7");
-				currentCom = 7;
-				break;
-			case 8:
-				wcscpy(COMPORT_Tx, L"COM8");
-				wcscpy(COMPORT_Rx, L"COM8");
-				currentCom = 8;
-				break;
-			case 9:
-				wcscpy(COMPORT_Tx, L"COM9");
-				wcscpy(COMPORT_Rx, L"COM9");
-				currentCom = 9;
-				break;
-			default:
-				printf("Something went wrong with the com assignment");
-				Sleep(2000);
-			}
-		}
-		else {
-			printf("You did not enter a valid command. Please try again.");
-		}
-		Sleep(2000);
-
-	} while (atoi(cmd) < 0 || atoi(cmd) > 9);
-}
-
 // Change Audio Settings
 void changeAudioSettings() {
 	char cmd[3];				// Holds the length of time the user wants to record audio
