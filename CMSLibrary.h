@@ -8,15 +8,11 @@
 #include "header.h"
 
 enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
-enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };			// Types of compression
+enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };		// Types of compression
 
 // MENU
 // Print CMS menu
 void printMenu();
-
-// MESSAGES
-// Generate a random quote from FortuneCookies.txt file, and ask the user if they want to add it to the queue
-int generateQuote();
 
 //AUDIO
 // Playback saved audio file

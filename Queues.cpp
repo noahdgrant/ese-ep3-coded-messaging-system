@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <Windows.h>
 
 #include "header.h"
+#include "sound.h"
 #include "Queues.h"
 
 static link pHead, pTail;
@@ -22,7 +24,7 @@ int isQueueEmpty(void) {
 	return (pHead == NULL);
 } // isQueueEmpty
 
-// Add a new item to the front of the queue
+// Add new item to head of queue
 void pushQ(link pn) {
 	if (isQueueEmpty()) {
 		pHead = pTail = pn;
@@ -94,17 +96,20 @@ void traverseR(link h, void (*visit)(link)) {
 /****************************************************/
 
 // Queue recieved message
-int qRxMsg(Header rxHeader, void* rxMsg) {
+int qRxMsg(Header rxHeader, void* rxMsg, int msgSz) {
 	link p = NULL;															// Pointer to memory where quere node will be stored
 
-	p = (link)malloc(sizeof(Node));
+	p = (link)calloc(1, sizeof(Node) + msgSz);								// Calloc() URL: https://www.geeksforgeeks.org/dynamic-memory-allocation-in-c-using-malloc-calloc-free-and-realloc/
 	if (p == NULL) {														// Make sure memory was allocated
 		printf("\nERROR: Couldn't malloc memory for recieved message.\n");
 		return (-1);
 	}
 
 	p->Data.msgHeader = rxHeader;					// Copy recieved header to node
-	strcpy_s(p->Data.message, (char*)rxMsg);		// Copy recieved message to node
+	
+	for (int i = 0; i < msgSz; i++) {
+		p->Data.message[i] = ((char*)rxMsg)[i];		// Copy recieved message to node
+	}
 	pushQ(p);
 
 	return(0);
@@ -112,6 +117,7 @@ int qRxMsg(Header rxHeader, void* rxMsg) {
 
 // Print current node
 void printNode(link h) {
+	char cmd = '\0';
 	// Print message header
 	printf("\nMESSAGE HEADER\n");
 	printf("SID: %d\n", h->Data.msgHeader.sid);
@@ -127,7 +133,25 @@ void printNode(link h) {
 
 	// Print message
 	printf("\nMESSAGE:\n");
-	printf("%s\n", h->Data.message);
+	if (h->Data.msgHeader.payloadType == mTXT) {
+		printf("%s\n", h->Data.message);
+	}
+	else if (h->Data.msgHeader.payloadType == mAUD) {
+		printf("\nDo you want to listen to stored audio message?\n");
+		printf("> ");
+		scanf_s("%c", &cmd, 1);
+		while (getchar() != '\n') {}
+		if (cmd == 'y' || cmd == 'Y') {
+			printf("\nPlaying audio message...\n");
+			InitializePlayback();
+			PlayBuffer((short*)h->Data.message, h->Data.msgHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
+			ClosePlayback();
+			Sleep(250);
+		}
+		else {
+			printf("\nAudio message.\n");
+		}
+	}
 	printf("\n*********************************\n");
 }
 

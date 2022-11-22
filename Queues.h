@@ -15,7 +15,7 @@ typedef Node* link;
 
 struct item {
 	Header msgHeader;					// Header of the sent message
-	char message[MAX_QUOTE_LENGTH];		// Data contained in message
+	char message[];						// Data contained in message. Dynamic struct space URL: https://www.geeksforgeeks.org/flexible-array-members-structure-c/
 };
 
 struct node {
@@ -38,6 +38,6 @@ void traverse(link h, void (*visit)(link));			// Traverse the LL from head to ta
 void traverseR(link h, void (*visit)(link));		// Traverse the LL from tail to head
 
 // Queue recived messages
-int qRxMsg(Header rxHeader, void* rxMsg);			// Queue recieved message
+int qRxMsg(Header rxHeader, void* rxMsg, int msgSz);			// Queue recieved message
 void printNode(link h);								// Print current node
 void printRxMsgs();									// Print recieved messages from oldest to newest

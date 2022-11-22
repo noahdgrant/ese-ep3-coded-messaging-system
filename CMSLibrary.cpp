@@ -86,54 +86,6 @@ void printMenu() {
 	return;
 } // printMenu()
 
-// MESSAGES
-// Generate a random quote from FortuneCookies.txt file, and ask the user if they want to add it to the queue
-int generateQuote() {
-	char buff[MAX_QUOTE_LENGTH] = {};							// Buffer that holds the quote from the file
-	int numQuotes = 0;											// Number of quotes in the file
-	link p = NULL;												// Pointers for pushing and poping the queue
-	long int* quoteIndices = NULL;								// Array of quote locations in the file (index correspondes to quote number)
-	int* quoteLengths = NULL;									// Array of quote lengths (index correspondes to quote number)
-	int result;													// Holds return value from generateQuote()
-	char cmd;													// User command
-
-	numQuotes = fnumQuotes();									// Number of quotes
-	quoteIndices = fquoteIndices(numQuotes);					// Index locations of the quotes
-	quoteLengths = fquoteLength(numQuotes, quoteIndices);		// Length of each quote (up to MAX_QUOTE_LENGTH) - cut off after 
-
-	// Get the random message from the file
-	result = GetMessageFromFile(buff, frandNum(0, numQuotes), quoteIndices, quoteLengths);
-	if (result != 0) {
-		printf("\nERROR: Did not get message from file.\n");
-		return (-1);
-	}
-
-	printf("\nQUOTE:\n");
-	printf("%s\n", buff);
-
-	fflush(stdin);
-	printf("\nDo you want to save the quote to the queue? (y/n) ");
-	scanf_s("%c", &cmd, 1);
-	while (getchar() != '\n') {}											// Flush other input
-	if (cmd == 'y' || cmd == 'Y') {
-		p = (link)malloc(sizeof(Node));
-		if (p == NULL) {														// Make sure memory was allocated
-			return (-1);
-		}
-
-		strcpy_s(p->Data.message, buff);
-		pushQ(p);
-	}
-
-	// Free heap memory
-	free(quoteLengths);
-	quoteLengths = NULL;
-	free(quoteIndices);
-	quoteIndices = NULL;
-
-	return 0;
-} // generateQuote()
-
 // AUDIO
 // Playback saved audio file
 int playbackAudio() {
