@@ -103,8 +103,8 @@ int qRxMsg(Header rxHeader, void* rxMsg) {
 		return (-1);
 	}
 
-	strcpy_s(p->Data.message, (char*)rxMsg);		// Copy recieved message to node
 	p->Data.msgHeader = rxHeader;					// Copy recieved header to node
+	strcpy_s(p->Data.message, (char*)rxMsg);		// Copy recieved message to node
 	pushQ(p);
 
 	return(0);
@@ -127,12 +127,7 @@ void printNode(link h) {
 
 	// Print message
 	printf("\nMESSAGE:\n");
-	if (h->Data.msgHeader.payloadType == mTXT) {
-		printf("% s\n", h->Data.message);
-	}
-	else if (h->Data.msgHeader.payloadType == mAUD) {
-		// playback audio
-	}
+	printf("%s\n", h->Data.message);
 	printf("\n*********************************\n");
 }
 

@@ -26,6 +26,8 @@ int	main(int argc, char* argv[])
 	void* msgIn = NULL;											// Pointer to recieved message buffer
 	Header txHeader = {};
 	Header rxHeader = {};
+	int numRxMsgs = 0;											// The number of messages in the Rx queue
+	char audioMsg[] = "Audio Message";							// Placeholder until we figure out a good way to put audio messages into the queue
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -132,16 +134,21 @@ int	main(int argc, char* argv[])
 					InitializePlayback();
 					PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
 					ClosePlayback();
+
+					// Haven't thought of a good way to put audio messages into queue so this is placeholder for now.
+					qRxMsg(rxHeader, audioMsg);								
 					Sleep(1000);
 				}
 				// Print text message
 				else {
 					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
+					
+					// Queue recieved message
+					qRxMsg(rxHeader, msgIn);
 					system("pause");					// Wait for user to press key before returning to main menu
 				}
 
-				// Queue recieved message
-				qRxMsg(rxHeader, msgIn);
+				numRxMsgs++;
 
 				free(msgIn);
 				msgIn = NULL;
@@ -179,6 +186,7 @@ int	main(int argc, char* argv[])
 				break;
 			// Print recieved messages
 			case 15:
+				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
 				printRxMsgs();
 				system("pause");					// Wait for user to press key before returning to main menu
 				break;
