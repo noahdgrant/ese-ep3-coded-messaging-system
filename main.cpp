@@ -3,6 +3,8 @@
    Version: 01.00
 */
 
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -29,6 +31,8 @@ int	main(int argc, char* argv[])
 	Header rxHeader = {};
 	int numRxMsgs = 0;											// The number of messages in the Rx queue
 	int returnCode = 0;											// Holds return value from functions to check success
+
+	char compressedtxt[MAX_QUOTE_LENGTH + 384] = {};
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -79,10 +83,14 @@ int	main(int argc, char* argv[])
 				
 				txHeader.payloadType = mTXT;
 				txHeader.payloadSize = strlen(msg) + 1;
+				txHeader.uncompressedLength = strlen(msg) + 1;
 				
 				encrypt(msg, strlen(msg) + 1);
-				compress(msg, txHeader.compression, txHeader.payloadType);
-				transmitCom(&txHeader, msg);
+				strcpy(compressedtxt, compress(msg, txHeader.compression, txHeader.payloadType, txHeader.payloadSize));
+
+				// This needs to change since we won't always be compressing text.
+				txHeader.payloadSize = strlen(compressedtxt);
+				transmitCom(&txHeader, compressedtxt);
 				Sleep(4000);
 				break;
 			// Transmit audio message
@@ -114,7 +122,7 @@ int	main(int argc, char* argv[])
 					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
 					of space it needs to be multiplied by 2. */
 					encrypt(audioMsg, numAudioBytes * 2);
-					compress(msg, txHeader.compression, txHeader.payloadType);
+					compress((void**)&msg, txHeader.compression, txHeader.payloadType, txHeader.payloadSize);
 					transmitCom(&txHeader, audioMsg);
 				}
 
@@ -128,7 +136,7 @@ int	main(int argc, char* argv[])
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
 
-				decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.payloadSize); 
+				decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.uncompressedLength); 
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message

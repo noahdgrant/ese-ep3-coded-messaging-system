@@ -16,7 +16,7 @@ struct header {
 	int payloadType;			// ERR, TXT, AUD
 	int encryption;				// NONE, XOR, VIG
 	int compression;			// NONE, RLE, HUF
-	long uncompLen;				// Uncompressed message length
+	long uncompressedLength;	// Uncompressed message length
 };
 
 enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };

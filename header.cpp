@@ -27,7 +27,7 @@ void initHeader(Header &header) {
 	header.payloadType = msgType;
 	header.encryption = encType;
 	header.compression = compType;
-	header.uncompLen = 0;
+	header.uncompressedLength = 0;
 
 	return;
 }

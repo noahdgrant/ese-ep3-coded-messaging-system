@@ -187,14 +187,27 @@ void encrypt(void* msg, int msgSz) {
 	return;
 }
 
-void compress(void* msg, int compType, int payloadType) {
+char* compress(void* msg, int compType, int payloadType, int payloadSz) {
+	char* compressedBuf = (char*)malloc(strlen((char*)msg) + 384);
+	if (compressedBuf == NULL) {
+		printf("\nERROR: Coudn't malloc memory to compress message.\n");
+		//return(-1);
+	}
+
 	if (payloadType == mTXT) {
 		if (compType == cHUF) {
-			char buf[MAX_QUOTE_LENGTH + 384];
-			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
-			strcpy((char*)msg, buf);
+			Huffman_Compress((unsigned char*)msg, (unsigned char*)compressedBuf, payloadSz);
+			//strcpy(testbuf, compressedBuf); // I think that will will touch memory it shouldn't since compressedBuf is bigger than msg
+	/*		for (int i = 0; i < strlen(compressedBuf); i++) {
+				((char*)msg)[i] = compressedBuf[i];
+			}*/
 		}
+		/*
+		1. didn't pass the right size to huffman_compress
+		2. compressed message is bigger than uncompressed message for most cases so we got overflow
 
+		- Can maybe add feature to check if compressed buffer is larger than uncomrpessed and do not compress if true.
+		*/
 		else if (compType == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
 			RLEncode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
@@ -212,16 +225,32 @@ void compress(void* msg, int compType, int payloadType) {
 		}
 	}
 	
-	return;
+	//free(compressedBuf);
+	//compressedBuf = NULL;
+	return(compressedBuf);
 }
-void decompress(void* msg, int compType, int payloadType, int payloadSize) {
+
+int decompress(void* msg, int compType, int payloadType, int payloadSize) {
+	char* uncompressedBuf = (char*)malloc(payloadSize);
+	if (uncompressedBuf == NULL) {
+		printf("\nERROR: Coudn't malloc memory to decompressed received message.\n");
+		return(-1);
+	}
+
 	if (payloadType == mTXT) {
 		if (compType == cHUF) {
-			char buf[MAX_QUOTE_LENGTH + 384];
-			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH, MAX_QUOTE_LENGTH);
-			strcpy((char*)msg, buf);
-		}
+			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)uncompressedBuf, strlen((char*)msg), payloadSize);
 
+			if (uncompressedBuf[0] == '\0') {
+				printf("\nERROR: Failed to decompress received message.\n");
+				return(-1);
+			}
+			strcpy((char*)msg, uncompressedBuf);
+		}
+		/*
+		1. didn't pass the correct number of input bytes: payloadSize
+		2. didn't pass the correct number of output bytes: MAX_QUOTE_LENGTH
+		*/
 		else if (compType == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
 			RLDecode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
@@ -238,7 +267,9 @@ void decompress(void* msg, int compType, int payloadType, int payloadSize) {
 		else if (compType == cRLE) {
 		}
 	}
-	return;
+
+	free(uncompressedBuf);
+	return(0);
 }
 void setCompression() {
 	char cmd[2] = {};		// Holds the user's encryption choice
@@ -273,3 +304,63 @@ void setCompression() {
 
 	} while (atoi(cmd) < cNONE || atoi(cmd) > numCompTypes);
 }
+
+
+/*
+	void compress(void* msg, int compType, int payloadType) {
+		if (payloadType == mTXT) {
+			if (compType == cHUF) {
+				char buf[MAX_QUOTE_LENGTH + 384];
+				int end = Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, MAX_QUOTE_LENGTH);
+				//buf[end] = '\0';
+				strcpy((char*)msg, buf);
+			}
+
+			else if (compType == cRLE) {
+				char buf[MAX_QUOTE_LENGTH];
+				RLEncode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
+				strcpy((char*)msg, buf);
+			}
+		}
+		else if (payloadType == mAUD) {
+			if (compType == cHUF) {
+				/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
+				Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2);
+				strcpy((char*)msg, (char*)buf);
+				free(buf);
+			}
+			else if (compType == cRLE) {
+			}
+		}
+
+		return; //do we need to return the new length of the msg?
+	}
+
+	void decompress(void* msg, int compType, int payloadType, int payloadSize) {
+		if (payloadType == mTXT) {
+			if (compType == cHUF) {
+				char buf[MAX_QUOTE_LENGTH];
+				Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, payloadSize, MAX_QUOTE_LENGTH);
+				strcpy((char*)msg, buf);
+			}
+
+			else if (compType == cRLE) {
+				char buf[MAX_QUOTE_LENGTH];
+				RLDecode((char*)msg, strlen((const char*)msg), buf, strlen((const char*)msg) + 1, ESCAPE_CHARACTER);
+				buf[payloadSize - 1] = '\0';
+				strcpy((char*)msg, buf);
+			}
+		}
+		if (payloadType == mAUD) {
+			if (compType == cHUF) {
+				/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
+				Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2, 1);
+				strcpy((char*)msg, (char*)buf);
+				free(buf);
+			}
+			else if (compType == cRLE) {
+			}
+		}
+		return; //do we need to return the new length of the msg?
+	}
+*/
