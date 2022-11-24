@@ -86,7 +86,7 @@ int	main(int argc, char* argv[])
 				txHeader.uncompressedLength = strlen(msg) + 1;
 				
 				encrypt(msg, strlen(msg) + 1);
-				strcpy(compressedtxt, compress(msg, txHeader.compression, txHeader.payloadType, txHeader.payloadSize));
+				strcpy(compressedtxt, compress(msg, txHeader.compression, txHeader.payloadType, txHeader.payloadSize)); // This makes RLE not work
 
 				// This needs to change since we won't always be compressing text.
 				txHeader.payloadSize = strlen(compressedtxt);
@@ -136,7 +136,7 @@ int	main(int argc, char* argv[])
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
 
-				decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.uncompressedLength); 
+				decompress(rxHeader, msgIn); 
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message

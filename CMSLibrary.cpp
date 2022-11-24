@@ -230,45 +230,47 @@ char* compress(void* msg, int compType, int payloadType, int payloadSz) {
 	return(compressedBuf);
 }
 
-int decompress(void* msg, int compType, int payloadType, int payloadSize) {
-	char* uncompressedBuf = (char*)malloc(payloadSize);
+int decompress(Header h, void* msg) {
+	char* uncompressedBuf = (char*)malloc(h.uncompressedLength); // I believe this is currently leaking
 	if (uncompressedBuf == NULL) {
 		printf("\nERROR: Coudn't malloc memory to decompressed received message.\n");
 		return(-1);
 	}
 
-	if (payloadType == mTXT) {
-		if (compType == cHUF) {
-			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)uncompressedBuf, strlen((char*)msg), payloadSize);
+	if (h.payloadType == mTXT) {
+		if (h.compression == cHUF) {
+			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)uncompressedBuf, h.payloadSize, h.uncompressedLength);
 
 			if (uncompressedBuf[0] == '\0') {
 				printf("\nERROR: Failed to decompress received message.\n");
 				return(-1);
 			}
+			// NEED TO REALLOC MSG SINCE UNCOMPRESSEDBUF IS LARGER THAN MSG FOR BIG FILES
 			strcpy((char*)msg, uncompressedBuf);
 		}
 		/*
 		1. didn't pass the correct number of input bytes: payloadSize
 		2. didn't pass the correct number of output bytes: MAX_QUOTE_LENGTH
 		*/
-		else if (compType == cRLE) {
+		else if (h.compression == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
 			RLDecode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
 			strcpy((char*)msg, buf);
 		}
 	}
-	if (payloadType == mAUD) {
-		if (compType == cHUF) {
+	if (h.payloadType == mAUD) {
+		if (h.compression == cHUF) {
 			/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
 			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2, 1);
 			strcpy((char*)msg, (char*)buf);
 			free(buf);*/
 		}
-		else if (compType == cRLE) {
+		else if (h.compression == cRLE) {
 		}
 	}
 
-	free(uncompressedBuf);
+	// PROGRAM BREAKS WHEN I TRY TO FREE THIS MEMORY
+	free(uncompressedBuf); 
 	return(0);
 }
 void setCompression() {

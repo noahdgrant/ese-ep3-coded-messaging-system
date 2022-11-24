@@ -28,5 +28,5 @@ void encrypt(void* msg, int msgSz);
 
 // COMPRESS/DECOMPRESS MESSAGE
 char* compress(void* msg, int compType, int payloadType, int payloadSz);
-int decompress(void* msg, int compType, int payloadType, int payloadSize);
+int decompress(Header h, void* msg);
 void setCompression();
