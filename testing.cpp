@@ -216,6 +216,7 @@ int testingin() {
 	printf("\n============================================================================\n");
 
 
+
 	// receive text w/ Huffman & XOR
 	//printf("\nHuffman & XOR\n");
 	//receiveCom(&rxHeader, &msgIn);
