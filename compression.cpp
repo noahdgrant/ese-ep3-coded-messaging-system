@@ -1,5 +1,6 @@
-/*
-
+/* compression.cpp
+   Authors: Noah Grant, Wyatt Richard
+   Version: 1.0
 */
 
 #define _CRT_SECURE_NO_DEPRECATE
@@ -46,6 +47,7 @@ int compress(Header& h, void** msg) {
 			char buf[MAX_QUOTE_LENGTH];
 			RLEncode((char*)*msg, strlen((const char*)*msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
 			strcpy((char*)*msg, buf);
+			h.payloadSize = strlen(buf) + 1;
 		}
 	}
 	else if (h.payloadType == mAUD) {
@@ -59,20 +61,24 @@ int compress(Header& h, void** msg) {
 		}
 	}
 
-	if (compressedBuf != NULL) free(compressedBuf);
-	compressedBuf = NULL;
+	if (compressedBuf != NULL) {
+		free(compressedBuf);
+		compressedBuf = NULL;
+	}
 	return(0);
 }
 
 int decompress(Header& h, void** msg) {
-	char* uncompressedBuf = (char*)malloc(h.uncompressedLength);
-	if (uncompressedBuf == NULL) {
-		printf("\nERROR: Coudn't malloc memory to decompressed received message.\n");
-		return(-1);
-	}
+	char* uncompressedBuf = NULL;
 
 	if (h.payloadType == mTXT) {
 		if (h.compression == cHUF) {
+			uncompressedBuf = (char*)malloc(h.uncompressedLength);
+			if (uncompressedBuf == NULL) {
+				printf("\nERROR: Coudn't malloc memory to decompressed received message.\n");
+				return(-1);
+			}
+
 			Huffman_Uncompress((unsigned char*)*msg, (unsigned char*)uncompressedBuf, h.payloadSize, h.uncompressedLength);
 			if (uncompressedBuf[0] == '\0') {
 				printf("\nERROR: Failed to decompress received message.\n");
@@ -91,11 +97,12 @@ int decompress(Header& h, void** msg) {
 		}
 		else if (h.compression == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
-			RLDecode((char*)msg, strlen((const char*)msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
-			strcpy((char*)msg, buf);
+			RLDecode((char*)*msg, strlen((const char*)*msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
+			strcpy((char*)*msg, buf);
+			h.payloadSize = strlen(buf);
 		}
 	}
-	if (h.payloadType == mAUD) {
+	else if (h.payloadType == mAUD) {
 		if (h.compression == cHUF) {
 			/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
 			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2, 1);
@@ -106,7 +113,10 @@ int decompress(Header& h, void** msg) {
 		}
 	}
 
-	free(uncompressedBuf);
+	if (uncompressedBuf != NULL) {
+		free(uncompressedBuf);
+		uncompressedBuf = NULL;
+	}
 	return(0);
 }
 void setCompression() {
