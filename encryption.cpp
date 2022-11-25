@@ -101,7 +101,7 @@ char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt mess
 encTypes encType = NONE;									// Default encryption is NONE
 
 // Set encryption Type 
-void setEncryption() {
+void setEncryption(Header& h) {
 	char cmd[2] = {};		// Holds the user's encryption choice
 	do {
 		system("cls");
@@ -145,11 +145,11 @@ void setSecretKey() {
 void decrypt(Header h, void* msg) {
 	// Decrypt the message (xor)
 	if (h.encryption == XOR) {
-		xorCipher(msg, h.payloadSize, secretKey, strlen(secretKey));
+		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
 	}
 	// Decrypt the message (Viginere)
 	else if (h.encryption == VIG) {
-		vigCipher(msg, h.payloadSize, secretKey, strlen(secretKey), false);
+		vigCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey), false);
 	}
 
 	return;
@@ -159,11 +159,11 @@ void decrypt(Header h, void* msg) {
 void encrypt(void* msg, int msgSz) {
 	// XOR Encryption
 	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
+		xorCipher(msg, msgSz, secretKey, (int)strlen(secretKey));
 	}
 	// Viginere encryption
 	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, strlen(secretKey), true);
+		vigCipher(msg, msgSz, secretKey, (int)strlen(secretKey), true);
 	}
 
 	return;

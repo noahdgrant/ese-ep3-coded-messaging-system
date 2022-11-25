@@ -12,9 +12,11 @@ enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };			// Types of encryption
 int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec);
 int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength);
 
-void setEncryption();
+void setEncryption(Header& h);
 void setSecretKey();
 
 // ENCRYPT/DECRYPT MESSAGE
 void decrypt(Header h, void* msg);
 void encrypt(void* msg, int msgSz);
+
+extern char secretKey[MAX_QUOTE_LENGTH];			// Key used to encrypt/decrypt messages

@@ -260,13 +260,13 @@ void selectComPort() {
 }
 
 // Set the recipient ID
-void setRID() {
+void setRID(Header& h) {
 	printf("\nEnter the recipient ID: ");
 	scanf_s("%d", &rid);
 }
 
 // Set the Sender ID
-void setSID() {
+void setSID(Header& h) {
 	printf("\nEnter the sender ID: ");
 	scanf_s("%d", &sid);
 }

@@ -24,5 +24,7 @@ void selectComPort();
 void transmitCom(Header* txHeader, void* txMsg);
 int receiveCom(Header* rxHeader, void** rxMsg);
 
-void setRID();
-void setSID();
+void setRID(Header& h);
+void setSID(Header& h);
+
+extern int currentCom;

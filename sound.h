@@ -14,6 +14,8 @@
 #define SAMPLES_SEC			8000	// number of samples per second
 #define	NFREQUENCIES		96		// number of frequencies used - leave this alone
 extern int global;
+extern int recordTime;								// Default record time
+extern long numAudioBytes;							// Size of audio buffer
 
 // FUNCTION PROTOTYPES
 /* ************************ */

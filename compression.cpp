@@ -119,7 +119,7 @@ int decompress(Header& h, void** msg) {
 	}
 	return(0);
 }
-void setCompression() {
+void setCompression(Header& h) {
 	char cmd[2] = {};		// Holds the user's encryption choice
 	do {
 		system("cls");
