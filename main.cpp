@@ -204,6 +204,14 @@ int	main(int argc, char* argv[])
 				printRxMsgs();
 				system("pause");					// Wait for user to press key before returning to main menu
 				break;
+				// test function send
+			case 16:
+				testingout();
+				break;
+				// test function receive
+			case 17:
+				testingin();
+				break;
 			// Invalid command
 			default:
 				printf("You did not enter a valid command. Please try again.");
