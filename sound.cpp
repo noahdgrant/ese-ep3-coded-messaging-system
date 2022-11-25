@@ -10,6 +10,7 @@ Details: Implementation - Contains functions for Windows sound API (sound record
 #include <windows.h>					// Contains WAVEFORMATEX structure
 #include <mmsystem.h>					
 #include <math.h>
+
 #include "sound.h"
 #include "CMSLibrary.h"
 
@@ -192,4 +193,112 @@ static int WaitOnHeader(WAVEHDR* wh, char cDit)
 		if (lTime >= 10000) return(0);  // timeout period
 		if (cDit) printf("%c", cDit);
 	}
+}
+
+/***************************************************************/
+int recordTime = 2;												// Default record time
+long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
+
+// AUDIO
+// Playback saved audio file
+int playbackAudio() {
+	FILE* f;						// pointer to file
+	short* playbackBuf = NULL;		// buffer used for reading recorded sound from file
+
+	playbackBuf = (short*)malloc(numAudioBytes * sizeof(short));
+	if (playbackBuf == NULL) {
+		return(-1);
+	}
+
+	// replay audio recording from file -- read and store in buffer, then use playback() to play it
+	/* Open input file */
+	fopen_s(&f, "C:\\myfiles\\recording.dat", "rb");
+	if (!f) {
+		printf("unable to open %s\n", "C:\\myfiles\\recording.dat");
+		return 0;
+	}
+	printf("Reading from sound file ...\n");
+	fread(playbackBuf, sizeof(short), numAudioBytes, f);				// Record to new buffer iBigBufNew
+	fclose(f);
+
+	InitializePlayback();
+	printf("\nPlaying recording from saved file ...\n");
+	PlayBuffer(playbackBuf, numAudioBytes);
+	ClosePlayback();
+
+	free(playbackBuf);
+	playbackBuf = NULL;
+	return 0;
+} // playbackAudio()
+
+// Record audio, play it back to the user, and ask if they want to save the file
+int recordAudio() {
+	FILE* f = NULL;								// Pointer to file
+	short* recordBuf = NULL;					// Pointer to record buffer
+	char save = '\0';							// Holds wether or not the user wans to save the recording			
+
+	recordBuf = (short*)malloc(numAudioBytes * sizeof(short));
+	if (recordBuf == NULL) {
+		printf("\nERROR: Couldn't malloc memory to record audio.\n");
+		return(-1);
+	}
+
+	// initialize playback and recording
+	InitializePlayback();
+	InitializeRecording();
+
+	// start recording
+	RecordBuffer(recordBuf, numAudioBytes);
+	CloseRecording();
+
+	// playback recording 
+	printf("\nPlaying recording from buffer\n");
+	PlayBuffer(recordBuf, numAudioBytes);
+	ClosePlayback();
+
+	// save audio recording  
+	printf("Would you like to save your audio recording? (y/n): ");
+	scanf_s("%c", &save, 1);
+	while (getchar() != '\n') {}										// Flush other input
+
+	if ((save == 'y') || (save == 'Y')) {
+		/* Open input file */
+		fopen_s(&f, "C:\\myfiles\\recording.dat", "wb");
+		if (!f) {
+			printf("unable to open %s\n", "C:\\myfiles\\recording.dat");
+			return 0;
+		}
+		printf("Writing to sound file ...\n");
+		fwrite(recordBuf, sizeof(short), numAudioBytes, f);
+		fclose(f);
+	}
+
+	free(recordBuf);
+	recordBuf = NULL;
+	return 0;
+} // recordAudio()
+
+// Change Audio Settings
+void changeAudioSettings() {
+	char cmd[3];				// Holds the length of time the user wants to record audio
+	do {
+		system("cls");
+		printf("Enter a new recording length between 1 and 15 seconds\n");
+		printf("\n> ");
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		while (getchar() != '\n') {}										// Flush other input buffer
+
+		cmd[2] = '\0';
+		if (atoi(cmd) >= 1 && atoi(cmd) <= 15) {
+			printf("\nThe new recording length is now %d\n", atoi(cmd));
+			recordTime = atoi(cmd);
+			numAudioBytes = SAMPLES_SEC * recordTime;
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < 1 || atoi(cmd) > 15);
 }

@@ -11,6 +11,11 @@
 #include <string.h>
 #include <Windows.h> 
 
+#include "CMSLibrary.h"
+#include "header.h"
+#include "message.h"
+#include "encryption.h"
+
 // ENCRYPTION TYPES
 // // Viginere Encryption/Decryption
 int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec) {
@@ -88,4 +93,78 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 	free(enc);
 	enc = NULL;
 	return(0);
+}
+
+/********************************************************/
+
+char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
+encTypes encType = NONE;									// Default encryption is NONE
+
+// Set encryption Type 
+void setEncryption() {
+	char cmd[2] = {};		// Holds the user's encryption choice
+	do {
+		system("cls");
+		printf("Enter type of encryption/decryption\n");
+		printf("1. No Encryption\n");
+		printf("2. XOR\n");
+		printf("3. Viginere\n");
+		printf("\n> ");
+
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		while (getchar() != '\n') {}										// Flush other input buffer
+
+		if (atoi(cmd) == NONE) {
+			printf("\nNow using no encryption\n");
+			encType = NONE;
+		}
+		else if (atoi(cmd) == XOR) {
+			printf("\nNow using XOR encryption\n");
+			encType = XOR;
+		}
+		else if (atoi(cmd) == VIG) {
+			printf("\nNow using Viginere encryption\n");
+			encType = VIG;
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < NONE || atoi(cmd) > numOfEnc);
+}
+
+// set the XOR code
+void setSecretKey() {
+	printf("\nEnter encryption key: ");
+	scanf_s("%s", secretKey, MAX_QUOTE_LENGTH - 1);
+}
+
+// decrypt message
+void decrypt(Header h, void* msg) {
+	// Decrypt the message (xor)
+	if (h.encryption == XOR) {
+		xorCipher(msg, h.payloadSize, secretKey, strlen(secretKey));
+	}
+	// Decrypt the message (Viginere)
+	else if (h.encryption == VIG) {
+		vigCipher(msg, h.payloadSize, secretKey, strlen(secretKey), false);
+	}
+
+	return;
+}
+
+// encrypt message
+void encrypt(void* msg, int msgSz) {
+	// XOR Encryption
+	if (encType == XOR) {
+		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
+	}
+	// Viginere encryption
+	else if (encType == VIG) {
+		vigCipher(msg, msgSz, secretKey, strlen(secretKey), true);
+	}
+
+	return;
 }

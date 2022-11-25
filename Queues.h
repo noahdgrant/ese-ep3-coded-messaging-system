@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "header.h"
+
 #define MAX_QUOTE_LENGTH 140
 
 typedef struct node Node;
@@ -12,17 +14,13 @@ typedef struct item Item;
 typedef Node* link;
 
 struct item {
-	char message[MAX_QUOTE_LENGTH];
-	short int sid;				// Sender ID
-	short int rid;				// Receiver ID
-	char priority;				// Priority of message
-	short int seqNum;			// Squence number of the message
-	char later[25];				// Char we might use later in the semester
+	Header msgHeader;					// Header of the sent message
+	char message[];						// Data contained in message. Dynamic struct space URL: https://www.geeksforgeeks.org/flexible-array-members-structure-c/
 };
 
 struct node {
-	link pNext;
-	Item Data;
+	link pNext;					// Pointer to next node
+	Item Data;					// Data in node
 };
 
 // Queue functions prototypes
@@ -38,3 +36,8 @@ link deleteR(link parent, link child, Item v);		// Delete a node if it matches a
 void visit(link h);									// Print the SID of the current node
 void traverse(link h, void (*visit)(link));			// Traverse the LL from head to tail
 void traverseR(link h, void (*visit)(link));		// Traverse the LL from tail to head
+
+// Queue recived messages
+int qRxMsg(Header rxHeader, void* rxMsg, int msgSz);			// Queue recieved message
+void printNode(link h);								// Print current node
+void printRxMsgs();									// Print recieved messages from oldest to newest

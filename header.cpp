@@ -4,7 +4,7 @@
 */
 
 #include "CMSLibrary.h"
-//#include "compression.h"
+#include "compression.h"
 #include "encryption.h"
 #include "header.h"
 #include "RS232Comm.h"
@@ -13,21 +13,21 @@ extern encTypes encType;
 extern int sid;
 extern int rid;
 
-msgTypes msgType = mNONE;
+extern msgTypes msgType;
 extern compTypes compType;
 
 // Initializing header to default values (or user pereference saved values)
 void initHeader(Header &header) {
 
 	header.sid = sid;						// Should match COM port being used
-	header.rid = 0;
+	header.rid = rid;
 	header.priority = 0;
 	header.seqNum = 0;
 	header.payloadSize = 0;
 	header.payloadType = msgType;
 	header.encryption = encType;
 	header.compression = compType;
-	header.uncompLen = 0;
+	header.uncompressedLength = 0;
 
 	return;
 }

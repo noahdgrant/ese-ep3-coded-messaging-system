@@ -3,15 +3,19 @@
    Version: 01.00
 */
 
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include "CMSLibrary.h"
+#include "compression.h"
 #include "encryption.h"
 #include "header.h"
 #include "message.h"
 #include "queues.h"
+#include "RS232Comm.h"
 #include "sound.h"
 
 int	main(int argc, char* argv[])
@@ -19,13 +23,17 @@ int	main(int argc, char* argv[])
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
 	char cmd[3] = {};											// User command
 	extern long  numAudioBytes;									// Size of audio buffer
-	char msg[MAX_QUOTE_LENGTH] = {};							// Text message to transmit
+	void* msg = NULL;											// Text message to transmit
 	link q = NULL;												// Pointer to start of queue
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
 	short* audioMsg = NULL;										// Pointer to audio message buffer
 	void* msgIn = NULL;											// Pointer to recieved message buffer
 	Header txHeader = {};
 	Header rxHeader = {};
+	int numRxMsgs = 0;											// The number of messages in the Rx queue
+	int returnCode = 0;											// Holds return value from functions to check success
+
+	char compressedtxt[MAX_QUOTE_LENGTH + 384] = {};
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -69,18 +77,28 @@ int	main(int argc, char* argv[])
 				break;
 			// Transmit Text Message
 			case 5:
+				msg = (char*)malloc(MAX_QUOTE_LENGTH);
+				if (msg == NULL) {
+					printf("\nERROR: Could not malloc memory for quote buffer.\n");
+					break;
+				}
+
 				printf("\nWhat message would you link to send?\n\n");
 				fflush(stdin);													
-				scanf_s("%[^\n]s", msg, (unsigned int)sizeof(msg));				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+				scanf_s("%[^\n]s", (char*)msg, MAX_QUOTE_LENGTH);				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 				while (getchar() != '\n') {}									
 				
 				txHeader.payloadType = mTXT;
-				txHeader.payloadSize = strlen(msg) + 1;
+				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
-				encrypt(msg, strlen(msg) + 1);
-				compress(msg, txHeader.compression, txHeader.payloadType);
+				encrypt((char*)msg, strlen((char*)msg) + 1); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+				compress(txHeader, &msg);
 				transmitCom(&txHeader, msg);
-				Sleep(4000);
+
+				Sleep(2000);
+				// CAUSING HEAP DETECTION ERROR. NEED TO FIGURE OUT WHY. ASK MICHAEL
+				//free(msg);
+				//msg = NULL;
 				break;
 			// Transmit audio message
 			case 6:
@@ -111,34 +129,42 @@ int	main(int argc, char* argv[])
 					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
 					of space it needs to be multiplied by 2. */
 					encrypt(audioMsg, numAudioBytes * 2);
-					compress(msg, txHeader.compression, txHeader.payloadType);
+					compress(txHeader, &msg);
 					transmitCom(&txHeader, audioMsg);
 				}
 
-				Sleep(4000);
+				Sleep(2000);
 				free(audioMsg);
 				audioMsg = NULL;
 				break;
 			// Recieve message
 			case 7:
 				// Receive message
-				receiveCom(&rxHeader, &msgIn);
-				decompress(msgIn,rxHeader.compression, rxHeader.payloadType, rxHeader.payloadSize); //rxHeader.payloadSize = 
-				decrypt(msgIn, rxHeader.payloadSize);
+				returnCode = receiveCom(&rxHeader, &msgIn);
+				if (returnCode == -1) break;
+
+				decompress(rxHeader, &msgIn); 
+				decrypt(rxHeader, msgIn);
 
 				// Play audio message
 				if (rxHeader.payloadType == mAUD) {
 					printf("\nPlaying received recording...\n");
 					InitializePlayback();
 					PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
-					ClosePlayback();
-					Sleep(1000);
+					ClosePlayback();					
+					Sleep(500);
 				}
 				// Print text message
 				else {
 					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
-					Sleep(4000);
+					system("pause");					// Wait for user to press key before returning to main menu
 				}
+
+				// Queue recieved message
+				qRxMsg(rxHeader, msgIn, rxHeader.payloadSize);
+
+				// Increment the counter for number of items in recieve queue
+				numRxMsgs++;
 
 				free(msgIn);
 				msgIn = NULL;
@@ -173,6 +199,12 @@ int	main(int argc, char* argv[])
 			case 14:
 				setCompression();
 				updateHeaderCompression(txHeader);
+				break;
+			// Print recieved messages
+			case 15:
+				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
+				printRxMsgs();
+				system("pause");					// Wait for user to press key before returning to main menu
 				break;
 			// Invalid command
 			default:

@@ -15,3 +15,6 @@ int* fquoteLength(int numQuotes, long int* quoteIndices);	// Function returns th
 
 // Function that gets q random quote from the FortuneCookies file 
 int GetMessageFromFile(char* buff, int randNum, long int* quoteIndices, int* quoteLengths);  // buff is a character array (need top pass the node element that is a character array) 
+
+// Generate a random quote from FortuneCookies.txt file, and ask the user if they want to add it to the queue
+int generateQuote();
