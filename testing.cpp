@@ -32,8 +32,10 @@ int testingout() {
 	printf("\nplain text\n");
 	strcpy((char*)msg,(char*)"plain text message");
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
-	txHeader.compression = NONE;
+	txHeader.compression = cNONE;
 	txHeader.encryption = NONE;
+	compTypes compType = cNONE;
+	encTypes encType = NONE;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -44,6 +46,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = NONE;
+	compTypes compType = cHUF;
+	encTypes encType = NONE;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -64,6 +68,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = VIG;
+	compTypes compType = cHUF;
+	encTypes encType = VIG;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -74,6 +80,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = NONE;
+	compTypes compType = cRLE;
+	encTypes encType = NONE;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -94,6 +102,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = VIG;
+	compTypes compType = cRLE;
+	encTypes encType = VIG;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -114,6 +124,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cNONE;
 	txHeader.encryption = VIG;
+	compTypes compType = cNONE;
+	encTypes encType = VIG;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
