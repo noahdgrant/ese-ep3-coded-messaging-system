@@ -46,8 +46,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = NONE;
-	compTypes compType = cHUF;
-	encTypes encType = NONE;
+	compType = cHUF;
+	encType = NONE;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -68,8 +68,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = VIG;
-	compTypes compType = cHUF;
-	encTypes encType = VIG;
+	compType = cHUF;
+	encType = VIG;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -80,8 +80,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = NONE;
-	compTypes compType = cRLE;
-	encTypes encType = NONE;
+	compType = cRLE;
+	encType = NONE;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -102,8 +102,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = VIG;
-	compTypes compType = cRLE;
-	encTypes encType = VIG;
+	compType = cRLE;
+	encType = VIG;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
@@ -124,8 +124,8 @@ int testingout() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cNONE;
 	txHeader.encryption = VIG;
-	compTypes compType = cNONE;
-	encTypes encType = VIG;
+	compType = cNONE;
+	encType = VIG;
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
