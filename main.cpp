@@ -90,12 +90,12 @@ int	main(int argc, char* argv[])
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
-				encrypt((char*)msg, strlen((char*)msg) + 1);
+				encrypt((char*)msg, strlen((char*)msg) + 1); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
 				compress(txHeader, &msg);
 				transmitCom(&txHeader, msg);
 
 				Sleep(2000);
-				// CAUSING HEAP DETECTION ERROR. NEED TO FIGURE OUT WHY
+				// CAUSING HEAP DETECTION ERROR. NEED TO FIGURE OUT WHY. ASK MICHAEL
 				//free(msg);
 				//msg = NULL;
 				break;
@@ -143,7 +143,7 @@ int	main(int argc, char* argv[])
 				if (returnCode == -1) break;
 
 				decompress(rxHeader, &msgIn); 
-				decrypt(msgIn, rxHeader.payloadSize);
+				decrypt(rxHeader, msgIn);
 
 				// Play audio message
 				if (rxHeader.payloadType == mAUD) {

@@ -23,10 +23,10 @@ void setEncryption();
 void setSecretKey();
 
 // ENCRYPT/DECRYPT MESSAGE
-void decrypt(void* msg, int msgSz);
+void decrypt(Header h, void* msg);
 void encrypt(void* msg, int msgSz);
 
 // COMPRESS/DECOMPRESS MESSAGE
 int compress(Header &h, void** msg);
-int decompress(Header h, void** msg);
+int decompress(Header &h, void** msg);
 void setCompression();

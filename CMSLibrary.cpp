@@ -160,14 +160,14 @@ void setSecretKey() {
 }
 
 // decrypt message
-void decrypt(void* msg, int msgSz) {
+void decrypt(Header h, void* msg) {
 	// Decrypt the message (xor)
-	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
+	if (h.encryption == XOR) {
+		xorCipher(msg, h.payloadSize, secretKey, strlen(secretKey));
 	}
 	// Decrypt the message (Viginere)
-	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, strlen(secretKey), false);
+	else if (h.encryption == VIG) {
+		vigCipher(msg, h.payloadSize, secretKey, strlen(secretKey), false);
 	}
 
 	return;
@@ -232,7 +232,7 @@ int compress(Header &h, void** msg) {
 	return(0);
 }
 
-int decompress(Header h, void** msg) {
+int decompress(Header &h, void** msg) {
 	char* uncompressedBuf = (char*)malloc(h.uncompressedLength);
 	if (uncompressedBuf == NULL) {
 		printf("\nERROR: Coudn't malloc memory to decompressed received message.\n");
@@ -255,6 +255,7 @@ int decompress(Header h, void** msg) {
 			}
 			*msg = tmp;
 			strcpy((char*)*msg, uncompressedBuf);
+			h.payloadSize = strlen(uncompressedBuf);
 		}
 		else if (h.compression == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
