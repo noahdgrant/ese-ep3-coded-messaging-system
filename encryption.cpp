@@ -156,14 +156,14 @@ void decrypt(Header h, void* msg) {
 }
 
 // encrypt message
-void encrypt(void* msg, int msgSz) {
+void encrypt(Header h, void* msg) {
 	// XOR Encryption
-	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, (int)strlen(secretKey));
+	if (h.encryption == XOR) {
+		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
 	}
 	// Viginere encryption
-	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, (int)strlen(secretKey), true);
+	else if (h.encryption == VIG) {
+		vigCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey), true);
 	}
 
 	return;

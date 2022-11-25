@@ -17,6 +17,6 @@ void setSecretKey();
 
 // ENCRYPT/DECRYPT MESSAGE
 void decrypt(Header h, void* msg);
-void encrypt(void* msg, int msgSz);
+void encrypt(Header h, void* msg);
 
 extern char secretKey[MAX_QUOTE_LENGTH];			// Key used to encrypt/decrypt messages

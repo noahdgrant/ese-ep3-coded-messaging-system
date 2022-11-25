@@ -88,7 +88,7 @@ int	main(int argc, char* argv[])
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
-				encrypt((char*)msg, strlen((char*)msg) + 1); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+				encrypt(txHeader, (char*)msg); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
 				compress(txHeader, &msg);
 				transmitCom(&txHeader, msg);
 
@@ -123,7 +123,7 @@ int	main(int argc, char* argv[])
 					/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
 					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
 					of space it needs to be multiplied by 2. */
-					encrypt(audioMsg, numAudioBytes * 2);
+					encrypt(txHeader, audioMsg);
 					compress(txHeader, &msg);
 					transmitCom(&txHeader, audioMsg);
 				}
