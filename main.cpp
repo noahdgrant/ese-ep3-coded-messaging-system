@@ -22,7 +22,7 @@ int	main(int argc, char* argv[])
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
 	char cmd[3] = {};											// User command
 	extern long  numAudioBytes;									// Size of audio buffer
-	char msg[MAX_QUOTE_LENGTH] = {};							// Text message to transmit
+	void* msg = NULL;											// Text message to transmit
 	link q = NULL;												// Pointer to start of queue
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
 	short* audioMsg = NULL;										// Pointer to audio message buffer
@@ -76,22 +76,28 @@ int	main(int argc, char* argv[])
 				break;
 			// Transmit Text Message
 			case 5:
+				msg = (char*)malloc(MAX_QUOTE_LENGTH);
+				if (msg == NULL) {
+					printf("\nERROR: Could not malloc memory for quote buffer.\n");
+					break;
+				}
+
 				printf("\nWhat message would you link to send?\n\n");
 				fflush(stdin);													
-				scanf_s("%[^\n]s", msg, (unsigned int)sizeof(msg));				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+				scanf_s("%[^\n]s", (char*)msg, MAX_QUOTE_LENGTH);				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
 				while (getchar() != '\n') {}									
 				
 				txHeader.payloadType = mTXT;
-				txHeader.payloadSize = strlen(msg) + 1;
-				txHeader.uncompressedLength = strlen(msg) + 1;
+				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
-				encrypt(msg, strlen(msg) + 1);
-				strcpy(compressedtxt, compress(msg, txHeader.compression, txHeader.payloadType, txHeader.payloadSize)); // This makes RLE not work
+				encrypt((char*)msg, strlen((char*)msg) + 1);
+				compress(txHeader, &msg);
+				transmitCom(&txHeader, msg);
 
-				// This needs to change since we won't always be compressing text.
-				txHeader.payloadSize = strlen(compressedtxt);
-				transmitCom(&txHeader, compressedtxt);
-				Sleep(4000);
+				Sleep(2000);
+				// CAUSING HEAP DETECTION ERROR. NEED TO FIGURE OUT WHY
+				//free(msg);
+				//msg = NULL;
 				break;
 			// Transmit audio message
 			case 6:
@@ -122,7 +128,7 @@ int	main(int argc, char* argv[])
 					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
 					of space it needs to be multiplied by 2. */
 					encrypt(audioMsg, numAudioBytes * 2);
-					compress((void**)&msg, txHeader.compression, txHeader.payloadType, txHeader.payloadSize);
+					compress(txHeader, &msg);
 					transmitCom(&txHeader, audioMsg);
 				}
 
@@ -136,7 +142,7 @@ int	main(int argc, char* argv[])
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
 
-				decompress(rxHeader, msgIn); 
+				decompress(rxHeader, &msgIn); 
 				decrypt(msgIn, rxHeader.payloadSize);
 
 				// Play audio message
@@ -150,12 +156,13 @@ int	main(int argc, char* argv[])
 				// Print text message
 				else {
 					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
-					
-					// Queue recieved message
 					system("pause");					// Wait for user to press key before returning to main menu
 				}
 
+				// Queue recieved message
 				qRxMsg(rxHeader, msgIn, rxHeader.payloadSize);
+
+				// Increment the counter for number of items in recieve queue
 				numRxMsgs++;
 
 				free(msgIn);
