@@ -28,8 +28,7 @@ int testingout() {
 	}
 
 	txHeader.payloadType = mTXT;
-
-	// send text
+	//==========================send text=================================//
 	printf("\nplain text\n");
 	strcpy((char*)msg,(char*)"plain text message");
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -38,7 +37,8 @@ int testingout() {
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
-	// send text w/ Huffman
+	Sleep(1000);
+	//======================send text w/ Huffman==========================//
 	printf("\nHuffman\n");
 	strcpy((char*)msg, (char*)"Compressed with huffman");
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -47,7 +47,8 @@ int testingout() {
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
-	// send text w/ Huffman & XOR
+	Sleep(1000);
+	//===================send text w/ Huffman & XOR=======================//
 	//printf("\nHuffman & XOR\n");
 	//strcpy((char*)msg, (char*)"Compressed and encrypted with huffman and XOR");
 	//txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -56,7 +57,8 @@ int testingout() {
 	//encrypt(msg, txHeader.payloadSize);
 	//compress(txHeader, &msg);
 	//transmitCom(&txHeader, msg);
-	// send text w/ Huffman & Viginere
+	//Sleep(1000);
+	//================send text w/ Huffman & Viginere=====================//
 	printf("\nHuffman & Viginere\n");
 	strcpy((char*)msg, (char*)"Compressed and encrypted with huffman and Viginere");
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -65,7 +67,8 @@ int testingout() {
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
-	// send text w/ RLE
+	Sleep(1000);
+	//======================send text w/ RLE==============================//
 	printf("\nRLE\n");
 	strcpy((char*)msg, (char*)"Compressed with RLE");
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -74,7 +77,8 @@ int testingout() {
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
-	// send text w/ RLE & XOR
+	Sleep(1000);
+	//===================send text w/ RLE & XOR===========================//
 	//printf("\nRLE & XOR\n");
 	//strcpy((char*)msg, (char*)"Compressed and encrypted with RLE and XOR");
 	//txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -83,7 +87,8 @@ int testingout() {
 	//encrypt(msg, txHeader.payloadSize);
 	//compress(txHeader, &msg);
 	//transmitCom(&txHeader, msg);
-	// send text w/ RLE & Viginere
+	//Sleep(1000);
+	//====================send text w/ RLE & Viginere=====================//
 	printf("\nRLE & Viginere\n");
 	strcpy((char*)msg, (char*)"Compressed and encrypted with RLE and Viginere");
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -92,7 +97,8 @@ int testingout() {
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
-	// send text w/ XOR
+	Sleep(1000);
+	//========================send text w/ XOR============================//
 	//printf("\nXOR\n");
 	//strcpy((char*)msg, (char*)"Encrypted with XOR");
 	//txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -101,7 +107,8 @@ int testingout() {
 	//encrypt(msg, txHeader.payloadSize);
 	//compress(txHeader, &msg);
 	//transmitCom(&txHeader, msg);
-	// send text w/ Viginere
+	//Sleep(1000);
+	//====================send text w/ Viginere===========================//
 	printf("\nViginere\n");
 	strcpy((char*)msg, (char*)"Encrypted with Viginere");
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
@@ -110,6 +117,8 @@ int testingout() {
 	encrypt(msg, txHeader.payloadSize);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
+	Sleep(1000);
+
 	/*
 
 	// Get memory for recording
@@ -200,13 +209,15 @@ int testingin() {
 	void* msgIn = NULL;											// Pointer to recieved message buffer
 	Header rxHeader = {};
 
-	// receive text
+	//========================receive text================================//
 	printf("\nPlain Text\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn); 
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
+	Sleep(1000);
+
 	// receive text w/ Huffman
 	printf("\nHuffman\n");
 	receiveCom(&rxHeader, &msgIn);
@@ -214,8 +225,7 @@ int testingin() {
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
-
-
+	Sleep(1000);
 
 	// receive text w/ Huffman & XOR
 	//printf("\nHuffman & XOR\n");
@@ -224,6 +234,8 @@ int testingin() {
 	//decrypt(rxHeader, msgIn);
 	//printf("Received message: %s\n", (char*)msgIn);
 	//printf("\n============================================================================\n");
+	//Sleep(1000);
+
 
 
 	//receive text w/ Huffman & Viginere
@@ -233,6 +245,7 @@ int testingin() {
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
+	Sleep(1000);
 
 
 	// receive text w/ RLE
@@ -242,6 +255,7 @@ int testingin() {
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
+	Sleep(1000);
 
 
 	// receive text w/ RLE & XOR
@@ -251,6 +265,7 @@ int testingin() {
 	//decrypt(rxHeader, msgIn);
 	//printf("Received message: %s\n", (char*)msgIn);
 	//printf("\n============================================================================\n");
+	//Sleep(1000);
 
 
 	// receive text w/ RLE & Viginere
@@ -260,6 +275,7 @@ int testingin() {
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
+	Sleep(1000);
 
 
 	// receive text w/ XOR
@@ -269,6 +285,7 @@ int testingin() {
 	//decrypt(rxHeader, msgIn);
 	//printf("Received message: %s\n", (char*)msgIn);
 	//printf("\n============================================================================\n");
+	//Sleep(1000);
 
 
 	// receive text w/ Viginere
@@ -278,6 +295,7 @@ int testingin() {
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
+	Sleep(1000);
 
 
 	/*
