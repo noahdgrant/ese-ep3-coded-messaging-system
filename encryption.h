@@ -5,6 +5,7 @@
 
 #pragma once
 #include "message.h"
+#include "header.h"
 
 enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };			// Types of encryption
 

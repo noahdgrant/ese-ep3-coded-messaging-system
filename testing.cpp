@@ -1,3 +1,6 @@
+#define _CRT_SECURE_NO_DEPRECATE
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -18,14 +21,18 @@ int testingout() {
 	int recordTime = 5;
 	long  numAudioBytes;									// Size of audio buffer
 
-
+	msg = (char*)malloc(MAX_QUOTE_LENGTH);
+	if (msg == NULL) {
+		printf("\nERROR: Could not malloc memory for quote buffer.\n");
+		return 0;
+	}
 
 	txHeader.payloadType = mTXT;
 
 	// send text
 	printf("plain text\n");
-	strcpy((char*)"plain text message", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg,(char*)"plain text message");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = NONE;
 	txHeader.encryption = NONE;
 	encrypt(msg, txHeader.payloadSize);
@@ -33,8 +40,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ Huffman
 	printf("Huffman\n");
-	strcpy((char*)"Compressed with huffman", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Compressed with huffman");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = NONE;
 	encrypt(msg, txHeader.payloadSize);
@@ -42,8 +49,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ Huffman & XOR
 	printf("Huffman & XOR\n");
-	strcpy((char*)"Compressed and encrypted with huffman and XOR", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Compressed and encrypted with huffman and XOR");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = XOR;
 	encrypt(msg, txHeader.payloadSize);
@@ -51,8 +58,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ Huffman & Viginere
 	printf("Huffman & Viginere\n");
-	strcpy((char*)"Compressed and encrypted with huffman and Viginere", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Compressed and encrypted with huffman and Viginere");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = VIG;
 	encrypt(msg, txHeader.payloadSize);
@@ -60,8 +67,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ RLE
 	printf("RLE\n");
-	strcpy((char*)"Compressed with RLE", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Compressed with RLE");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = NONE;
 	encrypt(msg, txHeader.payloadSize);
@@ -69,8 +76,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ RLE & XOR
 	printf("RLE & XOR\n");
-	strcpy((char*)"Compressed and encrypted with RLE and XOR", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Compressed and encrypted with RLE and XOR");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = XOR;
 	encrypt(msg, txHeader.payloadSize);
@@ -78,8 +85,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ RLE & Viginere
 	printf("RLE & Viginere\n");
-	strcpy((char*)"Compressed and encrypted with RLE and Viginere", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Compressed and encrypted with RLE and Viginere");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = VIG;
 	encrypt(msg, txHeader.payloadSize);
@@ -87,8 +94,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ XOR
 	printf("XOR\n");
-	strcpy((char*)"Encrypted with XOR", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Encrypted with XOR");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cNONE;
 	txHeader.encryption = XOR;
 	encrypt(msg, txHeader.payloadSize);
@@ -96,8 +103,8 @@ int testingout() {
 	transmitCom(&txHeader, msg);
 	// send text w/ Viginere
 	printf("Viginere\n");
-	strcpy((char*)"Encrypted with Viginere", (char*)msg);
-	txHeader.payloadSize = txHeader.uncompressedLength = strlen((char*)msg) + 1;
+	strcpy((char*)msg, (char*)"Encrypted with Viginere");
+	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cNONE;
 	txHeader.encryption = VIG;
 	encrypt(msg, txHeader.payloadSize);
@@ -180,6 +187,7 @@ int testingout() {
 	free(audioMsg);
 	audioMsg = NULL;
 	*/
+	free(msg);
 	return 1;
 }
 
