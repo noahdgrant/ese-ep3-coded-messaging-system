@@ -97,8 +97,8 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 
 /********************************************************/
 
-char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
-encTypes encType = NONE;									// Default encryption is NONE
+char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages 
+encTypes encType = NONE;										// Default encryption is NONE
 
 // Set encryption Type 
 void setEncryption() {
