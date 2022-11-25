@@ -1,3 +1,7 @@
+/* compression.h
+   Authors: Noah Grant, Wyatt Richard
+   Version: 1.0
+*/
 #pragma once
 
 #include "header.h"

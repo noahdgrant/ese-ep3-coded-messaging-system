@@ -28,12 +28,10 @@ int	main(int argc, char* argv[])
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
 	short* audioMsg = NULL;										// Pointer to audio message buffer
 	void* msgIn = NULL;											// Pointer to recieved message buffer
-	Header txHeader = {};
-	Header rxHeader = {};
+	Header txHeader = {};										// Header that stores tranmit information
+	Header rxHeader = {};										// Header that stores recieved information
 	int numRxMsgs = 0;											// The number of messages in the Rx queue
 	int returnCode = 0;											// Holds return value from functions to check success
-
-	char compressedtxt[MAX_QUOTE_LENGTH + 384] = {};
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -156,7 +154,7 @@ int	main(int argc, char* argv[])
 				}
 				// Print text message
 				else {
-					printf("\nMessage Received: %s\n\n", (char*)msgIn);	
+					printf("\nMessage Received: %s\n\n", (char*)msgIn);
 					system("pause");					// Wait for user to press key before returning to main menu
 				}
 
