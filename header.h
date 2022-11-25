@@ -21,7 +21,3 @@ struct header {
 
 // Initializing header to default values
 void initHeader(Header &header);
-void updateHeaderSID(Header &header);
-void updateHeaderRID(Header &header);
-void updateHeaderCompression(Header &header);
-void updateHeaderEncryption(Header &header);

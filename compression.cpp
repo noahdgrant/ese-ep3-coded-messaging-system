@@ -18,7 +18,6 @@
 #include "RLE.h"
 #include "RS232Comm.h"
 
-enum compTypes compType = cNONE;								// Default compression is NONE
 
 int compress(Header& h, void** msg) {
 	char* compressedBuf = NULL;
@@ -135,15 +134,15 @@ void setCompression(Header& h) {
 
 		if (atoi(cmd) == cNONE) {
 			printf("\nNow using no compression\n");
-			compType = cNONE;
+			h.compression = cNONE;
 		}
 		else if (atoi(cmd) == cHUF) {
 			printf("\nNow using Huffman compression\n");
-			compType = cHUF;
+			h.compression = cHUF;
 		}
 		else if (atoi(cmd) == cRLE) {
 			printf("\nNow using RLE compression\n");
-			compType = cRLE;
+			h.compression = cRLE;
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");

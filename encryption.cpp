@@ -117,15 +117,15 @@ void setEncryption(Header& h) {
 
 		if (atoi(cmd) == NONE) {
 			printf("\nNow using no encryption\n");
-			encType = NONE;
+			h.encryption = NONE;
 		}
 		else if (atoi(cmd) == XOR) {
 			printf("\nNow using XOR encryption\n");
-			encType = XOR;
+			h.encryption = XOR;
 		}
 		else if (atoi(cmd) == VIG) {
 			printf("\nNow using Viginere encryption\n");
-			encType = VIG;
+			h.encryption = VIG;
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");
