@@ -19,8 +19,6 @@ struct header {
 	long uncompressedLength;	// Uncompressed message length
 };
 
-enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
-
 // Initializing header to default values
 void initHeader(Header &header);
 void updateHeaderSID(Header &header);

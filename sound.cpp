@@ -196,6 +196,8 @@ static int WaitOnHeader(WAVEHDR* wh, char cDit)
 }
 
 /***************************************************************/
+int recordTime = 2;												// Default record time
+long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
 
 // AUDIO
 // Playback saved audio file
@@ -275,3 +277,28 @@ int recordAudio() {
 	recordBuf = NULL;
 	return 0;
 } // recordAudio()
+
+// Change Audio Settings
+void changeAudioSettings() {
+	char cmd[3];				// Holds the length of time the user wants to record audio
+	do {
+		system("cls");
+		printf("Enter a new recording length between 1 and 15 seconds\n");
+		printf("\n> ");
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		while (getchar() != '\n') {}										// Flush other input buffer
+
+		cmd[2] = '\0';
+		if (atoi(cmd) >= 1 && atoi(cmd) <= 15) {
+			printf("\nThe new recording length is now %d\n", atoi(cmd));
+			recordTime = atoi(cmd);
+			numAudioBytes = SAMPLES_SEC * recordTime;
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < 1 || atoi(cmd) > 15);
+}

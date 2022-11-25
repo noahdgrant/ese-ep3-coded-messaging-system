@@ -10,6 +10,7 @@
 #include "header.h"
 #include "sound.h"
 #include "Queues.h"
+#include "RS232Comm.h"
 
 static link pHead, pTail;
 

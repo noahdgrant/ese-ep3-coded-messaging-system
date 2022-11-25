@@ -133,6 +133,9 @@ static int SetComParms(HANDLE* hCom, int nComRate, int nComBits, COMMTIMEOUTS ti
 }
 
 /************************************************/
+int rid = 0;													// Default receiver ID
+int sid = 1;													// Default sender ID
+msgTypes msgType = mNONE;
 
 // SERIAL COMMUNIACTION
 // Transmit text message
@@ -254,4 +257,16 @@ void selectComPort() {
 		Sleep(2000);
 
 	} while (atoi(cmd) < 0 || atoi(cmd) > 9);
+}
+
+// Set the recipient ID
+void setRID() {
+	printf("\nEnter the recipient ID: ");
+	scanf_s("%d", &rid);
+}
+
+// Set the Sender ID
+void setSID() {
+	printf("\nEnter the sender ID: ");
+	scanf_s("%d", &sid);
 }

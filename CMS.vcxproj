@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CMSLibrary.cpp" />
+    <ClCompile Include="compression.cpp" />
     <ClCompile Include="encryption.cpp" />
     <ClCompile Include="huffman.c" />
     <ClCompile Include="header.cpp" />
@@ -32,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMSLibrary.h" />
+    <ClInclude Include="compression.h" />
     <ClInclude Include="encryption.h" />
     <ClInclude Include="huffman.h" />
     <ClInclude Include="header.h" />

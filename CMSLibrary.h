@@ -5,28 +5,6 @@
 
 #pragma once
 
-#include "header.h"
-
-enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };				// Types of encryption
-enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };		// Types of compression
-
 // MENU
 // Print CMS menu
 void printMenu();
-
-// GUI Options
-void selectComPort();
-void changeAudioSettings();
-void setRID();
-void setSID();
-void setEncryption();
-void setSecretKey();
-
-// ENCRYPT/DECRYPT MESSAGE
-void decrypt(Header h, void* msg);
-void encrypt(void* msg, int msgSz);
-
-// COMPRESS/DECOMPRESS MESSAGE
-int compress(Header &h, void** msg);
-int decompress(Header &h, void** msg);
-void setCompression();

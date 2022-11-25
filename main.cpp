@@ -10,6 +10,7 @@
 #include <time.h>
 
 #include "CMSLibrary.h"
+#include "compression.h"
 #include "encryption.h"
 #include "header.h"
 #include "message.h"
