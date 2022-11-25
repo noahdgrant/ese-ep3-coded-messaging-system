@@ -48,14 +48,14 @@ int testingout() {
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
 	// send text w/ Huffman & XOR
-	printf("\nHuffman & XOR\n");
-	strcpy((char*)msg, (char*)"Compressed and encrypted with huffman and XOR");
-	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
-	txHeader.compression = cHUF;
-	txHeader.encryption = XOR;
-	encrypt(msg, txHeader.payloadSize);
-	compress(txHeader, &msg);
-	transmitCom(&txHeader, msg);
+	//printf("\nHuffman & XOR\n");
+	//strcpy((char*)msg, (char*)"Compressed and encrypted with huffman and XOR");
+	//txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
+	//txHeader.compression = cHUF;
+	//txHeader.encryption = XOR;
+	//encrypt(msg, txHeader.payloadSize);
+	//compress(txHeader, &msg);
+	//transmitCom(&txHeader, msg);
 	// send text w/ Huffman & Viginere
 	//printf("\nHuffman & Viginere\n");
 	//strcpy((char*)msg, (char*)"Compressed and encrypted with huffman and Viginere");
@@ -201,66 +201,83 @@ int testingin() {
 	Header rxHeader = {};
 
 	// receive text
-	printf("Plain Text\n");
+	printf("\nPlain Text\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn); 
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
+	printf("\n============================================================================\n");
 	// receive text w/ Huffman
-	printf("Huffman\n");
+	printf("\nHuffman\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
+	printf("\n============================================================================\n");
+
 
 	// receive text w/ Huffman & XOR
-	printf("Huffman & XOR\n");
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
-
-	// receive text w/ Huffman & Viginere
-	//printf("Huffman & Viginere\n");
+	//printf("\nHuffman & XOR\n");
 	//receiveCom(&rxHeader, &msgIn);
 	//decompress(rxHeader, &msgIn);
 	//decrypt(rxHeader, msgIn);
 	//printf("Received message: %s\n", (char*)msgIn);
+	//printf("\n============================================================================\n");
+
+
+	// receive text w/ Huffman & Viginere
+	//printf("\nHuffman & Viginere\n");
+	//receiveCom(&rxHeader, &msgIn);
+	//decompress(rxHeader, &msgIn);
+	//decrypt(rxHeader, msgIn);
+	//printf("Received message: %s\n", (char*)msgIn);
+	//printf("\n============================================================================\n");
+
 
 	// receive text w/ RLE
-	printf("RLE\n");
+	printf("\nRLE\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
+	printf("\n============================================================================\n");
+
 
 	// receive text w/ RLE & XOR
-	printf("RLE & XOR\n");
+	printf("\nRLE & XOR\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
+	printf("\n============================================================================\n");
+
 
 	// receive text w/ RLE & Viginere
-	printf("RLE & Viginere\n");
+	printf("\nRLE & Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
+	printf("\n============================================================================\n");
+
 
 	// receive text w/ XOR
-	printf("XOR\n");
+	printf("\nXOR\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
+	printf("\n============================================================================\n");
+
 
 	// receive text w/ Viginere
-	printf("Viginere\n");
+	printf("\nViginere\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
 	printf("Received message: %s\n", (char*)msgIn);
+	printf("\n============================================================================\n");
+
 
 	/*
 	Sleep(5);
