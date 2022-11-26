@@ -21,3 +21,4 @@ struct header {
 
 // Initializing header to default values
 void initHeader(Header &header);
+void saveUserSettings(Header &header);

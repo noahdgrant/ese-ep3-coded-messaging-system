@@ -54,6 +54,7 @@ int	main(int argc, char* argv[])
 					q = popQ();
 					free(q);									// Free memory for nodes as they pop off the queue
 				}
+				saveUserSettings(txHeader);
 				break;
 			// Record audio message
 			case 1:
