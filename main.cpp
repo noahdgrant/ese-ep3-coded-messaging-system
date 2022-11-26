@@ -16,6 +16,7 @@
 #include "queues.h"
 #include "RS232Comm.h"
 #include "sound.h"
+#include "testing.h"
 
 int	main(int argc, char* argv[])
 {

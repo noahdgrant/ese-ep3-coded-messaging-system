@@ -36,6 +36,7 @@
     <ClInclude Include="CMSLibrary.h" />
     <ClInclude Include="compression.h" />
     <ClInclude Include="encryption.h" />
+    <ClInclude Include="testing.h" />
     <ClInclude Include="huffman.h" />
     <ClInclude Include="header.h" />
     <ClInclude Include="message.h" />

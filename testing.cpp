@@ -1,5 +1,9 @@
-#define _CRT_SECURE_NO_DEPRECATE
+/* testing.cpp
+*  Authors: Noah Grant & Wyatt Richard
+* Version: 1.0
+*/
 
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +18,7 @@
 #include "compression.h"
 #include "RS232Comm.h"
 
+// Transmitter testing function
 int testingout() {
 	Header txHeader = {};
 	void* msg;
@@ -36,7 +41,7 @@ int testingout() {
 	txHeader.encryption = NONE;
 	compTypes compType = cNONE;
 	encTypes encType = NONE;
-	encrypt(msg, txHeader.payloadSize);
+	encrypt(txHeader, msg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
 	Sleep(1000);
@@ -48,7 +53,7 @@ int testingout() {
 	txHeader.encryption = NONE;
 	compType = cHUF;
 	encType = NONE;
-	encrypt(msg, txHeader.payloadSize);
+	encrypt(txHeader, msg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
 	Sleep(1000);
@@ -58,7 +63,7 @@ int testingout() {
 	//txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	//txHeader.compression = cHUF;
 	//txHeader.encryption = XOR;
-	//encrypt(msg, txHeader.payloadSize);
+	//encrypt(txHeader, msg);
 	//compress(txHeader, &msg);
 	//transmitCom(&txHeader, msg);
 	//Sleep(1000);
@@ -70,7 +75,7 @@ int testingout() {
 	txHeader.encryption = VIG;
 	compType = cHUF;
 	encType = VIG;
-	encrypt(msg, txHeader.payloadSize);
+	encrypt(txHeader, msg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
 	Sleep(1000);
@@ -82,7 +87,7 @@ int testingout() {
 	txHeader.encryption = NONE;
 	compType = cRLE;
 	encType = NONE;
-	encrypt(msg, txHeader.payloadSize);
+	encrypt(txHeader, msg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
 	Sleep(1000);
@@ -92,7 +97,7 @@ int testingout() {
 	//txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	//txHeader.compression = cRLE;
 	//txHeader.encryption = XOR;
-	//encrypt(msg, txHeader.payloadSize);
+	//encrypt(txHeader, msg);
 	//compress(txHeader, &msg);
 	//transmitCom(&txHeader, msg);
 	//Sleep(1000);
@@ -104,7 +109,7 @@ int testingout() {
 	txHeader.encryption = VIG;
 	compType = cRLE;
 	encType = VIG;
-	encrypt(msg, txHeader.payloadSize);
+	encrypt(txHeader, msg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
 	Sleep(1000);
@@ -114,7 +119,7 @@ int testingout() {
 	//txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	//txHeader.compression = cNONE;
 	//txHeader.encryption = XOR;
-	//encrypt(msg, txHeader.payloadSize);
+	//encrypt(txHeader, msg);
 	//compress(txHeader, &msg);
 	//transmitCom(&txHeader, msg);
 	//Sleep(1000);
@@ -126,7 +131,7 @@ int testingout() {
 	txHeader.encryption = VIG;
 	compType = cNONE;
 	encType = VIG;
-	encrypt(msg, txHeader.payloadSize);
+	encrypt(txHeader, msg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, msg);
 	Sleep(1000);
@@ -212,11 +217,7 @@ int testingout() {
 	return 1;
 }
 
-
-
-
-
-
+// Reciever testing function
 int testingin() {
 	void* msgIn = NULL;											// Pointer to recieved message buffer
 	Header rxHeader = {};

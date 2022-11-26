@@ -8,5 +8,3 @@
 // MENU
 // Print CMS menu
 void printMenu(Header& h);
-int testingout();
-int testingin();
