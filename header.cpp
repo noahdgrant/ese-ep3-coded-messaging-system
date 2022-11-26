@@ -3,6 +3,7 @@
 * Version: 1.00
 */
 
+#include <stdio.h>
 #include "CMSLibrary.h"
 #include "compression.h"
 #include "encryption.h"
@@ -22,5 +23,36 @@ void initHeader(Header &header) {
 	header.compression = cNONE;
 	header.uncompressedLength = 0;
 
+
+    FILE* f;
+    errno_t err;
+    err = fopen_s(&f, "usersettings.txt", "rb");
+    if(f) {
+        char cSid[11], cRid[11], cEncryption[3], cCompression[3], cCurrentCom[3];
+        fgets(cSid, sizeof(cSid), f);
+        fgets(cRid, sizeof(cRid), f);
+        fgets(cEncryption, sizeof(cEncryption), f);
+        fgets(cCompression, sizeof(cCompression), f);
+        fgets(cCurrentCom, sizeof(cCurrentCom), f);
+        fgets(secretKey, sizeof(secretKey), f);
+        fclose(f);
+        header.sid = atoi(cSid);
+        header.rid = atoi(cRid);
+        header.encryption = atoi(cEncryption);
+        header.compression = atoi(cCompression);
+        currentCom = atoi(cCurrentCom);
+
+    }
+
 	return;
+}
+
+void saveUserSettings(Header& header) {
+    FILE* f;
+    errno_t err;
+    err = fopen_s(&f, "usersettings.txt", "wb");
+    if(f) {
+        fprintf(f, "%d\n%d\n%d\n%d\n%d\n%s", header.sid, header.rid, header.encryption, header.compression, currentCom, secretKey);
+        fclose(f);
+    }
 }
