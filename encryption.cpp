@@ -156,7 +156,13 @@ void decrypt(Header h, void* msg) {
 }
 
 // encrypt message
-void encrypt(Header h, void* msg) {
+int encrypt(Header h, void* msg) {
+	if ((secretKey[0] == '\0') || (secretKey[0] == '\n')) {
+		printf("\nERROR: Secret key not set.\n");
+		Sleep(1500);
+		return(-1);
+	}
+
 	// XOR Encryption
 	if (h.encryption == XOR) {
 		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
@@ -166,5 +172,5 @@ void encrypt(Header h, void* msg) {
 		vigCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey), true);
 	}
 
-	return;
+	return(0);
 }

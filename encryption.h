@@ -16,7 +16,7 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 
 // ENCRYPT/DECRYPT MESSAGE
 void decrypt(Header h, void* msg);
-void encrypt(Header h, void* msg);
+int encrypt(Header h, void* msg);
 
 // Encryption settings functions
 void setEncryption(Header& h);

@@ -91,12 +91,17 @@ int	main(int argc, char* argv[])
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
-				encrypt(txHeader, (char*)msg); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+				returnCode = encrypt(txHeader, (char*)msg); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+				if (returnCode == -1) {		// Secret key was not set
+					free(msg);
+					break;
+				}
+				
 				compress(txHeader, &msg);
 				transmitCom(&txHeader, msg);
 
 				Sleep(2000);
-
+				// I THINK WE STILL NEED TO FREE THE MEMORY IF HUFFMAN IS NOT USED
 				break;
 			// Transmit audio message
 			case 6:
