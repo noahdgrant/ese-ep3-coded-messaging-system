@@ -8,6 +8,7 @@
 #include <Windows.h>
 
 enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
+extern int currentCom;
 
 // Prototype the functions to be used
 void initPort(HANDLE* hCom, wchar_t* COMPORT, int nComRate, int nComBits, COMMTIMEOUTS timeout);
@@ -20,11 +21,10 @@ void createPortFile(HANDLE* hCom, wchar_t* COMPORT);
 static int SetComParms(HANDLE* hCom, int nComRate, int nComBits, COMMTIMEOUTS timeout);
 
 // SERIAL COMMUNICATION
-void selectComPort();
 void transmitCom(Header* txHeader, void* txMsg);
 int receiveCom(Header* rxHeader, void** rxMsg);
 
+// Communication settings functions
+void selectComPort();
 void setRID(Header& h);
 void setSID(Header& h);
-
-extern int currentCom;

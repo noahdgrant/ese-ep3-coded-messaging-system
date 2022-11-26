@@ -16,6 +16,9 @@
 #include "message.h"
 #include "encryption.h"
 
+char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
+encTypes encType = NONE;									// Default encryption is NONE
+
 // ENCRYPTION TYPES
 // // Viginere Encryption/Decryption
 int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec) {
@@ -96,9 +99,6 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 }
 
 /********************************************************/
-
-char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
-encTypes encType = NONE;									// Default encryption is NONE
 
 // Set encryption Type 
 void setEncryption(Header& h) {
