@@ -4,9 +4,9 @@
 */
 
 #pragma once
-
+#include "header.h"
 // MENU
 // Print CMS menu
-void printMenu();
+void printMenu(Header& h);
 int testingout();
 int testingin();

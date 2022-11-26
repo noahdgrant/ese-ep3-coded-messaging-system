@@ -11,4 +11,4 @@ enum compTypes { cERR, cNONE, cHUF, cRLE, numCompTypes };		// Types of compressi
 // COMPRESS/DECOMPRESS MESSAGE
 int compress(Header& h, void** msg);
 int decompress(Header& h, void** msg);
-void setCompression();
+void setCompression(Header& h);

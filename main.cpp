@@ -21,7 +21,6 @@ int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
 	char cmd[3] = {};											// User command
-	extern long  numAudioBytes;									// Size of audio buffer
 	void* msg = NULL;											// Text message to transmit
 	link q = NULL;												// Pointer to start of queue
 	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
@@ -40,7 +39,7 @@ int	main(int argc, char* argv[])
 	// MAIN LOOP 
 	do {
 		system("cls");
-		printMenu();
+		printMenu(txHeader);
 
 		// Input from user
 		fflush(stdin);											// Flush input buffer before use. Good practice in C
@@ -88,14 +87,12 @@ int	main(int argc, char* argv[])
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
-				encrypt((char*)msg, strlen((char*)msg) + 1); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+				encrypt(txHeader, (char*)msg); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
 				compress(txHeader, &msg);
 				transmitCom(&txHeader, msg);
 
 				Sleep(2000);
-				// CAUSING HEAP DETECTION ERROR. NEED TO FIGURE OUT WHY. ASK MICHAEL
-				//free(msg);
-				//msg = NULL;
+
 				break;
 			// Transmit audio message
 			case 6:
@@ -125,7 +122,7 @@ int	main(int argc, char* argv[])
 					/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
 					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
 					of space it needs to be multiplied by 2. */
-					encrypt(audioMsg, numAudioBytes * 2);
+					encrypt(txHeader, audioMsg);
 					compress(txHeader, &msg);
 					transmitCom(&txHeader, audioMsg);
 				}
@@ -176,8 +173,8 @@ int	main(int argc, char* argv[])
 				break;
 			// Set Encription Type
 			case 10:
-				setEncryption();
-				updateHeaderEncryption(txHeader);
+				setEncryption(txHeader);
+				//updateHeaderEncryption(txHeader);
 				break;
 			// Set Encription Code
 			case 11:
@@ -185,17 +182,17 @@ int	main(int argc, char* argv[])
 				break;
 			// Set Recipient ID
 			case 12:
-				setRID();
-				updateHeaderRID(txHeader);
+				setRID(txHeader);
+				//updateHeaderRID(txHeader);
 				break;
 			// Set Sender ID
 			case 13:
-				setSID();
-				updateHeaderSID(txHeader);
+				setSID(txHeader);
+				//updateHeaderSID(txHeader);
 				break;
 			case 14:
-				setCompression();
-				updateHeaderCompression(txHeader);
+				setCompression(txHeader);
+				//updateHeaderCompression(txHeader);
 				break;
 			// Print recieved messages
 			case 15:

@@ -16,6 +16,9 @@
 #include "message.h"
 #include "encryption.h"
 
+char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
+encTypes encType = NONE;									// Default encryption is NONE
+
 // ENCRYPTION TYPES
 // // Viginere Encryption/Decryption
 int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec) {
@@ -97,11 +100,8 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 
 /********************************************************/
 
-char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages 
-encTypes encType = NONE;										// Default encryption is NONE
-
 // Set encryption Type 
-void setEncryption() {
+void setEncryption(Header& h) {
 	char cmd[2] = {};		// Holds the user's encryption choice
 	do {
 		system("cls");
@@ -117,15 +117,15 @@ void setEncryption() {
 
 		if (atoi(cmd) == NONE) {
 			printf("\nNow using no encryption\n");
-			encType = NONE;
+			h.encryption = NONE;
 		}
 		else if (atoi(cmd) == XOR) {
 			printf("\nNow using XOR encryption\n");
-			encType = XOR;
+			h.encryption = XOR;
 		}
 		else if (atoi(cmd) == VIG) {
 			printf("\nNow using Viginere encryption\n");
-			encType = VIG;
+			h.encryption = VIG;
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");
@@ -145,25 +145,25 @@ void setSecretKey() {
 void decrypt(Header h, void* msg) {
 	// Decrypt the message (xor)
 	if (h.encryption == XOR) {
-		xorCipher(msg, h.payloadSize, secretKey, strlen(secretKey));
+		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
 	}
 	// Decrypt the message (Viginere)
 	else if (h.encryption == VIG) {
-		vigCipher(msg, h.payloadSize, secretKey, strlen(secretKey), false);
+		vigCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey), false);
 	}
 
 	return;
 }
 
 // encrypt message
-void encrypt(void* msg, int msgSz) {
+void encrypt(Header h, void* msg) {
 	// XOR Encryption
-	if (encType == XOR) {
-		xorCipher(msg, msgSz, secretKey, strlen(secretKey));
+	if (h.encryption == XOR) {
+		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
 	}
 	// Viginere encryption
-	else if (encType == VIG) {
-		vigCipher(msg, msgSz, secretKey, strlen(secretKey), true);
+	else if (h.encryption == VIG) {
+		vigCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey), true);
 	}
 
 	return;

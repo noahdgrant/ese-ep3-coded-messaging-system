@@ -7,15 +7,17 @@
 #include "message.h"
 #include "header.h"
 
-enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };			// Types of encryption
+enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };		// Types of encryption
+extern char secretKey[MAX_QUOTE_LENGTH];				// Key used to encrypt/decrypt messages
 
 // ENCRYPTION TYPES
 int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec);
 int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength);
 
-void setEncryption();
-void setSecretKey();
-
 // ENCRYPT/DECRYPT MESSAGE
 void decrypt(Header h, void* msg);
-void encrypt(void* msg, int msgSz);
+void encrypt(Header h, void* msg);
+
+// Encryption settings functions
+void setEncryption(Header& h);
+void setSecretKey();
