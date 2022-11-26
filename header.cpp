@@ -9,6 +9,7 @@
 #include "encryption.h"
 #include "header.h"
 #include "RS232Comm.h"
+#include "sound.h"
 
 // Initializing header to default values (or user pereference saved values)
 void initHeader(Header &header) {
@@ -28,20 +29,23 @@ void initHeader(Header &header) {
     errno_t err;
     err = fopen_s(&f, "usersettings.txt", "rb");
     if(f) {
-        char cSid[11], cRid[11], cEncryption[3], cCompression[3], cCurrentCom[3];
+        char cSid[11], cRid[11], cEncryption[3], cCompression[3], cCurrentCom[3], cRecordTime[4];
         fgets(cSid, sizeof(cSid), f);
         fgets(cRid, sizeof(cRid), f);
         fgets(cEncryption, sizeof(cEncryption), f);
         fgets(cCompression, sizeof(cCompression), f);
         fgets(cCurrentCom, sizeof(cCurrentCom), f);
         fgets(secretKey, sizeof(secretKey), f);
+        fgets(cRecordTime, sizeof(cRecordTime), f);
+
+        
         fclose(f);
         header.sid = atoi(cSid);
         header.rid = atoi(cRid);
         header.encryption = atoi(cEncryption);
         header.compression = atoi(cCompression);
         currentCom = atoi(cCurrentCom);
-
+        recordTime = atoi(cRecordTime);
     }
 
 	return;
@@ -52,7 +56,7 @@ void saveUserSettings(Header& header) {
     errno_t err;
     err = fopen_s(&f, "usersettings.txt", "wb");
     if(f) {
-        fprintf(f, "%d\n%d\n%d\n%d\n%d\n%s", header.sid, header.rid, header.encryption, header.compression, currentCom, secretKey);
+        fprintf(f, "%d\n%d\n%d\n%d\n%d\n%s\n%d", header.sid, header.rid, header.encryption, header.compression, currentCom, secretKey, recordTime);
         fclose(f);
     }
 }
