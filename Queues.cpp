@@ -96,6 +96,14 @@ void traverseR(link h, void (*visit)(link)) {
 
 /****************************************************/
 
+// Traverse linked-list and keep track of the current position
+void countAndTraverse(link h, void (*visit)(link, int i), int i) {
+	if (h == NULL) return;						// Reached the end of the linked-list
+	(*visit)(h, i);								// Call visit() for the current node
+	h->Data.msgHeader.seqNum = i;
+	countAndTraverse(h->pNext, visit, i+1);		// Recursively go to the next node
+}
+
 // Queue recieved message
 int qRxMsg(Header rxHeader, void* rxMsg, int msgSz) {
 	link p = NULL;															// Pointer to memory where quere node will be stored
@@ -117,8 +125,11 @@ int qRxMsg(Header rxHeader, void* rxMsg, int msgSz) {
 }
 
 // Print current node
-void printNode(link h) {
+void printNode(link h, int i) {
 	char cmd = '\0';
+
+	printf("\nMESSAGE #%d\n", i);
+
 	// Print message header
 	printf("\nMESSAGE HEADER\n");
 	printf("SID: %d\n", h->Data.msgHeader.sid);
@@ -158,5 +169,22 @@ void printNode(link h) {
 
 // Print recieved messages from oldest to newest
 void printRxMsgs() {
-	traverse(listHead(), printNode);
+	countAndTraverse(listHead(), printNode, 1);		// Pass the number you want to list to start counting at
 }
+
+// Delete a node in the linked-list based on sequence number
+link deleteMsg(link parent, link child, Item v, int &numMsgs) {
+	if (child == NULL) {
+		printf("\nMessage #%d not found.\n", v.msgHeader.seqNum);
+		return(NULL);
+	}
+	if (child->Data.msgHeader.seqNum == v.msgHeader.seqNum) {				// If the sequence number of the child matches what we are looking for, delete the child node
+		parent->pNext = child->pNext;										// Set the parent to point at the node the child currently points to
+		free(child);
+		printf("Message #%d successfully deleted!\n", v.msgHeader.seqNum);
+		numMsgs--;
+	}
+	else {
+		deleteMsg(child, child->pNext, v, numMsgs);							// If the child data doesn't match, update the parent to the current child, and the child to the next element
+	}
+} // deleteR
