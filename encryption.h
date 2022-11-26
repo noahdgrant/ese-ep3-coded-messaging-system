@@ -5,6 +5,7 @@
 
 #pragma once
 #include "message.h"
+#include "header.h"
 
 enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };		// Types of encryption
 extern char secretKey[MAX_QUOTE_LENGTH];				// Key used to encrypt/decrypt messages

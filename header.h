@@ -13,9 +13,9 @@ struct header {
 	int priority;						
 	int seqNum;			 
 	long payloadSize;			// Number of bytes in payload after this header
-	int payloadType;			// ERR, TXT, AUD
-	int encryption;				// NONE, XOR, VIG
-	int compression;			// NONE, RLE, HUF
+	int payloadType;			// mERR, mNONE, mTXT, mAUD, numMsgTypes
+	int encryption;				// ERR, NONE, XOR, VIG, numOfEnc
+	int compression;			// cERR, cNONE, cHUF, cRLE, numCompTypes
 	long uncompressedLength;	// Uncompressed message length
 };
 

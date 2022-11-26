@@ -3,7 +3,6 @@
    Version: 01.00
 */
 
-#define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -200,6 +199,14 @@ int	main(int argc, char* argv[])
 				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
 				printRxMsgs();
 				system("pause");					// Wait for user to press key before returning to main menu
+				break;
+				// test function send
+			case 16:
+				testingout();
+				break;
+				// test function receive
+			case 17:
+				testingin();
 				break;
 			// Invalid command
 			default:
