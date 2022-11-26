@@ -3,23 +3,23 @@ TEST RESULTS FOR CMS PROJECT
 Updated: November 11, 2022
 
 TEXT:
-plain - yes
-XOR - yes
-Vig - yes
-Huff - yes
-RLE - yes
-XOR+Huff - yes
-XOR+RLE - yes
-Vig+Huff - yes
-Vig+RLE - yes
+plain		- yes
+Huff		- yes
+RLE			- yes
+XOR			- yes
+Vig			- yes
+Huff+XOR	- no (works for shorter messages. The uncompressed buff isn't returning the correct value when XOR is also used)
+Huff+Vig	- yes
+RLE+XOR		- no (works for shorter messages. The uncompressed buff isn't returning the correct value when XOR is also used)
+RLE+Vig		- yes
 
 AUDIO:
-plain - yes
-XOR - yes but there is noise at the beginning
-Vig - yes
-Huff         (not yet)
-RLE         (not yet)
-XOR+Huff    (not yet)
-XOR+RLE     (not yet)
-Vig+Huff     (not yet)
-Vig+RLE     (not yet)
+plain		- yes
+Huff        - (not implemented)
+RLE			- (not yet)
+XOR			- yes but there is noise at the beginning
+Vig			- yes
+Huff+XOR	- (not implemented)
+Huff+Vig	- (not implemented)
+RLE+XOR		- (not implemented)
+RLE+Vig		- (not implemented)

@@ -3,6 +3,7 @@
    Version: 01.00
 */
 
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +32,7 @@ int	main(int argc, char* argv[])
 	Header rxHeader = {};										// Header that stores recieved information
 	int numRxMsgs = 0;											// The number of messages in the Rx queue
 	int returnCode = 0;											// Holds return value from functions to check success
+	Item delMsg;												// Message to delete from queue
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -198,9 +200,26 @@ int	main(int argc, char* argv[])
 				break;
 			// Print recieved messages
 			case 15:
+				delMsg.msgHeader.seqNum = 0;	// Reset the message to be deleted each time
+				
+				// Print received messages
+				system("cls");
 				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
 				printRxMsgs();
-				system("pause");					// Wait for user to press key before returning to main menu
+				do {
+					// Ask if user wants to delete a message
+					printf("\nEnter the number of the message you want to delete, otherwise enter 0 to return to the menu\n");
+					printf("\n> ");
+					fflush(stdin);											
+					scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+					while (getchar() != '\n') {}
+
+					// Delete message
+					delMsg.msgHeader.seqNum = atoi(cmd);
+					deleteMsg(listHead(), listHead()->pNext, delMsg, numRxMsgs);
+				} while (atoi(cmd) != 0);
+
+				strcpy(cmd, "15");	// Reset cmd so that program doesn't close
 				break;
 				// test function send
 			case 16:

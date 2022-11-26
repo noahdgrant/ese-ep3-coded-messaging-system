@@ -92,7 +92,7 @@ int decompress(Header& h, void** msg) {
 			}
 			*msg = tmp;
 			strcpy((char*)*msg, uncompressedBuf);
-			h.payloadSize = strlen(uncompressedBuf);
+			h.payloadSize = strlen(uncompressedBuf); //THIS IS NOT RETURNING THE CORRECT TRANSMITTED UNCOMPRESSED LENGTH ALL THE TIME
 		}
 		else if (h.compression == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
