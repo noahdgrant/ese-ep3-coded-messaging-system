@@ -88,5 +88,8 @@
     <Text Include="FortuneCookies.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="Test Results.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
