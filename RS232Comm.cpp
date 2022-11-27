@@ -1,7 +1,8 @@
-/* RS232Comm.cpp - Implementation for the RS232 communications module
- * By: Michael A. Galle
- *
- */
+/***********************************************************
+* Name:			RS232Comm.cpp
+* Author(s):	Michael Galle, Noah Grant, Wyatt Richard
+* Description:	RS232 cable transmitting and receiving implementation.
+************************************************************/
 
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -13,16 +14,22 @@
 #include "header.h"
 #include "RS232Comm.h"
 
+/***********************************************************
+* Specific variables
+************************************************************/
+
 #define EX_FATAL 1
 
-int nComRate = 460800;											// Baud (Bit) rate in bits/second 
-int nComBits = 8;												// Number of bits per frame
-int currentCom = 6;												// Default COM port
-wchar_t COMPORT_Tx[] = L"COM6";									// COM port used for transmitting
-wchar_t COMPORT_Rx[] = L"COM6";									// COM port used for recieving
-HANDLE hComTx;													// Pointer to the selected COM port (Transmitter)
-HANDLE hComRx;													// Pointer to the selected COM port (Receiver)
-COMMTIMEOUTS timeout;											// A commtimeout struct variable
+int nComRate = 460800;						// Baud (Bit) rate in bits/second 
+int nComBits = 8;							// Number of bits per frame
+int currentCom = 6;							// Default COM port
+wchar_t COMPORT_Tx[] = L"COM6";				// COM port used for transmitting
+wchar_t COMPORT_Rx[] = L"COM6";				// COM port used for recieving
+HANDLE hComTx;								// Pointer to the selected COM port (Transmitter)
+HANDLE hComRx;								// Pointer to the selected COM port (Receiver)
+COMMTIMEOUTS timeout;						// A commtimeout struct variable
+
+/****************************************************************/
 
 // Initializes the port and sets the communication parameters
 void initPort(HANDLE* hCom, wchar_t* COMPORT, int nComRate, int nComBits, COMMTIMEOUTS timeout) {
@@ -132,10 +139,15 @@ static int SetComParms(HANDLE* hCom, int nComRate, int nComBits, COMMTIMEOUTS ti
 	return(1);
 }
 
-/************************************************/
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
 
-// SERIAL COMMUNIACTION
-// Transmit text message
+/*************************************************************************
+* transmitCom() - Transmit communication.
+* txHeader		- Transmit header.
+* txMsg			- Transmit message.
+*************************************************************************/
 void transmitCom(Header* txHeader, void* txMsg) {
 	initPort(&hComTx, COMPORT_Tx, nComRate, nComBits, timeout);								// Initialize the Tx port
 	Sleep(500);
@@ -149,7 +161,11 @@ void transmitCom(Header* txHeader, void* txMsg) {
 	return;
 }
 
-// Receive audio message
+/*************************************************************************
+* receiveCom() - Receive communication.
+* rxHeader		- Received header.
+* rxMsg			- Received message.
+*************************************************************************/
 int receiveCom(Header* rxHeader, void** rxMsg) {
 	DWORD bytesRead = 0;																// Number of bytes recieved from incomming message
 
@@ -179,7 +195,9 @@ int receiveCom(Header* rxHeader, void** rxMsg) {
 	return(0);
 }
 
-// Change Com port
+/*************************************************************************
+* selectComPort() - Select com port to use for communication.
+*************************************************************************/
 void selectComPort() {
 	char cmd[3] = {};			// Holds the COM port the user wants to use
 	do {
@@ -256,13 +274,17 @@ void selectComPort() {
 	} while (atoi(cmd) < 0 || atoi(cmd) > 9);
 }
 
-// Set the recipient ID
+/*************************************************************************
+* setRID() - Set the receiver ID.
+*************************************************************************/
 void setRID(Header& h) {
 	printf("\nEnter the recipient ID: ");
 	scanf_s("%d", &h.rid);
 }
 
-// Set the Sender ID
+/*************************************************************************
+* setSID() - Set the sender ID.
+*************************************************************************/
 void setSID(Header& h) {
 	printf("\nEnter the sender ID: ");
 	scanf_s("%d", &h.sid);

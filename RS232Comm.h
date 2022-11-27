@@ -1,14 +1,23 @@
-/* RS232Comm.h - Interface for the RS232 communications module
- * By: Michael A. Galle
- *
- */
+/***********************************************************
+* Name:			RS232Comm.h
+* Author(s):	Michael Galle, Noah Grant, Wyatt Richard
+* Description:	RS232 cable transmitting and receiving interface.
+************************************************************/
 
 #pragma once
 
 #include <Windows.h>
 
+/***********************************************************
+* Specific variables
+************************************************************/
+
 enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
 extern int currentCom;
+
+/***********************************************************
+* Function prototypes
+************************************************************/
 
 // Prototype the functions to be used
 void initPort(HANDLE* hCom, wchar_t* COMPORT, int nComRate, int nComBits, COMMTIMEOUTS timeout);

@@ -1,7 +1,8 @@
-/* compression.cpp
-   Authors: Noah Grant, Wyatt Richard
-   Version: 1.0
-*/
+/***********************************************************
+* Name:			compression.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Compression/decompression implementation.
+************************************************************/
 
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -18,7 +19,16 @@
 #include "RLE.h"
 #include "RS232Comm.h"
 
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
 
+/*************************************************************************
+* compress() - Compress transmit buffer.
+* h		- Transmit header.
+* msg	- Message to be transmitted.
+* This function returns 0 if compression was successful or -1 if it failed.
+*************************************************************************/
 int compress(Header& h, void** msg) {
 	char* compressedBuf = NULL;
 
@@ -67,6 +77,12 @@ int compress(Header& h, void** msg) {
 	return(0);
 }
 
+/*************************************************************************
+* decompress() - Decompress received buffer.
+* h		- Received header.
+* msg	- Received message.
+* This function returns 0 if compression was successful or -1 if it failed.
+*************************************************************************/
 int decompress(Header& h, void** msg) {
 	char* uncompressedBuf = NULL;
 
@@ -119,6 +135,10 @@ int decompress(Header& h, void** msg) {
 	return(0);
 }
 
+/*************************************************************************
+* setCompress() - Set the type of compression used on the transmitted message..
+* h		- Transmit header.
+*************************************************************************/
 void setCompression(Header& h) {
 	char cmd[2] = {};		// Holds the user's encryption choice
 	do {

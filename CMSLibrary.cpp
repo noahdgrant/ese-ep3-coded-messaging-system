@@ -1,7 +1,8 @@
-/* message.cpp -Implementation: Functions for CMS project
-*  By: Noah Grant, Wyatt Richard
-*  Version: 01.00
-*/
+/***********************************************************
+* Name:			CMSLibrary.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	CMSLibrary functions implementation.
+************************************************************/
 
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -22,10 +23,14 @@
 #include "RS232Comm.h"
 #include "sound.h"
 
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
 
-
-// MENU
-// Print CMS menu
+/*************************************************************************
+* printMenu() - Print Coded Messaging System main menu.
+* h		- Transmit header.
+*************************************************************************/
 void printMenu(Header& h) {
 	printf("\nCMS Menu\n");
 	printf("1. Record\n");
@@ -70,4 +75,4 @@ void printMenu(Header& h) {
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;
-} // printMenu()
+}

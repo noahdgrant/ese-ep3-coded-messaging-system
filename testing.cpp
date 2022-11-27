@@ -1,7 +1,8 @@
-/* testing.cpp
-*  Authors: Noah Grant & Wyatt Richard
-* Version: 1.0
-*/
+/***********************************************************
+* Name:			testing.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Diagnostic testing functions implementation.
+************************************************************/
 
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -18,7 +19,14 @@
 #include "compression.h"
 #include "RS232Comm.h"
 
-// Transmitter testing function
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
+
+/*************************************************************************
+* testingout() - Transmits all text cases for Coded Messaging System.
+* This function return 0 if it successful. Otherwise, it return -1.
+*************************************************************************/
 int testingout() {
 	Header txHeader = {};
 	void* msg;
@@ -257,7 +265,10 @@ int testingout() {
 	return(1);
 }
 
-// Reciever testing function
+/*************************************************************************
+* testingin() - Receives all text cases for Coded Messaging System.
+* This function return 0 if it successful. Otherwise, it return -1.
+*************************************************************************/
 int testingin() {
 	void* msgIn = NULL;					// Pointer to recieved message buffer
 	Header rxHeader = {};

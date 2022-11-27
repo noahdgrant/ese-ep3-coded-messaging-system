@@ -1,9 +1,14 @@
-/* header.h - Define header portion of frame
-* By: Noah Grant, Wyatt Richard
-* Version: 1.00
-*/
+/***********************************************************
+* Name:			header.h
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Message header interface.
+************************************************************/
 
 #pragma once
+
+/***********************************************************
+* Specific variables
+************************************************************/
 
 typedef struct header Header;
 
@@ -19,6 +24,10 @@ struct header {
 	long uncompressedLength;	// Uncompressed message length
 };
 
-// Initializing header to default values
-void initHeader(Header &header);
-void saveUserSettings(Header &header);
+/***********************************************************
+* Function prototypes
+************************************************************/
+
+void initHeader(Header &header);			// Initialize header and load user settings
+
+void saveUserSettings(Header &header);		// Save user setting on program exit

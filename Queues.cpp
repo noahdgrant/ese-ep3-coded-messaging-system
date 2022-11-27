@@ -1,7 +1,9 @@
-/* Queues.cpp - Implementation for the Queue functionality
-*  Author: Ian Edwards, Noah Grant, Wyatt Richard
-*  Version: 01.00
-*/
+/***********************************************************
+* Name:			queues.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Queue implementation.
+************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,20 +14,35 @@
 #include "Queues.h"
 #include "RS232Comm.h"
 
+/***********************************************************
+* Specific variables
+************************************************************/
+
 static link pHead, pTail;
 
-// BASIC QUEUE FUNCTIONALITY
-// Start a new linked-list
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
+
+/*************************************************************************
+* initQueue() - Initiate a new queue (linked-list).
+*************************************************************************/
 void initQueue(void) {
 	pHead = pTail = NULL;
-} // initQueue
+}
 
-// Check if the linked-list is empty
+/*************************************************************************
+* isQueueEmpty() - Check if queue is empty.
+* This function return 1 if queue is empty. Otherwise, it return 0.
+*************************************************************************/
 int isQueueEmpty(void) {
 	return (pHead == NULL);
-} // isQueueEmpty
+}
 
-// Add new item to head of queue
+/*************************************************************************
+* pushQ() - Add new item to the tail queue.
+* pn		- Pointer to the item to add to the queue.
+*************************************************************************/
 void pushQ(link pn) {
 	if (isQueueEmpty()) {
 		pHead = pTail = pn;
@@ -35,9 +52,12 @@ void pushQ(link pn) {
 		pTail = pn;				// pTail is the pointer that keeps track of the end of the node
 	}
 	pTail->pNext = NULL;
-} // pushQ
+}
 
-// Remove the first item from the queue
+/*************************************************************************
+* popQ() - Remove the item at the head of the queue.
+* This function returns a pointer to the new head of the queue. If the queue is empty, it returns NULL.
+*************************************************************************/
 link popQ(void) {
 	link pTemp;					// Hold current head
 	if (isQueueEmpty()) {
@@ -50,19 +70,31 @@ link popQ(void) {
 	}
 } // popQ
 
-// Recursive queue functions
-// Return a pointer to the head of the linked-list
+/*************************************************************************
+* listHead() - Remove the item at the head of the queue.
+* This function returns a pointer to the head of the queue.
+*************************************************************************/
 link listHead() {
 	return pHead;
-} // returnHead
+}
 
-// Count the number of nodes in the linked-list
+/*************************************************************************
+* count() - Counts the number of items in the queue from a specified starting point.
+* h		- The position in the queue to begin counting.
+* This function returns the number of items in the queue.
+*************************************************************************/
 int count(link h) {
 	if (h == NULL) return 0;
 	return (1 + count(h->pNext));				// Recursively go to the end of the linked and add one each time
-} // count
+}
 
-// Delete a node in the linked-list based on SID
+/*************************************************************************
+* deleteR() - Delete a node from the queue based on sender ID.
+* parent		- The point in the queue to start looking at.
+* child			- The node after the first node.
+* v				- An item with the thing you want to delete.
+* This function returns returns NULL once it reaches the end of the queue.
+*************************************************************************/
 link deleteR(link parent, link child, Item v) {
 	if (child == NULL) return(NULL);
 	if (child->Data.msgHeader.sid == v.msgHeader.sid) {				// If the SID of the child matches what we are looking for, delete the child node
@@ -73,30 +105,44 @@ link deleteR(link parent, link child, Item v) {
 	else {
 		deleteR(child, child->pNext, v);		// If the child data doesn't match, update the parent to the current child, and the child to the next element
 	}
-} // deleteR
+}
 
-// Prints the message of the current node
+/*************************************************************************
+* visit() - Prints the current node's message.
+* h		- Current node.
+*************************************************************************/
 void visit(link h) {
 	printf("\nNODE MESSAGE:\n%s\n", h->Data.message);	// Print the SID of the current node in the linked-list
 }
 
-// Traverse the linked-list from head to tail
+/*************************************************************************
+* traverse() - Traverse the queue from head to tail.
+* h			- The head of the queue.
+* visit		- Function to perform on current node.
+*************************************************************************/
 void traverse(link h, void (*visit)(link)) {
 	if (h == NULL) return;						// Reached the end of the linked-list
 	(*visit)(h);								// Call visit() for the current node
 	traverse(h->pNext, visit);					// Recursively go to the next node
-} // traverse
+}
 
-// Traverse the linked-list from tail to head
+/*************************************************************************
+* traverseR() - Travese the queue from tail to head.
+* h			- The head of the queue.
+* visit		- Function to perform on current node.
+*************************************************************************/
 void traverseR(link h, void (*visit)(link)) {
 	if (h == NULL) return;						// Reached the end of the linked-list
 	traverseR(h->pNext, visit);					// Recursively go to the next node until the end is reached
 	(*visit)(h);								// Call visit() for reach node as the recursion unwinds. Prints the linked-list backwards
-} // traverse R
+}
 
-/****************************************************/
-
-// Traverse linked-list and keep track of the current position
+/*************************************************************************
+* countAndTraverse() - Count the number of item in queue, give each one a number based on it's position, and print it's message.
+* h			- The head of the queue.
+* visit		- Function to perform on current node.
+* i			- The number to begin counting at.
+*************************************************************************/
 void countAndTraverse(link h, void (*visit)(link, int i), int i) {
 	if (h == NULL) return;						// Reached the end of the linked-list
 	(*visit)(h, i);								// Call visit() for the current node
@@ -104,7 +150,13 @@ void countAndTraverse(link h, void (*visit)(link, int i), int i) {
 	countAndTraverse(h->pNext, visit, i+1);		// Recursively go to the next node
 }
 
-// Queue recieved message
+/*************************************************************************
+* qRxMsg() - Push recieved message to tail of queue.
+* rxHeader		- Received header.
+* rxMsg			- Received message.
+* msgSz			- Message size.
+* This function return 0 if successful or -1 if it's not.
+*************************************************************************/
 int qRxMsg(Header rxHeader, void* rxMsg, int msgSz) {
 	link p = NULL;															// Pointer to memory where quere node will be stored
 
@@ -124,7 +176,11 @@ int qRxMsg(Header rxHeader, void* rxMsg, int msgSz) {
 	return(0);
 }
 
-// Print current node
+/*************************************************************************
+* printNode() - Display current nodes message.
+* h			- The head of the queue.
+* i			- The messages position in the queue.
+*************************************************************************/
 void printNode(link h, int i) {
 	char cmd = '\0';
 
@@ -167,12 +223,21 @@ void printNode(link h, int i) {
 	printf("\n*********************************\n");
 }
 
-// Print recieved messages from oldest to newest
+/*************************************************************************
+* printRxMsgs() - Display messages in queue from head to tail (oldest to newnest).
+*************************************************************************/
 void printRxMsgs() {
 	countAndTraverse(listHead(), printNode, 1);		// Pass the number you want to list to start counting at
 }
 
-// Delete a node in the linked-list based on sequence number
+/*************************************************************************
+* deleteMsg() - Delete item in queue based on its position.
+* parent		- Head of queue.
+* child			- second item in the queue.
+* v				- Item the holds the number of the item to be removed.
+* numMsgs		- Current number of items in the queue.
+* This function returns NULL once it reaches the tail of the queue.
+*************************************************************************/
 link deleteMsg(link parent, link child, Item v, int &numMsgs) {
 	if (child == NULL) {
 		printf("\nMessage #%d not found.\n", v.msgHeader.seqNum);
