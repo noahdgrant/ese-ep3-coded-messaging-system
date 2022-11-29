@@ -14,6 +14,7 @@
 #include "header.h"
 #include "RS232Comm.h"
 #include "message.h"
+#include "contactList.h"
 
 /***********************************************************
 * Specific variables
@@ -279,16 +280,69 @@ void selectComPort() {
 * setRID() - Set the receiver ID.
 *************************************************************************/
 void setRID(Header& h) {
-	printf("\nEnter the recipient ID: ");
-	scanf_s("%d", &h.rid);
+	char cmd[2] = {};		// Holds the user's encryption choice
+	do {
+		system("cls");
+		printf("1. Chose from contact list\n");
+		printf("2. Add new contact\n");
+		printf("3. Chose an ID not assigned to a contact\n");
+		printf("\n> ");
+
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		while (getchar() != '\n') {}										// Flush other input buffer
+
+		if (atoi(cmd) == 1) {//chose from contact list
+			h.rid = selectContact();
+		}
+		else if (atoi(cmd) == 2) {//add new contact
+			addContact();
+		}
+		else if (atoi(cmd) == 3) {//chose an ID not assigned to a contact
+			printf("\nEnter the recipient ID: ");
+			scanf_s("%d", &h.rid);
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < 0 || atoi(cmd) > 3);
 }
 
 /*************************************************************************
 * setSID() - Set the sender ID.
 *************************************************************************/
 void setSID(Header& h) {
-	printf("\nEnter the sender ID: ");
-	scanf_s("%d", &h.sid);
+	char cmd[2] = {};		// Holds the user's encryption choice
+	do {
+		system("cls");
+		printf("1. Chose from contact list\n");
+		printf("2. Add new contact\n");
+		printf("3. Chose an ID not assigned to a contact\n");
+		printf("\n> ");
+
+		fflush(stdin);														// Flush input buffer after use. Good practice in C
+		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+		while (getchar() != '\n') {}										// Flush other input buffer
+
+		if (atoi(cmd) == 1) {//chose from contact list
+			h.sid = selectContact();
+		}
+		else if (atoi(cmd) == 2) {//add new contact
+			addContact();
+		}
+		else if (atoi(cmd) == 3) {//chose an ID not assigned to a contact
+			printf("\nEnter the recipient ID: ");
+			scanf_s("%d", &h.sid);
+		}
+		else {
+			printf("You did not enter a valid command. Please try again.");
+		}
+		Sleep(2000);
+
+	} while (atoi(cmd) < 0 || atoi(cmd) > 3);
+
 }
 
 /*************************************************************************
