@@ -37,6 +37,12 @@
     <ClCompile Include="testing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BSTLibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="contactList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMSLibrary.h">
@@ -70,6 +76,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="testing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BSTLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="contactList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

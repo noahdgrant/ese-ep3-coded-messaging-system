@@ -19,6 +19,7 @@
 #include "RS232Comm.h"
 #include "sound.h"
 #include "testing.h"
+#include "contactList.h"
 
 int	main(int argc, char* argv[])
 {
@@ -41,6 +42,7 @@ int	main(int argc, char* argv[])
 	srand(time(NULL));					 						// Seed the random number generator 
 	initQueue();
 	initHeader(txHeader);										// Set header to default values
+	initContact();
 
 	// MAIN LOOP 
 	do {
@@ -60,6 +62,7 @@ int	main(int argc, char* argv[])
 					free(q);									// Free memory for nodes as they pop off the queue
 				}
 				saveUserSettings(txHeader);
+				closeContacts();
 				break;
 			// Record audio message
 			case 1:
