@@ -1,9 +1,14 @@
-/* testing.h
-  Author: Noah Grant & Wyatt Richard
-  Version: 1.0
-*/
+/***********************************************************
+* Name:			testing.h
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Diagnostic testing interface.
+************************************************************/
 
 #pragma once
+
+/***********************************************************
+* Function prototypes
+************************************************************/
 
 int testingout();	// Transmitter test function
 int testingin();	// Receiver test function

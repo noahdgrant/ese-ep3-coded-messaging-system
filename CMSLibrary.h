@@ -1,10 +1,15 @@
-/* CMSLibrary.h -Interface: Header file for extra CMS functions
-*  By: Noah Grant, Wyatt Richard
-*  Version: 01.00
-*/
+/***********************************************************
+* Name:			CMSLibrary.h
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	CMSLibrary functions interface.
+************************************************************/
 
 #pragma once
+
 #include "header.h"
-// MENU
-// Print CMS menu
-void printMenu(Header& h);
+
+/***********************************************************
+* Function prototypes
+************************************************************/
+
+void printMenu(Header& h);		// Print Coded Messaging System menu

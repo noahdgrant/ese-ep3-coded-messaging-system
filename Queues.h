@@ -1,11 +1,16 @@
-/* Queues.h - Interface for the Queue functionality
-*  Author: Ian Edwards, Noah Grant, Wyatt Richard
-   Version: 01.00
-*/
+/***********************************************************
+* Name:			queues.h
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Queue interface.
+************************************************************/
 
 #pragma once
 
 #include "header.h"
+
+/***********************************************************
+* Specific variables
+************************************************************/
 
 #define MAX_QUOTE_LENGTH 140
 
@@ -22,6 +27,10 @@ struct node {
 	link pNext;					// Pointer to next node
 	Item Data;					// Data in node
 };
+
+/***********************************************************
+* Function prototypes
+************************************************************/
 
 // Queue functions prototypes
 void initQueue(void);			// Initailize the queue

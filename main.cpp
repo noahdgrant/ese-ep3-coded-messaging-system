@@ -1,7 +1,8 @@
-/* main.cpp : Mainline for CMS project
-   Author(s): Noah Grant, Wyatt Richard
-   Version: 01.00
-*/
+/***********************************************************
+* Name:			main.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Coded Messaging System client.
+************************************************************/
 
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -22,17 +23,19 @@
 int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
-	char cmd[3] = {};											// User command
-	void* msg = NULL;											// Text message to transmit
-	link q = NULL;												// Pointer to start of queue
-	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
-	short* audioMsg = NULL;										// Pointer to audio message buffer
-	void* msgIn = NULL;											// Pointer to recieved message buffer
-	Header txHeader = {};										// Header that stores tranmit information
-	Header rxHeader = {};										// Header that stores recieved information
-	int numRxMsgs = 0;											// The number of messages in the Rx queue
-	int returnCode = 0;											// Holds return value from functions to check success
-	Item delMsg;												// Message to delete from queue
+	char cmd[3] = {};								// User command
+	void* msg = NULL;								// Text message to transmit
+	link q = NULL;									// Pointer to start of queue
+	char sendCmd = '\0';							// Holds wether the user wants to send the audio message or not
+	short* audioMsg = NULL;							// Pointer to audio message buffer
+	void* msgIn = NULL;								// Pointer to recieved message buffer
+	Header txHeader = {};							// Header that stores tranmit information
+	Header rxHeader = {};							// Header that stores recieved information
+	int numRxMsgs = 0;								// The number of messages in the Rx queue
+	int returnCode = 0;								// Holds return value from functions to check success
+	Item delMsg;									// Message to delete from queue
+	char filename[MAX_QUOTE_LENGTH] = {};			// Name of file to transmit
+	int fSize = 0;									// Number of characters in file
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -91,12 +94,15 @@ int	main(int argc, char* argv[])
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
-				encrypt(txHeader, (char*)msg); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+				returnCode = encrypt(txHeader, (char*)msg);		// +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+				if (returnCode == -1) {							// Secret key was not set
+					break;
+				}
 				compress(txHeader, &msg);
 				transmitCom(&txHeader, msg);
 
 				Sleep(2000);
-
+				// I THINK WE STILL NEED TO FREE THE MEMORY IF HUFFMAN IS NOT USED
 				break;
 			// Transmit audio message
 			case 6:
@@ -153,16 +159,23 @@ int	main(int argc, char* argv[])
 					Sleep(500);
 				}
 				// Print text message
-				else {
+				else if (rxHeader.payloadType == mTXT) {
 					printf("\nMessage Received: %s\n\n", (char*)msgIn);
 					system("pause");					// Wait for user to press key before returning to main menu
 				}
+				// Save txt file
+				else if (rxHeader.payloadType == mTXTFILE) {
+					saveFile((char*)msgIn);
+					Sleep(2000);
+				}
 
-				// Queue recieved message
-				qRxMsg(rxHeader, msgIn, rxHeader.payloadSize);
+				if (rxHeader.payloadType != mTXTFILE) {
+					// Queue recieved message
+					qRxMsg(rxHeader, msgIn, rxHeader.payloadSize);
 
-				// Increment the counter for number of items in recieve queue
-				numRxMsgs++;
+					// Increment the counter for number of items in recieve queue
+					numRxMsgs++;
+				}
 
 				free(msgIn);
 				msgIn = NULL;
@@ -178,7 +191,6 @@ int	main(int argc, char* argv[])
 			// Set Encription Type
 			case 10:
 				setEncryption(txHeader);
-				//updateHeaderEncryption(txHeader);
 				break;
 			// Set Encription Code
 			case 11:
@@ -187,16 +199,13 @@ int	main(int argc, char* argv[])
 			// Set Recipient ID
 			case 12:
 				setRID(txHeader);
-				//updateHeaderRID(txHeader);
 				break;
 			// Set Sender ID
 			case 13:
 				setSID(txHeader);
-				//updateHeaderSID(txHeader);
 				break;
 			case 14:
 				setCompression(txHeader);
-				//updateHeaderCompression(txHeader);
 				break;
 			// Print recieved messages
 			case 15:
@@ -221,13 +230,48 @@ int	main(int argc, char* argv[])
 
 				strcpy(cmd, "15");	// Reset cmd so that program doesn't close
 				break;
-				// test function send
+			// test function send
 			case 16:
 				testingout();
 				break;
-				// test function receive
+			// test function receive
 			case 17:
 				testingin();
+				break;
+			// Transmit txt file
+			case 18:
+				// Get file name
+				printf("\nFilename to transmit (no spaces & includeing extension): ");
+				fflush(stdin);
+				scanf_s("%s", filename, MAX_QUOTE_LENGTH);
+				while (getchar() != '\n') {}
+
+				fSize = fileSz(filename);
+
+				// Malloc memory for file
+				msg = (char*)calloc(1, strlen(filename) + fSize + strlen("!!")); // !! is used to denote the end of the filename and the beginning of the file data
+				if (msg == NULL) {
+					printf("\nERROR: Could not malloc memory for quote buffer.\n");
+					break;
+				}
+
+				// Copy file to msg buffer
+				fSize = copyFile((char*)msg, filename, fSize);
+
+				// Transmit file
+				txHeader.payloadType = mTXTFILE;
+				txHeader.uncompressedLength = txHeader.payloadSize = fSize;
+
+				returnCode = encrypt(txHeader, (char*)msg);		
+				if (returnCode == -1) {							// Secret key was not set
+					break;
+				}
+
+				compress(txHeader, &msg);
+				transmitCom(&txHeader, msg);
+				// free(msg)
+				Sleep(2000);
+				
 				break;
 			// Invalid command
 			default:

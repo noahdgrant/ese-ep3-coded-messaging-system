@@ -1,18 +1,28 @@
-
-/* Implementation: Functions for RLE & Huffman compression/decompression
-* Sudo Code by: Michael Galle
-* Implementation By: Wyatt Richard
-*/
-
+/***********************************************************
+* Name:			RLE.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	RLE compression/decompression implementation.
+************************************************************/
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "RLE.h"
 
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
 
-//#pragma warning(disable:4996)
-//========================RLE========================//
+/*************************************************************************
+* RLEncode() - Compresses input buffer using RLE compression.
+* in		- Input (uncompressed) buffer.
+* inLen		- Length of input buffer.
+* out		- Output (compressed) buffer.
+* outMax	- Maximum possible length of compressed buffer
+* cEsc		- Character to put before compressed data.
+* This function returns the length of the compressed buffer.
+*************************************************************************/
 int RLEncode(char* in, int inLen, char* out, int outMax, char cEsc) {
 	char charac; // repeated character
 	char output[5]; // temp buffer with room for RLE sequence
@@ -42,25 +52,33 @@ int RLEncode(char* in, int inLen, char* out, int outMax, char cEsc) {
 	return(strlen(out)); // Returns length of output
 }
 
+/*************************************************************************
+* RLDecode() - Decompress input buffer using RLE compression.
+* in		- Input (uncompressed) buffer.
+* inLen		- Length of input buffer.
+* out		- Output (compressed) buffer.
+* outMax	- Maximum possible length of compressed buffer
+* cEsc		- Character to put before compressed data.
+* This function returns the length of the decompressed buffer.
+*************************************************************************/
 int RLDecode(char* in, int inLen, char* out, int outMax, char cEsc) {
 	int i = 0, j = 0, repeats = 0;
-	char HEX[3]; // String rep of HEX number of repeats
-	char charac[2]; // repeated character
-	out[0] = '\0'; // To use strcat()
-	for (i = 0; i < inLen; i++) { // Build the out buffer using in buffer
-		if (in[i] != cEsc) { // No RLE sequence (no repeats)
+	char HEX[3];							// String rep of HEX number of repeats
+	char charac[2];							// repeated character
+	out[0] = '\0';							// To use strcat()
+	for (i = 0; i < inLen; i++) {			// Build the out buffer using in buffer
+		if (in[i] != cEsc) {				// No RLE sequence (no repeats)
 			charac[0] = in[i];
 			charac[1] = '\0';
 			strcat_s(out, outMax, charac);
-			//strcat(out, charac);
 		}
-		else { // RLE sequence (repeats encountered)
+		else {								// RLE sequence (repeats encountered)
 			HEX[0] = in[++i];
 			HEX[1] = in[++i];
-			HEX[2] = '\0'; // repeats string (e.g. x12 is HEX[1]=‘1’HEX[2]=’2’
+			HEX[2] = '\0';					// repeats string (e.g. x12 is HEX[1]=‘1’HEX[2]=’2’
 
 			charac[0] = in[++i];
-			charac[1] = '\0'; // repeated char
+			charac[1] = '\0';				// repeated char
 
 			repeats = (int)strtol(HEX, NULL, 16); // convert repeats (HEX string) to a number
 			for (j = 0; j < repeats; j++) strcat_s(out, outMax, charac); //strcat(out, charac);

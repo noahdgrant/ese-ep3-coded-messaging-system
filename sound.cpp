@@ -1,8 +1,8 @@
-/*	Filename: sound.cpp
-Author: Michael Galle
-Date: Updated 2022
-Details: Implementation - Contains functions for Windows sound API (sound recording & playback) 
-*/
+/***********************************************************
+* Name:			sound.cpp
+* Author(s):	Michael Galle, Noah Grant, Wyatt Richard
+* Description:	Windows sound API (sound recording & playback) implementation.
+************************************************************/
 
 #pragma comment(lib, "Ws2_32.lib")	   // Make sure we are linking against the Ws2_32.lib library
 #pragma comment(lib, "Winmm.lib")      // Make sure we are linking against the Winmm.lib library - some functions/symbols from this library (Windows sound API) are used
@@ -13,6 +13,10 @@ Details: Implementation - Contains functions for Windows sound API (sound record
 
 #include "sound.h"
 #include "CMSLibrary.h"
+
+/***********************************************************
+* Specific variables
+************************************************************/
 
 // BUFFERS
 extern int recordTime;
@@ -30,6 +34,9 @@ static	WAVEFORMATEX WaveFormat;			/* WAVEFORMATEX structure for reading in the W
 static  WAVEHDR	WaveHeader[NFREQUENCIES];	/* WAVEHDR structures - 1 per buffer */
 static  WAVEHDR	WaveHeaderSilence;
 static  WAVEHDR WaveHeaderIn;
+
+int recordTime = 2;												// Default record time
+long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
 
 /* PLAYBACK FUNCTIONS */
 /* ********************************************************************************************* */
@@ -164,7 +171,6 @@ void CloseRecording(void)
 	return;
 }
 
-
 /* SUPPORT FUNCTIONS USED BY PLAYBACK FUNCTIONS - Updated 2021 */
 /* ********************************************************************************************* */
 // Function needed by InitializePlayback() - SetupFormat() initializes a WAVEFORMATEX structure to the required parameters (sample rate, bits per sample, etc) 
@@ -195,12 +201,14 @@ static int WaitOnHeader(WAVEHDR* wh, char cDit)
 	}
 }
 
-/***************************************************************/
-int recordTime = 2;												// Default record time
-long numAudioBytes = SAMPLES_SEC * recordTime;					// Size of audio buffer
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
 
-// AUDIO
-// Playback saved audio file
+/*************************************************************************
+* playbackAudio() - Play saved audio file.
+* This function return 0 if it successful. Otherwise, it return -1.
+*************************************************************************/
 int playbackAudio() {
 	FILE* f;						// pointer to file
 	short* playbackBuf = NULL;		// buffer used for reading recorded sound from file
@@ -229,9 +237,12 @@ int playbackAudio() {
 	free(playbackBuf);
 	playbackBuf = NULL;
 	return 0;
-} // playbackAudio()
+}
 
-// Record audio, play it back to the user, and ask if they want to save the file
+/*************************************************************************
+* recordAudio() - Record audio, play it back to the user, and ask if they want to save the file.
+* This function return 0 if it successful. Otherwise, it return -1.
+*************************************************************************/
 int recordAudio() {
 	FILE* f = NULL;								// Pointer to file
 	short* recordBuf = NULL;					// Pointer to record buffer
@@ -278,7 +289,9 @@ int recordAudio() {
 	return 0;
 } // recordAudio()
 
-// Change Audio Settings
+/*************************************************************************
+* changeAudioSettings() - Change the length of recorded audio message (in seconds).
+*************************************************************************/
 void changeAudioSettings() {
 	char cmd[3];				// Holds the length of time the user wants to record audio
 	do {

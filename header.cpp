@@ -1,9 +1,11 @@
-/* header.h - Define header portion of frame
-* By: Noah Grant, Wyatt Richard
-* Version: 1.00
-*/
+/***********************************************************
+* Name:			header.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Message header implementation.
+************************************************************/
 
 #include <stdio.h>
+
 #include "CMSLibrary.h"
 #include "compression.h"
 #include "encryption.h"
@@ -11,7 +13,14 @@
 #include "RS232Comm.h"
 #include "sound.h"
 
-// Initializing header to default values (or user pereference saved values)
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
+
+/*************************************************************************
+* initHeader() - Initialize tranmit header values to default or saved user pereferences.
+* header	- Transmit header.
+*************************************************************************/
 void initHeader(Header &header) {
 
 	header.sid = 0;						// Should match COM port being used
@@ -51,6 +60,10 @@ void initHeader(Header &header) {
 	return;
 }
 
+/*************************************************************************
+* saveUserSettings() - Saves the current users setting when the program exits.
+* header	- Transmit header.
+*************************************************************************/
 void saveUserSettings(Header& header) {
     FILE* f;
     errno_t err;

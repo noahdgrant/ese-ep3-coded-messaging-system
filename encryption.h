@@ -1,23 +1,30 @@
-/* encryption.h - Interface for encryption functions.
-*  By: Noah Grant, Wyatt Richard
-*  Version: 01.00
-*/
+/***********************************************************
+* Name:			encryption.h
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Encryption/decryption interface.
+************************************************************/
 
 #pragma once
+
 #include "message.h"
 #include "header.h"
+
+/***********************************************************
+* Specific variables
+************************************************************/
 
 enum encTypes { ERR, NONE, XOR, VIG, numOfEnc };		// Types of encryption
 extern char secretKey[MAX_QUOTE_LENGTH];				// Key used to encrypt/decrypt messages
 
-// ENCRYPTION TYPES
+/***********************************************************
+* Function prototypes
+************************************************************/
+
 int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec);
 int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength);
 
-// ENCRYPT/DECRYPT MESSAGE
-void decrypt(Header h, void* msg);
-void encrypt(Header h, void* msg);
+void decrypt(Header h, void* msg);		// Decrypt received message
+int encrypt(Header h, void* msg);		// Encrypt transmitted message
 
-// Encryption settings functions
-void setEncryption(Header& h);
-void setSecretKey();
+void setEncryption(Header& h);			// Set the type of encryption used on transmitted message
+void setSecretKey();					// Set key for encryption/decryption

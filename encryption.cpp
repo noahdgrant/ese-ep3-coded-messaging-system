@@ -1,7 +1,8 @@
-/* encryption.cpp - Implementation: Encryption functions
-*  By: Noah Grant, Wyatt Richard
-*  Version: 01.00
-*/
+/***********************************************************
+* Name:			encryption.cpp
+* Author(s):	Noah Grant, Wyatt Richard
+* Description:	Encryption/decryption implementation.
+************************************************************/
 
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -12,15 +13,30 @@
 #include <Windows.h> 
 
 #include "CMSLibrary.h"
+#include "encryption.h"
 #include "header.h"
 #include "message.h"
-#include "encryption.h"
 
-char secretKey[MAX_QUOTE_LENGTH] = {};							// Key used to encrypt/decrypt messages
-encTypes encType = NONE;									// Default encryption is NONE
+/***********************************************************
+* Specific variables
+************************************************************/
 
-// ENCRYPTION TYPES
-// // Viginere Encryption/Decryption
+char secretKey[MAX_QUOTE_LENGTH] = {};			// Key used to encrypt/decrypt messages
+encTypes encType = NONE;						// Default encryption is NONE
+
+/*************************************************************************
+*                            PUBLIC FUNCTIONS                            *
+*************************************************************************/
+
+/*************************************************************************
+* vigCipher() - Encrypt message with Viginere encryption.
+* message			- Transmitted message.
+* messageLength		- Length of transmitted message.
+* secretKey			- Encryption key.
+* secretKeyLength	- Length of secret key.
+* encOrDec			- Encrypt message (true) or decrypt message (false).
+* This function returns 0 if encryption was successful or -1 if it failed.
+*************************************************************************/
 int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLength, bool encOrDec) {
 	// encOrDec determines if the function is used for encryption or decryption
 	char* enc = NULL;								// Pointer to encryption buffer
@@ -63,7 +79,14 @@ int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 	return(0);
 }
 
-// XOR Encryption/Decryption
+/*************************************************************************
+* xorCipher() - Encrypt message with XOR encryption.
+* message			- Transmitted message.
+* messageLength		- Length of transmitted message.
+* secretKey			- Encryption key.
+* secretKeyLength	- Length of secret key.
+* This function returns 0 if encryption was successful or -1 if it failed.
+*************************************************************************/
 int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLength) {
 	short* encBuf = NULL;								// Pointer to encryption buffer
 	char* msg, * key, * enc;							// Cast buffers to single byte (char) arrays 
@@ -98,9 +121,10 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 	return(0);
 }
 
-/********************************************************/
-
-// Set encryption Type 
+/*************************************************************************
+* setEncryption() - Set the type of encryption to be used on the transmitted message.
+* h		- Transmit header.
+*************************************************************************/
 void setEncryption(Header& h) {
 	char cmd[2] = {};		// Holds the user's encryption choice
 	do {
@@ -135,16 +159,24 @@ void setEncryption(Header& h) {
 	} while (atoi(cmd) < NONE || atoi(cmd) > numOfEnc);
 }
 
-// set the XOR code
+/*************************************************************************
+* setSecretKey() - Set encryption/decryption key.
+*************************************************************************/
 void setSecretKey() {
 	printf("\nEnter encryption key: ");
 	scanf_s("%s", secretKey, MAX_QUOTE_LENGTH - 1);
 }
 
-// decrypt message
+/*************************************************************************
+* decrypt() - Checks what type of encryption was used on received message and passed the message to the appropriate decrypt function.
+* h		- Received header.
+* msg	- Received message.
+*************************************************************************/
 void decrypt(Header h, void* msg) {
+	// Exit function if no encryption is needed
+	if (h.encryption == NONE) return;
 	// Decrypt the message (xor)
-	if (h.encryption == XOR) {
+	else if (h.encryption == XOR) {
 		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
 	}
 	// Decrypt the message (Viginere)
@@ -155,8 +187,23 @@ void decrypt(Header h, void* msg) {
 	return;
 }
 
-// encrypt message
-void encrypt(Header h, void* msg) {
+/*************************************************************************
+* encrypt() - Checks how user wants to encrypt message and passed the message to the appropriate encrypt function.
+* h		- Received header.
+* msg	- Received message.
+* This function returns 0 if encryption was successful (or not needed) or -1 if no encryption key was set.
+*************************************************************************/
+int encrypt(Header h, void* msg) {
+	// Exit function if no encryption is needed
+	if (h.encryption == NONE) return(0);
+
+	// Make sure secret key is set
+	else if ((secretKey[0] == '\0') || (secretKey[0] == '\n')) {
+		printf("\nERROR: Secret key not set.\n");
+		Sleep(1500);
+		return(-1);
+	}
+
 	// XOR Encryption
 	if (h.encryption == XOR) {
 		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
@@ -166,5 +213,5 @@ void encrypt(Header h, void* msg) {
 		vigCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey), true);
 	}
 
-	return;
+	return(0);
 }
