@@ -46,8 +46,9 @@
     <ClInclude Include="sound.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="FortuneCookies.txt" />
+    <Text Include="FortuneCookies1.txt" />
     <Text Include="Test Results.txt" />
+    <Text Include="usersettings.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

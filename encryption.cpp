@@ -173,8 +173,10 @@ void setSecretKey() {
 * msg	- Received message.
 *************************************************************************/
 void decrypt(Header h, void* msg) {
+	// Exit function if no encryption is needed
+	if (h.encryption == NONE) return;
 	// Decrypt the message (xor)
-	if (h.encryption == XOR) {
+	else if (h.encryption == XOR) {
 		xorCipher(msg, h.payloadSize, secretKey, (int)strlen(secretKey));
 	}
 	// Decrypt the message (Viginere)
@@ -189,10 +191,14 @@ void decrypt(Header h, void* msg) {
 * encrypt() - Checks how user wants to encrypt message and passed the message to the appropriate encrypt function.
 * h		- Received header.
 * msg	- Received message.
-* This function returns 0 if encryption was successful or -1 if no encryption key was set.
+* This function returns 0 if encryption was successful (or not needed) or -1 if no encryption key was set.
 *************************************************************************/
 int encrypt(Header h, void* msg) {
-	if ((secretKey[0] == '\0') || (secretKey[0] == '\n')) {
+	// Exit function if no encryption is needed
+	if (h.encryption == NONE) return(0);
+
+	// Make sure secret key is set
+	else if ((secretKey[0] == '\0') || (secretKey[0] == '\n')) {
 		printf("\nERROR: Secret key not set.\n");
 		Sleep(1500);
 		return(-1);

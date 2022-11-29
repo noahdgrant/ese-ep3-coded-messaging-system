@@ -13,6 +13,7 @@
 
 #include "header.h"
 #include "RS232Comm.h"
+#include "message.h"
 
 /***********************************************************
 * Specific variables
@@ -288,4 +289,89 @@ void setRID(Header& h) {
 void setSID(Header& h) {
 	printf("\nEnter the sender ID: ");
 	scanf_s("%d", &h.sid);
+}
+
+/*************************************************************************
+* fileSz() - Counts the number of characters in file
+* file		- The file to count the size of.
+* This function returns the number of characters in a file if successful. Otherwise, it returns -1.
+*************************************************************************/
+int fileSz(char* file) {
+	FILE* fp = NULL;
+	int size = 0;										// Number of characters in file.
+	char c = '\0';
+
+	fp = fopen(file, "r");
+	if (fp == NULL) {									// Make sure the filename is correct
+		printf("\nERROR: Could not open file.\n");
+		return(-1);
+	}
+
+	while (!feof(fp)) {
+		fgetc(fp);
+		size++;
+	}
+
+	fclose(fp);
+	return(size);
+}
+
+/*************************************************************************
+* copyFile() - Copies into file to transmit buffer.
+* txMsg		- Message to be transmitted.
+* filename	- File name of transmit file.
+* fileSz	- Size of transmit file.
+* This function returns the number of characters in the final transmit message buffer. Otherwise, it returns -1.
+*************************************************************************/
+int copyFile(char* txMsg, char* filename, int fileSz) {
+	FILE* fp = NULL;
+	int offset = 0;
+
+	fp = fopen(filename, "r");
+	if (fp == NULL) {									// Make sure the filename is correct
+		printf("\nERROR: Could not open file.\n");
+		return(-1);
+	}
+
+	offset = strlen(filename) + strlen("!!");
+
+	strcat(txMsg, filename);
+	strcat(txMsg, "!!");
+
+	fread(txMsg + offset, fileSz, 1, fp);
+
+	txMsg[offset + fileSz] = '\0';
+
+	fclose(fp);
+	return(strlen(txMsg) + 1); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
+}
+
+/*************************************************************************
+* saveFile() - Saves received file to *.txt file.
+* rxMsg		- Message to be saved.
+*************************************************************************/
+void saveFile(char* rxMsg) {
+	FILE* f;
+	errno_t err;
+	char filename[MAX_QUOTE_LENGTH] = {};
+	int i = 0;
+	int offset = 0;
+
+	while (rxMsg[i] != '!' && rxMsg[i + 1] != '!') {
+		filename[i] = rxMsg[i];
+		i++;
+	}
+	filename[i] = rxMsg[i];				// Get the last character before !!
+	filename[i + 1] = '\0';
+
+	offset = strlen(filename) + strlen("!!");
+
+	err = fopen_s(&f, filename, "wb");
+	if (f) {
+		fprintf(f, "%s", rxMsg + offset);	// Copy the buffer to the file starting after the offset
+		fclose(f);
+	}
+
+	printf("\n%s successfully saved.\n", filename);
+	return;
 }

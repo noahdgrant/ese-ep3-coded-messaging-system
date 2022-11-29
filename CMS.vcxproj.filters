@@ -85,10 +85,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="FortuneCookies.txt">
+    <Text Include="Test Results.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="Test Results.txt">
+    <Text Include="usersettings.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="FortuneCookies1.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

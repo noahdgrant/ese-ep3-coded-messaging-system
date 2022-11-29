@@ -72,6 +72,7 @@ void printMenu(Header& h) {
 	printf("15. Print recieved messages\n");
 	printf("16. Transmit testing diagnostic messages\n");
 	printf("17. Receive testing diagnostic messages\n");
+	printf("18. Transmit text file\n");
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;

@@ -12,7 +12,7 @@
 * Specific variables
 ************************************************************/
 
-enum msgTypes { mERR, mNONE, mTXT, mAUD, numMsgTypes };
+enum msgTypes { mERR, mNONE, mTXT, mAUD, mTXTFILE, numMsgTypes };
 extern int currentCom;
 
 /***********************************************************
@@ -32,6 +32,10 @@ static int SetComParms(HANDLE* hCom, int nComRate, int nComBits, COMMTIMEOUTS ti
 // SERIAL COMMUNICATION
 void transmitCom(Header* txHeader, void* txMsg);
 int receiveCom(Header* rxHeader, void** rxMsg);
+
+int fileSz(char* file);
+int copyFile(char* txMsg, char* filename, int fileSz);
+void saveFile(char* rxMsg);
 
 // Communication settings functions
 void selectComPort();

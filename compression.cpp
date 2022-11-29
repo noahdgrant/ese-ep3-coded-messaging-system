@@ -27,30 +27,33 @@
 * compress() - Compress transmit buffer.
 * h		- Transmit header.
 * msg	- Message to be transmitted.
-* This function returns 0 if compression was successful or -1 if it failed.
+* This function returns 0 if compression was successful (not not needed) or -1 if it failed.
 *************************************************************************/
 int compress(Header& h, void** msg) {
-	char* compressedBuf = NULL;
+	if (h.compression == cNONE) return(0);		// Exit function if no compression needed.
 
-	if (h.payloadType == mTXT) {
+	char* compressedBuf = NULL;
+	int compSz = 0;
+
+	if (h.payloadType == mTXT || h.payloadType == mTXTFILE) {
 		if (h.compression == cHUF) {
-			compressedBuf = (char*)malloc(h.uncompressedLength + 384);
+			compressedBuf = (char*)malloc((h.uncompressedLength * 104 + 50) / 100 + 384);				// The equation came from Michael's version and is based of the Huffman library documentation
 			if (compressedBuf == NULL) {
 				printf("\nERROR: Coudn't malloc memory to compress message.\n");
 				return(-1);
 			}
 
-			Huffman_Compress((unsigned char*)*msg, (unsigned char*)compressedBuf, h.uncompressedLength);
+			compSz = Huffman_Compress((unsigned char*)*msg, (unsigned char*)compressedBuf, h.uncompressedLength);
 
 			// Need to realloc since the uncompressed message will be larger than the comrpessed message.
-			void* tmp = realloc(*msg, strlen(compressedBuf));
+			void* tmp = realloc(*msg, compSz);
 			if (tmp == NULL) {
 				printf("\nERROR: Could not realloc memory to compress message buffer.\n");
 				return(-1);
 			}
 			*msg = tmp;
 			strcpy((char*)*msg, compressedBuf);
-			h.payloadSize = strlen(compressedBuf);	// Update payload size so tx and rx functions know the correct buffer size
+			h.payloadSize = compSz;	// Update payload size so tx and rx functions know the correct buffer size
 		}
 		else if (h.compression == cRLE) {
 			char buf[MAX_QUOTE_LENGTH];
@@ -70,8 +73,8 @@ int compress(Header& h, void** msg) {
 		}
 	}
 
-	if (compressedBuf != NULL) {
-		free(compressedBuf);
+	if (compressedBuf != NULL) {		
+		free(compressedBuf);			// This is giving me problems even though I should be able to free this memory
 		compressedBuf = NULL;
 	}
 	return(0);
@@ -81,9 +84,11 @@ int compress(Header& h, void** msg) {
 * decompress() - Decompress received buffer.
 * h		- Received header.
 * msg	- Received message.
-* This function returns 0 if compression was successful or -1 if it failed.
+* This function returns 0 if decompression was successful (or not needed) or -1 if it failed.
 *************************************************************************/
 int decompress(Header& h, void** msg) {
+	if (h.compression == cNONE) return(0);		// Exit function if no compression needed.
+
 	char* uncompressedBuf = NULL;
 
 	if (h.payloadType == mTXT) {
