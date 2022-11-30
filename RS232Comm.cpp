@@ -308,6 +308,9 @@ void setRID(Header& h) {
 		Sleep(2000);
 
 	} while (atoi(cmd) < 0 || atoi(cmd) > 3);
+  
+  	h.rid2 = h.rid3 = h.rid;				// Used for voteOn() error detection and correction
+    return;
 }
 
 /*************************************************************************
