@@ -19,8 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BSTLibrary.cpp" />
     <ClCompile Include="CMSLibrary.cpp" />
     <ClCompile Include="compression.cpp" />
+    <ClCompile Include="contactList.cpp" />
     <ClCompile Include="encryption.cpp" />
     <ClCompile Include="error_detection_correction.cpp" />
     <ClCompile Include="huffman.c" />
@@ -34,8 +36,10 @@
     <ClCompile Include="testing.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BSTLibrary.h" />
     <ClInclude Include="CMSLibrary.h" />
     <ClInclude Include="compression.h" />
+    <ClInclude Include="contactList.h" />
     <ClInclude Include="encryption.h" />
     <ClInclude Include="error_detection_correction.h" />
     <ClInclude Include="testing.h" />
