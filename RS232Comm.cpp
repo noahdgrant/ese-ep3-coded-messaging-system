@@ -281,6 +281,7 @@ void selectComPort() {
 void setRID(Header& h) {
 	printf("\nEnter the recipient ID: ");
 	scanf_s("%d", &h.rid);
+	h.rid2 = h.rid3 = h.rid;				// Used for voteOn() error detection and correction
 }
 
 /*************************************************************************

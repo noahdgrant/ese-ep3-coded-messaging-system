@@ -13,6 +13,7 @@
 #include "CMSLibrary.h"
 #include "compression.h"
 #include "encryption.h"
+#include "error_detection_correction.h"
 #include "header.h"
 #include "message.h"
 #include "queues.h"
@@ -94,11 +95,22 @@ int	main(int argc, char* argv[])
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
 				
+				// Encrypt and compress message
 				returnCode = encrypt(txHeader, (char*)msg);		// +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
 				if (returnCode == -1) {							// Secret key was not set
 					break;
 				}
 				compress(txHeader, &msg);
+
+				// Calculate checksum of message
+				txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
+				if (txHeader.checksum == 0x11111) {
+					printf("\nERROR: Checksum failed\n");
+					Sleep(2000);
+					break;
+				}
+
+				// Transmit message
 				transmitCom(&txHeader, msg);
 
 				Sleep(2000);
@@ -120,6 +132,9 @@ int	main(int argc, char* argv[])
 				
 				// Update header
 				txHeader.payloadType = mAUD;
+				/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
+				Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
+				of space it needs to be multiplied by 2. */
 				txHeader.payloadSize = numAudioBytes * 2;
 
 				// Transmit message
@@ -129,11 +144,17 @@ int	main(int argc, char* argv[])
 				while (getchar() != '\n') {}		
 
 				if (sendCmd == 'y' || sendCmd == 'Y') {
-					/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
-					Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
-					of space it needs to be multiplied by 2. */
 					encrypt(txHeader, audioMsg);
 					compress(txHeader, &msg);
+
+					// Calculate checksum of message
+					txHeader.checksum = Checksum(audioMsg, txHeader.payloadSize, CHK_8BIT);
+					if (txHeader.checksum == 0x11111) {
+						printf("\nERROR: Checksum failed\n");
+						Sleep(2000);
+						break;
+					}
+
 					transmitCom(&txHeader, audioMsg);
 				}
 
@@ -147,6 +168,18 @@ int	main(int argc, char* argv[])
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
 
+				// Voteon() error detection and correction on message header
+				returnCode = checkHeader(rxHeader);
+				if (returnCode == -1) break;
+
+				// Checksum() error detection on received message
+				if (rxHeader.checksum != Checksum(msgIn, rxHeader.payloadSize, CHK_8BIT)) {
+					printf("\nERROR: Received checksum did not match transmitted checksum\n");
+					Sleep(2000);
+					break;
+				}
+
+				// Decompress and decrypt received message
 				decompress(rxHeader, &msgIn); 
 				decrypt(rxHeader, msgIn);
 
@@ -262,16 +295,27 @@ int	main(int argc, char* argv[])
 				txHeader.payloadType = mTXTFILE;
 				txHeader.uncompressedLength = txHeader.payloadSize = fSize;
 
+				// Encrypt and compress message
 				returnCode = encrypt(txHeader, (char*)msg);		
 				if (returnCode == -1) {							// Secret key was not set
 					break;
 				}
 
 				compress(txHeader, &msg);
+
+				// Calculate checksum
+				txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
+				if (txHeader.checksum == 0x11111) {
+					printf("\nERROR: Checksum failed\n");
+					Sleep(2000);
+					break;
+				}
+
+				// Transmit message
 				transmitCom(&txHeader, msg);
+
 				// free(msg)
 				Sleep(2000);
-				
 				break;
 			// Invalid command
 			default:
