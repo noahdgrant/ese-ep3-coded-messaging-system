@@ -69,26 +69,32 @@ int	main(int argc, char* argv[])
 			case 1:
 				selectComPort();
 				break;
+				// Set Compression Type
+			case 2:
+				setCompression(txHeader);
+				break;
+				// Set Encription Type
+			case 3:
+				setEncryption(txHeader);
+				break;
+				// Set Encription Code
+			case 4:
+				setSecretKey();
+				break;
+				// Change Audio Settings
+			case 5:
+				changeAudioSettings();
+				break;
+				// Set Recipient ID
+			case 6:
+				setRID(txHeader);
+				break;
+				// Set Sender ID
+			case 7:
+				setSID(txHeader);
+				break;
 
-
-			// Record audio message
-			case 14:
-				recordAudio();
-				break;
-			// Playback saved audio message
-			case 15:
-				playbackAudio();
-				break;
-			// Generate a random quote and save it to the queue
-			case 16:
-				generateQuote();
-				break;
-			// Print out each message in the queue
-			case 17:
-				traverse(listHead(), visit);
-				Sleep(4000);
-				break;
-			// Transmit Text Message
+				// Transmit Text Message
 			case 9:
 				msg = (char*)malloc(MAX_QUOTE_LENGTH);
 				if (msg == NULL) {
@@ -97,13 +103,13 @@ int	main(int argc, char* argv[])
 				}
 
 				printf("\nWhat message would you link to send?\n\n");
-				fflush(stdin);													
+				fflush(stdin);
 				scanf_s("%[^\n]s", (char*)msg, MAX_QUOTE_LENGTH);				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
-				while (getchar() != '\n') {}									
-				
+				while (getchar() != '\n') {}
+
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
-				
+
 				// Encrypt and compress message
 				returnCode = encrypt(txHeader, (char*)msg);		// +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
 				if (returnCode == -1) {							// Secret key was not set
@@ -125,7 +131,7 @@ int	main(int argc, char* argv[])
 				Sleep(2000);
 				// I THINK WE STILL NEED TO FREE THE MEMORY IF HUFFMAN IS NOT USED
 				break;
-			// Transmit audio message
+				// Transmit audio message
 			case 10:
 				// Get memory for recording
 				audioMsg = (short*)malloc(numAudioBytes * sizeof(short));
@@ -138,11 +144,11 @@ int	main(int argc, char* argv[])
 				InitializeRecording();
 				RecordBuffer(audioMsg, numAudioBytes);
 				CloseRecording();
-				
+
 				// Update header
 				txHeader.payloadType = mAUD;
 				/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
-				Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
+				Shorts are 2 bytes each and chars are 1 byte each so to have the same amount
 				of space it needs to be multiplied by 2. */
 				txHeader.payloadSize = numAudioBytes * 2;
 
@@ -150,7 +156,7 @@ int	main(int argc, char* argv[])
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
 				fflush(stdin);
 				scanf_s("%c", &sendCmd, 1);
-				while (getchar() != '\n') {}		
+				while (getchar() != '\n') {}
 
 				if (sendCmd == 'y' || sendCmd == 'Y') {
 					encrypt(txHeader, audioMsg);
@@ -171,113 +177,7 @@ int	main(int argc, char* argv[])
 				free(audioMsg);
 				audioMsg = NULL;
 				break;
-			// Recieve message
-			case 12:
-				// Receive message
-				returnCode = receiveCom(&rxHeader, &msgIn);
-				if (returnCode == -1) break;
-
-				// Voteon() error detection and correction on message header
-				returnCode = checkHeader(rxHeader);
-				if (returnCode == -1) break;
-
-				// Checksum() error detection on received message
-				if (rxHeader.checksum != Checksum(msgIn, rxHeader.payloadSize, CHK_8BIT)) {
-					printf("\nERROR: Received checksum did not match transmitted checksum\n");
-					Sleep(2000);
-					break;
-				}
-
-				// Decompress and decrypt received message
-				decompress(rxHeader, &msgIn); 
-				decrypt(rxHeader, msgIn);
-
-				// Play audio message
-				if (rxHeader.payloadType == mAUD) {
-					printf("\nPlaying received recording...\n");
-					InitializePlayback();
-					PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
-					ClosePlayback();					
-					Sleep(500);
-				}
-				// Print text message
-				else if (rxHeader.payloadType == mTXT) {
-					printf("\nMessage Received: %s\n\n", (char*)msgIn);
-					system("pause");					// Wait for user to press key before returning to main menu
-				}
-				// Save txt file
-				else if (rxHeader.payloadType == mTXTFILE) {
-					saveFile((char*)msgIn);
-					Sleep(2000);
-				}
-
-				if (rxHeader.payloadType != mTXTFILE) {
-					// Queue recieved message
-					qRxMsg(rxHeader, msgIn, rxHeader.payloadSize);
-
-					// Increment the counter for number of items in recieve queue
-					numRxMsgs++;
-				}
-
-				free(msgIn);
-				msgIn = NULL;
-				break;
-
-			// Change Audio Settings
-			case 5:
-				changeAudioSettings();
-				break;
-			// Set Encription Type
-			case 3:
-				setEncryption(txHeader);
-				break;
-			// Set Encription Code
-			case 4:
-				setSecretKey();
-				break;
-			// Set Recipient ID
-			case 6:
-				setRID(txHeader);
-				break;
-			// Set Sender ID
-			case 7:
-				setSID(txHeader);
-				break;
-			case 2:
-				setCompression(txHeader);
-				break;
-			// Print recieved messages
-			case 13:
-				delMsg.msgHeader.seqNum = 0;	// Reset the message to be deleted each time
-				
-				// Print received messages
-				system("cls");
-				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
-				printRxMsgs();
-				do {
-					// Ask if user wants to delete a message
-					printf("\nEnter the number of the message you want to delete, otherwise enter 0 to return to the menu\n");
-					printf("\n> ");
-					fflush(stdin);											
-					scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
-					while (getchar() != '\n') {}
-
-					// Delete message
-					delMsg.msgHeader.seqNum = atoi(cmd);
-					deleteMsg(listHead(), listHead()->pNext, delMsg, numRxMsgs);
-				} while (atoi(cmd) != 0);
-
-				strcpy(cmd, "15");	// Reset cmd so that program doesn't close
-				break;
-			// test function send
-			case 18:
-				testingout();
-				break;
-			// test function receive
-			case 19:
-				testingin();
-				break;
-			// Transmit txt file
+				// Transmit txt file
 			case 11:
 				// Get file name
 				printf("\nFilename to transmit (no spaces & includeing extension): ");
@@ -302,7 +202,7 @@ int	main(int argc, char* argv[])
 				txHeader.uncompressedLength = txHeader.payloadSize = fSize;
 
 				// Encrypt and compress message
-				returnCode = encrypt(txHeader, (char*)msg);		
+				returnCode = encrypt(txHeader, (char*)msg);
 				if (returnCode == -1) {							// Secret key was not set
 					break;
 				}
@@ -322,6 +222,106 @@ int	main(int argc, char* argv[])
 
 				// free(msg)
 				Sleep(2000);
+				break;
+				// Recieve message
+			case 12:
+				// Receive message
+				returnCode = receiveCom(&rxHeader, &msgIn);
+				if (returnCode == -1) break;
+
+				// Voteon() error detection and correction on message header
+				returnCode = checkHeader(rxHeader);
+				if (returnCode == -1) break;
+
+				// Checksum() error detection on received message
+				if (rxHeader.checksum != Checksum(msgIn, rxHeader.payloadSize, CHK_8BIT)) {
+					printf("\nERROR: Received checksum did not match transmitted checksum\n");
+					Sleep(2000);
+					break;
+				}
+
+				// Decompress and decrypt received message
+				decompress(rxHeader, &msgIn);
+				decrypt(rxHeader, msgIn);
+
+				// Play audio message
+				if (rxHeader.payloadType == mAUD) {
+					printf("\nPlaying received recording...\n");
+					InitializePlayback();
+					PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
+					ClosePlayback();
+					Sleep(500);
+				}
+				// Print text message
+				else if (rxHeader.payloadType == mTXT) {
+					printf("\nMessage Received: %s\n\n", (char*)msgIn);
+					system("pause");					// Wait for user to press key before returning to main menu
+				}
+				// Save txt file
+				else if (rxHeader.payloadType == mTXTFILE) {
+					saveFile((char*)msgIn);
+					Sleep(2000);
+				}
+
+				if (rxHeader.payloadType != mTXTFILE) {
+					// Queue recieved message
+					qRxMsg(rxHeader, msgIn, rxHeader.payloadSize);
+
+					// Increment the counter for number of items in recieve queue
+					numRxMsgs++;
+				}
+
+				free(msgIn);
+				msgIn = NULL;
+				break;
+				// Print recieved messages
+			case 13:
+				delMsg.msgHeader.seqNum = 0;	// Reset the message to be deleted each time
+
+				// Print received messages
+				system("cls");
+				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
+				printRxMsgs();
+				do {
+					// Ask if user wants to delete a message
+					printf("\nEnter the number of the message you want to delete, otherwise enter 0 to return to the menu\n");
+					printf("\n> ");
+					fflush(stdin);
+					scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+					while (getchar() != '\n') {}
+
+					// Delete message
+					delMsg.msgHeader.seqNum = atoi(cmd);
+					deleteMsg(listHead(), listHead()->pNext, delMsg, numRxMsgs);
+				} while (atoi(cmd) != 0);
+
+				strcpy(cmd, "15");	// Reset cmd so that program doesn't close
+				break;
+			// Record audio message
+			case 14:
+				recordAudio();
+				break;
+			// Playback saved audio message
+			case 15:
+				playbackAudio();
+				break;
+			// Generate a random quote and save it to the queue
+			case 16:
+				generateQuote();
+				break;
+			// Print out each message in the queue
+			case 17:
+				traverse(listHead(), visit);
+				Sleep(4000);
+				break;
+			
+			// test function send
+			case 18:
+				testingout();
+				break;
+			// test function receive
+			case 19:
+				testingin();
 				break;
 			// Invalid command
 			default:

@@ -34,7 +34,7 @@
 void printMenu(Header& h) {
 	printf("\nCMS Menu\n");
 	printf("1. Select Com Port					Com Port:		COM%d\n", currentCom);
-	printf("2. Set Compression Type				Compression Type:	");
+	printf("2. Set Compression Type					Compression Type:	");
 	switch (h.compression) {
 	case cNONE:
 		printf("None\n");
