@@ -46,20 +46,31 @@ void initHeader(Header &header) {
         fgets(cCurrentCom, sizeof(cCurrentCom), f);
         fgets(secretKey, sizeof(secretKey), f);
         fgets(cRecordTime, sizeof(cRecordTime), f);
-        if (secretKey[strlen(secretKey) - 1] == '\n') {
+        
+        if (!strcmp(secretKey,"")) {
+            strcpy_s(secretKey, "default");
+        }
+        else if (secretKey[strlen(secretKey) - 1] == '\n') {
             secretKey[strlen(secretKey) - 1] = 0;
         }
-        if (!cCompression) {
+
+        if (!atoi(cCompression)) {
             header.compression = 1;
         }
         else {
             header.compression = atoi(cCompression);
         }
+
+        if (!atoi(cEncryption)) {
+            header.encryption = 1;
+        }
+        else {
+            header.encryption = atoi(cCompression);
+        }
+
         fclose(f);
         header.sid = atoi(cSid);
         header.rid = atoi(cRid);
-        header.encryption = atoi(cEncryption);
-        header.compression = atoi(cCompression);
         currentCom = atoi(cCurrentCom);
         recordTime = atoi(cRecordTime);
     }
