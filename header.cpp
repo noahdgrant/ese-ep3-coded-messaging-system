@@ -32,7 +32,8 @@ void initHeader(Header &header) {
 	header.encryption = NONE;
 	header.compression = cNONE;
 	header.uncompressedLength = 0;
-
+    header.checksum = 0;
+    header.errorDC = false;
 
     FILE* f;
     errno_t err;

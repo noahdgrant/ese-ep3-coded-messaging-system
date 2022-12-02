@@ -60,8 +60,7 @@ static int voteOn(int votes[], int nVotes) {
 * iType     - The type of checksum to be performed on the buffer (8 or 16 bit).
 * This function returns the checksum.
 *************************************************************************/
-unsigned int Checksum(void* buf, int iBufLen, CHECKSUM iType)
-{
+unsigned int Checksum(void* buf, int iBufLen, CHECKSUM iType) {
     unsigned short* newBuf16; // short data type is 16 bits
     unsigned char* newBuf8;   // char data type is 8 bits
     unsigned int sum = 0;
@@ -110,4 +109,32 @@ int checkHeader(Header& h) {
         h.rid = voteResult;
     }
     return(0);
+}
+
+/*************************************************************************
+* setErrorDetection() - Enables or disables error detection and correction on the header and message.
+* h		- Trasmit header.
+*************************************************************************/
+void setErrorDetection(Header &h) {
+    char cmd = '\0';
+
+    printf("\nTurn ON or OFF error detection and correction:\n");
+    printf("1. Enable\n");
+    printf("2. Disable\n");
+    printf("0. Main menu\n");
+    printf("\n> ");
+
+    fflush(stdin);											
+    scanf_s("%c", &cmd, 1);
+    while (getchar() != '\n') {}							// Flush other input buffer
+
+    if (cmd == '1') {
+        h.errorDC = true;
+
+    }
+    else if (cmd == '2') {
+        h.errorDC = false;
+    }
+
+    return;
 }

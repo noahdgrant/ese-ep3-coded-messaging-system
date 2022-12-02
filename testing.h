@@ -10,5 +10,5 @@
 * Function prototypes
 ************************************************************/
 
-int testingout();	// Transmitter test function
-int testingin();	// Receiver test function
+int txTesting();	// Transmitter test function
+int rxTesting();	// Receiver test function

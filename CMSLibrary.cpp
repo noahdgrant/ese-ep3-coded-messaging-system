@@ -75,7 +75,6 @@ void printMenu(Header& h) {
 	printf("17. View Queue\n");
 	printf("18. Transmit testing diagnostic messages\n");
 	printf("19. Receive testing diagnostic messages\n");
-
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;

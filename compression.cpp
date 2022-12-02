@@ -73,10 +73,10 @@ int compress(Header& h, void** msg) {
 		}
 	}
 
-	if (compressedBuf != NULL) {		
-		free(compressedBuf);			// This is giving me problems even though I should be able to free this memory
-		compressedBuf = NULL;
-	}
+	//if (compressedBuf != NULL) {		
+	//	free(compressedBuf);			// This is giving me problems even though I should be able to free this memory
+	//	compressedBuf = NULL;
+	//}
 	return(0);
 }
 
