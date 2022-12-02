@@ -1,7 +1,7 @@
 0
 0
 1
-2
-6
-banana
-2
+1
+0
+default
+0
