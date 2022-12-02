@@ -25,6 +25,7 @@ struct header {
 	int compression;			// cERR, cNONE, cHUF, cRLE, numCompTypes
 	long uncompressedLength;	// Uncompressed message length
 	int checksum;				// Checksum for payload error detection
+	bool errorDC;				// Enable or disable error detection and correciton
 };
 
 /***********************************************************

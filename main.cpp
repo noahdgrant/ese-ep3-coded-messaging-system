@@ -105,12 +105,14 @@ int	main(int argc, char* argv[])
 				}
 				compress(txHeader, &msg);
 
-				// Calculate checksum of message
-				txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
-				if (txHeader.checksum == 0x11111) {
-					printf("\nERROR: Checksum failed\n");
-					Sleep(2000);
-					break;
+				if (txHeader.errorDC == true) {
+					// Calculate checksum of message
+					txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
+					if (txHeader.checksum == 0x11111) {
+						printf("\nERROR: Checksum failed\n");
+						Sleep(2000);
+						break;
+					}
 				}
 
 				// Transmit message
@@ -150,12 +152,14 @@ int	main(int argc, char* argv[])
 					encrypt(txHeader, audioMsg);
 					compress(txHeader, &msg);
 
-					// Calculate checksum of message
-					txHeader.checksum = Checksum(audioMsg, txHeader.payloadSize, CHK_8BIT);
-					if (txHeader.checksum == 0x11111) {
-						printf("\nERROR: Checksum failed\n");
-						Sleep(2000);
-						break;
+					if (txHeader.errorDC == true) {
+						// Calculate checksum of message
+						txHeader.checksum = Checksum(audioMsg, txHeader.payloadSize, CHK_8BIT);
+						if (txHeader.checksum == 0x11111) {
+							printf("\nERROR: Checksum failed\n");
+							Sleep(2000);
+							break;
+						}
 					}
 
 					transmitCom(&txHeader, audioMsg);
@@ -171,15 +175,17 @@ int	main(int argc, char* argv[])
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
 
-				// Voteon() error detection and correction on message header
-				returnCode = checkHeader(rxHeader);
-				if (returnCode == -1) break;
+				if (rxHeader.errorDC == true) {
+					// Voteon() error detection and correction on message header
+					returnCode = checkHeader(rxHeader);
+					if (returnCode == -1) break;
 
-				// Checksum() error detection on received message
-				if (rxHeader.checksum != Checksum(msgIn, rxHeader.payloadSize, CHK_8BIT)) {
-					printf("\nERROR: Received checksum did not match transmitted checksum\n");
-					Sleep(2000);
-					break;
+					// Checksum() error detection on received message
+					if (rxHeader.checksum != Checksum(msgIn, rxHeader.payloadSize, CHK_8BIT)) {
+						printf("\nERROR: Received checksum did not match transmitted checksum\n");
+						Sleep(2000);
+						break;
+					}
 				}
 
 				// Decompress and decrypt received message
@@ -306,12 +312,14 @@ int	main(int argc, char* argv[])
 
 				compress(txHeader, &msg);
 
-				// Calculate checksum
-				txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
-				if (txHeader.checksum == 0x11111) {
-					printf("\nERROR: Checksum failed\n");
-					Sleep(2000);
-					break;
+				if (txHeader.errorDC == true) {
+					// Calculate checksum
+					txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
+					if (txHeader.checksum == 0x11111) {
+						printf("\nERROR: Checksum failed\n");
+						Sleep(2000);
+						break;
+					}
 				}
 
 				// Transmit message
@@ -319,6 +327,10 @@ int	main(int argc, char* argv[])
 
 				// free(msg)
 				Sleep(2000);
+				break;
+			// Enable or disable error correction and deteciton
+			case 19:
+				setErrorDetection(txHeader);
 				break;
 			// Invalid command
 			default:
