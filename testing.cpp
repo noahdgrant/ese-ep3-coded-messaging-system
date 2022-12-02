@@ -4,6 +4,8 @@
 * Description:	Diagnostic testing functions implementation.
 ************************************************************/
 
+// Should probably free the memory after each test otherwise it will all leak
+
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
@@ -36,6 +38,13 @@ int txTesting() {
 	
 	strcpy(secretKey, "banana");						// Set secret key at the beginning of testing
 
+	system("cls");
+	printf("\n========== CMS DIAGNOSTIC TESTING ==========\n");
+
+	/***********************************************************
+	* TEXT MESSAGE TESTING
+	************************************************************/
+
 	msg = (char*)malloc(MAX_QUOTE_LENGTH);
 	if (msg == NULL) {
 		printf("\nERROR: Could not malloc memory for quote buffer.\n");
@@ -44,12 +53,6 @@ int txTesting() {
 
 	txHeader.payloadType = mTXT;
 
-	system("cls");
-	printf("\n========== CMS DIAGNOSTIC TESTING ==========\n");
-
-	/***********************************************************
-	* TEXT MESSAGE TESTING
-	************************************************************/
 	printf("\nTEXT MESSAGE TESTING\n");
 	//========================== Plain Text =================================//
 	printf("\nTEST: Plain text\n");
@@ -415,54 +418,108 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ Huffman ============================//
 	printf("\nTEST: Huffman\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ RLE ============================//
 	printf("\nTEST: RLE\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ XOR ============================//
 	printf("\nTEST: XOR\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ Viginere ============================//
 	printf("\nTEST: Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ Huffman & XOR ============================//
 	printf("\nTEST: Huffman & XOR\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ Huffman & Viginere ============================//
 	printf("\nTEST: Huffman & Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ RLE & XOR ============================//
 	printf("\nTEST: RLE & XOR\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	//======================== Audio w/ RLE & Viginere ============================//
 	printf("\nTEST: RLE & Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
+	printf("\nPlaying received recording...\n");
+	InitializePlayback();
+	PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			
+	ClosePlayback();
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	/*******************************************************************************/
 
