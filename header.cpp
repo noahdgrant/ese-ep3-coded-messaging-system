@@ -49,7 +49,12 @@ void initHeader(Header &header) {
         if (secretKey[strlen(secretKey) - 1] == '\n') {
             secretKey[strlen(secretKey) - 1] = 0;
         }
-        
+        if (!cCompression) {
+            header.compression = 1;
+        }
+        else {
+            header.compression = atoi(cCompression);
+        }
         fclose(f);
         header.sid = atoi(cSid);
         header.rid = atoi(cRid);
