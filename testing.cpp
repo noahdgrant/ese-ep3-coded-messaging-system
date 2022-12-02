@@ -24,17 +24,17 @@
 *************************************************************************/
 
 /*************************************************************************
-* testingout() - Transmits all text cases for Coded Messaging System.
+* txTesting() - Transmits all text cases for Coded Messaging System.
 * This function return 0 if it successful. Otherwise, it return -1.
 *************************************************************************/
-int testingout() {
+int txTesting() {
 	Header txHeader = {};
 	void* msg;
-	short* audioMsg = NULL;							// Pointer to audio message buffer
-	int recordTime = 5;
-	long  numAudioBytes;							// Size of audio buffer
+	short* audioMsg = NULL;								// Pointer to audio message buffer
+	int recordTime = 2;
+	long numAudioBytes = SAMPLES_SEC * recordTime;		// Size of audio buffer
 	
-	strcpy(secretKey, "banana");					// Set secret key at the beginning of testing
+	strcpy(secretKey, "banana");						// Set secret key at the beginning of testing
 
 	msg = (char*)malloc(MAX_QUOTE_LENGTH);
 	if (msg == NULL) {
@@ -47,6 +47,10 @@ int testingout() {
 	system("cls");
 	printf("\n========== CMS DIAGNOSTIC TESTING ==========\n");
 
+	/***********************************************************
+	* TEXT MESSAGE TESTING
+	************************************************************/
+	printf("\nTEXT MESSAGE TESTING\n");
 	//========================== Plain Text =================================//
 	printf("\nTEST: Plain text\n");
 	printf("Sending message: Plain text message\n");
@@ -182,9 +186,12 @@ int testingout() {
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
-	/***************************************************************************/
-	
-	/*
+
+	/***********************************************************
+	* AUDIO MESSAGE TESTING
+	************************************************************/
+	printf("\nAUDIO MESSAGE TESTING\n");
+
 	// Get memory for recording
 	audioMsg = (short*)malloc(numAudioBytes * sizeof(short));
 	if (audioMsg == NULL) {
@@ -197,79 +204,113 @@ int testingout() {
 	RecordBuffer(audioMsg, numAudioBytes);
 	CloseRecording();
 
-
 	txHeader.payloadType = mAUD;
-	txHeader.uncompressedLength = numAudioBytes * 2;
+	txHeader.payloadSize = txHeader.uncompressedLength = numAudioBytes * 2;
 
+	//========================== Plain Audio =================================//
+	printf("\nTEST: Plain audio\n");
+	txHeader.compression = cNONE;
+	txHeader.encryption = NONE;
+	encrypt(txHeader, audioMsg);
+	compress(txHeader, &msg);
+	transmitCom(&txHeader, audioMsg);
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
-	// send audio
-	txHeader.compression = cNONE;
-	txHeader.encryption = NONE;
-	encrypt(audioMsg, numAudioBytes * 2);
-	compress(txHeader, &msg);
-	transmitCom(&txHeader, audioMsg);
-	// send audio w/ Huffman
+	//========================== Audio w/ Huffman =================================//
+	printf("\nTEST: Huffman\n");
 	txHeader.compression = cHUF;
 	txHeader.encryption = NONE;
-	encrypt(audioMsg, numAudioBytes * 2);
+	encrypt(txHeader, audioMsg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, audioMsg);
-	// send audio w/ Huffman & XOR
-	txHeader.compression = cHUF;
-	txHeader.encryption = XOR;
-	encrypt(audioMsg, numAudioBytes * 2);
-	compress(txHeader, &msg);
-	transmitCom(&txHeader, audioMsg);
-	// send audio w/ Huffman & Viginere
-	txHeader.compression = cHUF;
-	txHeader.encryption = VIG;
-	encrypt(audioMsg, numAudioBytes * 2);
-	compress(txHeader, &msg);
-	transmitCom(&txHeader, audioMsg);
-	// send audio w/ RLE
+	printf("\n============================================================================\n");
+	Sleep(1000);
+
+	//========================== Audio w/ RLE =================================//
+	printf("\nTEST: RLE\n");
 	txHeader.compression = cRLE;
 	txHeader.encryption = NONE;
-	encrypt(audioMsg, numAudioBytes * 2);
+	encrypt(txHeader, audioMsg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, audioMsg);
-	// send audio w/ RLE & XOR
-	txHeader.compression = cRLE;
-	txHeader.encryption = XOR;
-	encrypt(audioMsg, numAudioBytes * 2);
-	compress(txHeader, &msg);
-	transmitCom(&txHeader, audioMsg);
-	// send audio w/ RLE & Viginere
-	txHeader.compression = cRLE;
-	txHeader.encryption = VIG;
-	encrypt(audioMsg, numAudioBytes * 2);
-	compress(txHeader, &msg);
-	transmitCom(&txHeader, audioMsg);
-	// send audio w/ XOR
+	printf("\n============================================================================\n");
+	Sleep(1000);
+
+	//========================== Audio w/ XOR =================================//
+	printf("\nTEST: XOR\n");
 	txHeader.compression = cNONE;
 	txHeader.encryption = XOR;
-	encrypt(audioMsg, numAudioBytes * 2);
+	encrypt(txHeader, audioMsg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, audioMsg);
-	// send audio w/ Viginere
+	printf("\n============================================================================\n");
+	Sleep(1000);
+
+	//========================== Audio w/ Viginere =================================//
+	printf("\nTEST: Viginere\n");
 	txHeader.compression = cNONE;
 	txHeader.encryption = VIG;
-	encrypt(audioMsg, numAudioBytes * 2);
+	encrypt(txHeader, audioMsg);
 	compress(txHeader, &msg);
 	transmitCom(&txHeader, audioMsg);
+	printf("\n============================================================================\n");
+	Sleep(1000);
+
+	//========================== Audio w/ Huffman & XOR =================================//
+	printf("\nTEST: Huffman & XOR\n");
+	txHeader.compression = cHUF;
+	txHeader.encryption = XOR;
+	encrypt(txHeader, audioMsg);
+	compress(txHeader, &msg);
+	transmitCom(&txHeader, audioMsg);
+	printf("\n============================================================================\n");
+	Sleep(1000);
+
+	//========================== Audio w/ Huffman & Viginere =================================//
+	printf("\nTEST: Huffman & Viginere\n");
+	txHeader.compression = cHUF;
+	txHeader.encryption = VIG;
+	encrypt(txHeader, audioMsg);
+	compress(txHeader, &msg);
+	transmitCom(&txHeader, audioMsg);
+	printf("\n============================================================================\n");
+	Sleep(1000);
+
+	//========================== Audio w/ RLE & XOR =================================//
+	printf("\nTEST: RLE & XOR\n");
+	txHeader.compression = cRLE;
+	txHeader.encryption = XOR;
+	encrypt(txHeader, audioMsg);
+	compress(txHeader, &msg);
+	transmitCom(&txHeader, audioMsg);
+	printf("\n============================================================================\n");
+	Sleep(1000);
+
+	//========================== Audio w/ RLE & Viginere =================================//
+	printf("\nTEST: RLE & Viginere\n");
+	txHeader.compression = cRLE;
+	txHeader.encryption = VIG;
+	encrypt(txHeader, audioMsg);
+	compress(txHeader, &msg);
+	transmitCom(&txHeader, audioMsg);
+	printf("\n============================================================================\n");
+	Sleep(1000);
 
 	free(audioMsg);
 	audioMsg = NULL;
-	*/
-	strcpy(secretKey, "\0"); // Clear secret key at the end of testing
+	/**********************************************************************/
+
+	strcpy(secretKey, "\0");	// Clear secret key at the end of testing
 	system("pause");
-	return(1);
+	return(0);
 }
 
 /*************************************************************************
-* testingin() - Receives all text cases for Coded Messaging System.
+* rxTesting() - Receives all text cases for Coded Messaging System.
 * This function return 0 if it successful. Otherwise, it return -1.
 *************************************************************************/
-int testingin() {
+int rxTesting() {
 	void* msgIn = NULL;					// Pointer to recieved message buffer
 	Header rxHeader = {};
 
@@ -278,6 +319,10 @@ int testingin() {
 	system("cls");
 	printf("\n========== CMS DIAGNOSTIC TESTING ==========\n");
 
+	/***********************************************************
+	* TEXT MESSAGE TESTING
+	************************************************************/
+	printf("\nTEXT MESSAGE TESTING\n");
 	//======================== Plain Text ================================//
 	printf("\nTEST: Plain Text\n");
 	receiveCom(&rxHeader, &msgIn);
@@ -359,48 +404,69 @@ int testingin() {
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
-	/*
-	Sleep(5);
+	/*****************************************************************************************/
 
-	// receive audio
+	/***********************************************************
+	* AUDIO MESSAGE TESTING
+	************************************************************/
+	printf("\nAUDIO MESSAGE TESTING\n");
+	//======================== Plane audio ============================//
+	printf("\nTEST: Plane audio\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	// receive audio w/ Huffman
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	// receive audio w/ Huffman & XOR
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	// receive audio w/ Huffman & Viginere
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	// receive audio w/ RLE
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	// receive audio w/ RLE & XOR
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	// receive audio w/ RLE & Viginere
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	// receive audio w/ XOR
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	// receive audio w/ Viginere
-	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
-	decrypt(rxHeader, msgIn);
-	*/
 
-	strcpy(secretKey, "\0"); // Clear secret key at the end of testing
+	//======================== Audio w/ Huffman ============================//
+	printf("\nTEST: Huffman\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	//======================== Audio w/ RLE ============================//
+	printf("\nTEST: RLE\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	//======================== Audio w/ XOR ============================//
+	printf("\nTEST: XOR\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	//======================== Audio w/ Viginere ============================//
+	printf("\nTEST: Viginere\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	//======================== Audio w/ Huffman & XOR ============================//
+	printf("\nTEST: Huffman & XOR\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	//======================== Audio w/ Huffman & Viginere ============================//
+	printf("\nTEST: Huffman & Viginere\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	//======================== Audio w/ RLE & XOR ============================//
+	printf("\nTEST: RLE & XOR\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	//======================== Audio w/ RLE & Viginere ============================//
+	printf("\nTEST: RLE & Viginere\n");
+	receiveCom(&rxHeader, &msgIn);
+	decompress(rxHeader, &msgIn);
+	decrypt(rxHeader, msgIn);
+
+	/*******************************************************************************/
+
+	strcpy(secretKey, "\0");		// Clear secret key at the end of testing
 	system("pause");
-	return(1);
+	return(0);
 }

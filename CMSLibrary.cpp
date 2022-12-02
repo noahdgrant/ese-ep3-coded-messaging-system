@@ -73,7 +73,15 @@ void printMenu(Header& h) {
 	printf("16. Transmit testing diagnostic messages\n");
 	printf("17. Receive testing diagnostic messages\n");
 	printf("18. Transmit text file\n");
-	printf("19. Error detection and correction\n");
+	printf("19. Error detection and correction                      Error detection: ");
+	switch (h.errorDC) {
+	case 0:
+		printf("OFF\n");
+		break;
+	case 1:
+		printf("ON\n");
+		break;
+	}
 	printf("0. Exit\n");
 	printf("\n> ");
 	return;

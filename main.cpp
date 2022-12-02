@@ -274,11 +274,11 @@ int	main(int argc, char* argv[])
 				break;
 			// test function send
 			case 16:
-				testingout();
+				txTesting();
 				break;
 			// test function receive
 			case 17:
-				testingin();
+				rxTesting();
 				break;
 			// Transmit txt file
 			case 18:
