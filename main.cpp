@@ -65,25 +65,31 @@ int	main(int argc, char* argv[])
 				saveUserSettings(txHeader);
 				closeContacts();
 				break;
-			// Record audio message
+				// Change Com Port
 			case 1:
+				selectComPort();
+				break;
+
+
+			// Record audio message
+			case 14:
 				recordAudio();
 				break;
 			// Playback saved audio message
-			case 2:
+			case 15:
 				playbackAudio();
 				break;
 			// Generate a random quote and save it to the queue
-			case 3:
+			case 16:
 				generateQuote();
 				break;
 			// Print out each message in the queue
-			case 4:
+			case 17:
 				traverse(listHead(), visit);
 				Sleep(4000);
 				break;
 			// Transmit Text Message
-			case 5:
+			case 9:
 				msg = (char*)malloc(MAX_QUOTE_LENGTH);
 				if (msg == NULL) {
 					printf("\nERROR: Could not malloc memory for quote buffer.\n");
@@ -120,7 +126,7 @@ int	main(int argc, char* argv[])
 				// I THINK WE STILL NEED TO FREE THE MEMORY IF HUFFMAN IS NOT USED
 				break;
 			// Transmit audio message
-			case 6:
+			case 10:
 				// Get memory for recording
 				audioMsg = (short*)malloc(numAudioBytes * sizeof(short));
 				if (audioMsg == NULL) {
@@ -166,7 +172,7 @@ int	main(int argc, char* argv[])
 				audioMsg = NULL;
 				break;
 			// Recieve message
-			case 7:
+			case 12:
 				// Receive message
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
@@ -216,35 +222,32 @@ int	main(int argc, char* argv[])
 				free(msgIn);
 				msgIn = NULL;
 				break;
-			// Change Com Port
-			case 8:
-				selectComPort();
-				break;
+
 			// Change Audio Settings
-			case 9:
+			case 5:
 				changeAudioSettings();
 				break;
 			// Set Encription Type
-			case 10:
+			case 3:
 				setEncryption(txHeader);
 				break;
 			// Set Encription Code
-			case 11:
+			case 4:
 				setSecretKey();
 				break;
 			// Set Recipient ID
-			case 12:
+			case 6:
 				setRID(txHeader);
 				break;
 			// Set Sender ID
-			case 13:
+			case 7:
 				setSID(txHeader);
 				break;
-			case 14:
+			case 2:
 				setCompression(txHeader);
 				break;
 			// Print recieved messages
-			case 15:
+			case 13:
 				delMsg.msgHeader.seqNum = 0;	// Reset the message to be deleted each time
 				
 				// Print received messages
@@ -267,15 +270,15 @@ int	main(int argc, char* argv[])
 				strcpy(cmd, "15");	// Reset cmd so that program doesn't close
 				break;
 			// test function send
-			case 16:
+			case 18:
 				testingout();
 				break;
 			// test function receive
-			case 17:
+			case 19:
 				testingin();
 				break;
 			// Transmit txt file
-			case 18:
+			case 11:
 				// Get file name
 				printf("\nFilename to transmit (no spaces & includeing extension): ");
 				fflush(stdin);
