@@ -93,7 +93,10 @@ int	main(int argc, char* argv[])
 			case 7:
 				setSID(txHeader);
 				break;
-
+				// Enable or disable error correction and deteciton
+			case 8:
+				setErrorDetection(txHeader);
+				break;
 				// Transmit Text Message
 			case 9:
 				msg = (char*)malloc(MAX_QUOTE_LENGTH);
@@ -331,10 +334,6 @@ int	main(int argc, char* argv[])
 			// test function receive
 			case 19:
 				rxTesting();
-				break;
-			// Enable or disable error correction and deteciton
-			case 19:
-				setErrorDetection(txHeader);
 				break;
 			// Invalid command
 			default:
