@@ -65,25 +65,37 @@ int	main(int argc, char* argv[])
 				saveUserSettings(txHeader);
 				closeContacts();
 				break;
-			// Record audio message
+				// Change Com Port
 			case 1:
-				recordAudio();
+				selectComPort();
 				break;
-			// Playback saved audio message
+				// Set Compression Type
 			case 2:
-				playbackAudio();
+				setCompression(txHeader);
 				break;
-			// Generate a random quote and save it to the queue
+				// Set Encription Type
 			case 3:
-				generateQuote();
+				setEncryption(txHeader);
 				break;
-			// Print out each message in the queue
+				// Set Encription Code
 			case 4:
-				traverse(listHead(), visit);
-				Sleep(4000);
+				setSecretKey();
 				break;
-			// Transmit Text Message
+				// Change Audio Settings
 			case 5:
+				changeAudioSettings();
+				break;
+				// Set Recipient ID
+			case 6:
+				setRID(txHeader);
+				break;
+				// Set Sender ID
+			case 7:
+				setSID(txHeader);
+				break;
+
+				// Transmit Text Message
+			case 9:
 				msg = (char*)malloc(MAX_QUOTE_LENGTH);
 				if (msg == NULL) {
 					printf("\nERROR: Could not malloc memory for quote buffer.\n");
@@ -91,13 +103,13 @@ int	main(int argc, char* argv[])
 				}
 
 				printf("\nWhat message would you link to send?\n\n");
-				fflush(stdin);													
+				fflush(stdin);
 				scanf_s("%[^\n]s", (char*)msg, MAX_QUOTE_LENGTH);				// Reading complete strings with scanf_s: https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
-				while (getchar() != '\n') {}									
-				
+				while (getchar() != '\n') {}
+
 				txHeader.payloadType = mTXT;
 				txHeader.uncompressedLength = txHeader.payloadSize = strlen((char*)msg) + 1;
-				
+
 				// Encrypt and compress message
 				returnCode = encrypt(txHeader, (char*)msg);		// +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string
 				if (returnCode == -1) {							// Secret key was not set
@@ -119,8 +131,8 @@ int	main(int argc, char* argv[])
 				Sleep(2000);
 				// I THINK WE STILL NEED TO FREE THE MEMORY IF HUFFMAN IS NOT USED
 				break;
-			// Transmit audio message
-			case 6:
+				// Transmit audio message
+			case 10:
 				// Get memory for recording
 				audioMsg = (short*)malloc(numAudioBytes * sizeof(short));
 				if (audioMsg == NULL) {
@@ -132,11 +144,11 @@ int	main(int argc, char* argv[])
 				InitializeRecording();
 				RecordBuffer(audioMsg, numAudioBytes);
 				CloseRecording();
-				
+
 				// Update header
 				txHeader.payloadType = mAUD;
 				/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
-				Shorts are 2 bytes each and chars are 1 byte each so to have the same amount 
+				Shorts are 2 bytes each and chars are 1 byte each so to have the same amount
 				of space it needs to be multiplied by 2. */
 				txHeader.payloadSize = numAudioBytes * 2;
 
@@ -144,7 +156,7 @@ int	main(int argc, char* argv[])
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
 				fflush(stdin);
 				scanf_s("%c", &sendCmd, 1);
-				while (getchar() != '\n') {}		
+				while (getchar() != '\n') {}
 
 				if (sendCmd == 'y' || sendCmd == 'Y') {
 					encrypt(txHeader, audioMsg);
@@ -165,8 +177,54 @@ int	main(int argc, char* argv[])
 				free(audioMsg);
 				audioMsg = NULL;
 				break;
-			// Recieve message
-			case 7:
+				// Transmit txt file
+			case 11:
+				// Get file name
+				printf("\nFilename to transmit (no spaces & includeing extension): ");
+				fflush(stdin);
+				scanf_s("%s", filename, MAX_QUOTE_LENGTH);
+				while (getchar() != '\n') {}
+
+				fSize = fileSz(filename);
+
+				// Malloc memory for file
+				msg = (char*)calloc(1, strlen(filename) + fSize + strlen("!!")); // !! is used to denote the end of the filename and the beginning of the file data
+				if (msg == NULL) {
+					printf("\nERROR: Could not malloc memory for quote buffer.\n");
+					break;
+				}
+
+				// Copy file to msg buffer
+				fSize = copyFile((char*)msg, filename, fSize);
+
+				// Transmit file
+				txHeader.payloadType = mTXTFILE;
+				txHeader.uncompressedLength = txHeader.payloadSize = fSize;
+
+				// Encrypt and compress message
+				returnCode = encrypt(txHeader, (char*)msg);
+				if (returnCode == -1) {							// Secret key was not set
+					break;
+				}
+
+				compress(txHeader, &msg);
+
+				// Calculate checksum
+				txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
+				if (txHeader.checksum == 0x11111) {
+					printf("\nERROR: Checksum failed\n");
+					Sleep(2000);
+					break;
+				}
+
+				// Transmit message
+				transmitCom(&txHeader, msg);
+
+				// free(msg)
+				Sleep(2000);
+				break;
+				// Recieve message
+			case 12:
 				// Receive message
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
@@ -183,7 +241,7 @@ int	main(int argc, char* argv[])
 				}
 
 				// Decompress and decrypt received message
-				decompress(rxHeader, &msgIn); 
+				decompress(rxHeader, &msgIn);
 				decrypt(rxHeader, msgIn);
 
 				// Play audio message
@@ -191,7 +249,7 @@ int	main(int argc, char* argv[])
 					printf("\nPlaying received recording...\n");
 					InitializePlayback();
 					PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
-					ClosePlayback();					
+					ClosePlayback();
 					Sleep(500);
 				}
 				// Print text message
@@ -216,37 +274,10 @@ int	main(int argc, char* argv[])
 				free(msgIn);
 				msgIn = NULL;
 				break;
-			// Change Com Port
-			case 8:
-				selectComPort();
-				break;
-			// Change Audio Settings
-			case 9:
-				changeAudioSettings();
-				break;
-			// Set Encription Type
-			case 10:
-				setEncryption(txHeader);
-				break;
-			// Set Encription Code
-			case 11:
-				setSecretKey();
-				break;
-			// Set Recipient ID
-			case 12:
-				setRID(txHeader);
-				break;
-			// Set Sender ID
+				// Print recieved messages
 			case 13:
-				setSID(txHeader);
-				break;
-			case 14:
-				setCompression(txHeader);
-				break;
-			// Print recieved messages
-			case 15:
 				delMsg.msgHeader.seqNum = 0;	// Reset the message to be deleted each time
-				
+
 				// Print received messages
 				system("cls");
 				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
@@ -255,7 +286,7 @@ int	main(int argc, char* argv[])
 					// Ask if user wants to delete a message
 					printf("\nEnter the number of the message you want to delete, otherwise enter 0 to return to the menu\n");
 					printf("\n> ");
-					fflush(stdin);											
+					fflush(stdin);
 					scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 					while (getchar() != '\n') {}
 
@@ -266,59 +297,31 @@ int	main(int argc, char* argv[])
 
 				strcpy(cmd, "15");	// Reset cmd so that program doesn't close
 				break;
-			// test function send
+			// Record audio message
+			case 14:
+				recordAudio();
+				break;
+			// Playback saved audio message
+			case 15:
+				playbackAudio();
+				break;
+			// Generate a random quote and save it to the queue
 			case 16:
+				generateQuote();
+				break;
+			// Print out each message in the queue
+			case 17:
+				traverse(listHead(), visit);
+				Sleep(4000);
+				break;
+			
+			// test function send
+			case 18:
 				testingout();
 				break;
 			// test function receive
-			case 17:
+			case 19:
 				testingin();
-				break;
-			// Transmit txt file
-			case 18:
-				// Get file name
-				printf("\nFilename to transmit (no spaces & includeing extension): ");
-				fflush(stdin);
-				scanf_s("%s", filename, MAX_QUOTE_LENGTH);
-				while (getchar() != '\n') {}
-
-				fSize = fileSz(filename);
-
-				// Malloc memory for file
-				msg = (char*)calloc(1, strlen(filename) + fSize + strlen("!!")); // !! is used to denote the end of the filename and the beginning of the file data
-				if (msg == NULL) {
-					printf("\nERROR: Could not malloc memory for quote buffer.\n");
-					break;
-				}
-
-				// Copy file to msg buffer
-				fSize = copyFile((char*)msg, filename, fSize);
-
-				// Transmit file
-				txHeader.payloadType = mTXTFILE;
-				txHeader.uncompressedLength = txHeader.payloadSize = fSize;
-
-				// Encrypt and compress message
-				returnCode = encrypt(txHeader, (char*)msg);		
-				if (returnCode == -1) {							// Secret key was not set
-					break;
-				}
-
-				compress(txHeader, &msg);
-
-				// Calculate checksum
-				txHeader.checksum = Checksum(msg, txHeader.payloadSize, CHK_8BIT);
-				if (txHeader.checksum == 0x11111) {
-					printf("\nERROR: Checksum failed\n");
-					Sleep(2000);
-					break;
-				}
-
-				// Transmit message
-				transmitCom(&txHeader, msg);
-
-				// free(msg)
-				Sleep(2000);
 				break;
 			// Invalid command
 			default:
