@@ -331,7 +331,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn); 
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -340,7 +340,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -349,7 +349,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -358,7 +358,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -367,7 +367,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -376,7 +376,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -385,7 +385,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -394,7 +394,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
@@ -403,7 +403,7 @@ int rxTesting() {
 	receiveCom(&rxHeader, &msgIn);
 	decompress(rxHeader, &msgIn);
 	decrypt(rxHeader, msgIn);
-	printf("Received message: %s\n", (char*)msgIn);
+	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
 
