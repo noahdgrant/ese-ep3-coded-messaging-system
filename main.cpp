@@ -95,7 +95,7 @@ int	main(int argc, char* argv[])
 				break;
 				// Enable or disable error correction and deteciton
 			case 8:
-				setErrorDetection(txHeader);
+				txHeader.errorDC = !txHeader.errorDC;
 				break;
 				// Transmit Text Message
 			case 9:

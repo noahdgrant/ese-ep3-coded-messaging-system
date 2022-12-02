@@ -62,7 +62,14 @@ void printMenu(Header& h) {
 	printf("5. Change Audio Recording Length			Length:			%d\n", recordTime);
 	printf("6. Set Recipient ID					RID:			%d\n", h.rid);
 	printf("7. Set Sender ID					SID:			%d\n", h.sid);
-	printf("8. Toggle Error Detection\n");
+	printf("8. Toggle Error Detection				Error Detection:	");
+	if (h.errorDC) {
+		printf("ON\n");
+	}
+	else {
+		printf("OFF\n");
+
+	}
 	printf("9. Transmit Text Message\n");
 	printf("10. Transmit Aduio Message\n");
 	printf("11. Transmit text file\n");

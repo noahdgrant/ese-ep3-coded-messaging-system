@@ -25,5 +25,3 @@ enum CHECKSUM
 unsigned int Checksum(void* buf, int iBufLen, CHECKSUM iType);
 
 int checkHeader(Header& h);
-
-void setErrorDetection(Header &h);

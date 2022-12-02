@@ -110,31 +110,3 @@ int checkHeader(Header& h) {
     }
     return(0);
 }
-
-/*************************************************************************
-* setErrorDetection() - Enables or disables error detection and correction on the header and message.
-* h		- Trasmit header.
-*************************************************************************/
-void setErrorDetection(Header &h) {
-    char cmd = '\0';
-
-    printf("\nTurn ON or OFF error detection and correction:\n");
-    printf("1. Enable\n");
-    printf("2. Disable\n");
-    printf("0. Main menu\n");
-    printf("\n> ");
-
-    fflush(stdin);											
-    scanf_s("%c", &cmd, 1);
-    while (getchar() != '\n') {}							// Flush other input buffer
-
-    if (cmd == '1') {
-        h.errorDC = true;
-
-    }
-    else if (cmd == '2') {
-        h.errorDC = false;
-    }
-
-    return;
-}
