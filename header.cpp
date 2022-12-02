@@ -46,7 +46,9 @@ void initHeader(Header &header) {
         fgets(cCurrentCom, sizeof(cCurrentCom), f);
         fgets(secretKey, sizeof(secretKey), f);
         fgets(cRecordTime, sizeof(cRecordTime), f);
-
+        if (secretKey[strlen(secretKey) - 1] == '\n') {
+            secretKey[strlen(secretKey) - 1] = 0;
+        }
         
         fclose(f);
         header.sid = atoi(cSid);
