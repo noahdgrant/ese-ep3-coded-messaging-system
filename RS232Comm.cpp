@@ -284,8 +284,8 @@ void setRID(Header& h) {
 	do {
 		system("cls");
 		printf("1. Chose from contact list\n");
-		printf("2. Add new contact\n");
-		printf("3. Chose an ID not assigned to a contact\n");
+		printf("2. Chose an ID not assigned to a contact\n");
+		printf("3. Add new contact\n");
 		printf("\n> ");
 
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
@@ -295,10 +295,10 @@ void setRID(Header& h) {
 		if (atoi(cmd) == 1) {//chose from contact list
 			h.rid = selectContact();
 		}
-		else if (atoi(cmd) == 2) {//add new contact
+		else if (atoi(cmd) == 3) {//add new contact
 			addContact();
 		}
-		else if (atoi(cmd) == 3) {//chose an ID not assigned to a contact
+		else if (atoi(cmd) == 2) {//chose an ID not assigned to a contact
 			printf("\nEnter the recipient ID: ");
 			scanf_s("%d", &h.rid);
 		}
@@ -307,7 +307,7 @@ void setRID(Header& h) {
 		}
 		Sleep(2000);
 
-	} while (atoi(cmd) < 0 || atoi(cmd) > 3);
+	} while (atoi(cmd) < 0 || atoi(cmd) > 2);
   
   	h.rid2 = h.rid3 = h.rid;				// Used for voteOn() error detection and correction
     return;
@@ -321,8 +321,8 @@ void setSID(Header& h) {
 	do {
 		system("cls");
 		printf("1. Chose from contact list\n");
-		printf("2. Add new contact\n");
-		printf("3. Chose an ID not assigned to a contact\n");
+		printf("2. Chose an ID not assigned to a contact\n");
+		printf("3. Add new contact\n");
 		printf("\n> ");
 
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
@@ -332,10 +332,10 @@ void setSID(Header& h) {
 		if (atoi(cmd) == 1) {//chose from contact list
 			h.sid = selectContact();
 		}
-		else if (atoi(cmd) == 2) {//add new contact
+		else if (atoi(cmd) == 3) {//add new contact
 			addContact();
 		}
-		else if (atoi(cmd) == 3) {//chose an ID not assigned to a contact
+		else if (atoi(cmd) == 2) {//chose an ID not assigned to a contact
 			printf("\nEnter the recipient ID: ");
 			scanf_s("%d", &h.sid);
 		}
@@ -344,7 +344,7 @@ void setSID(Header& h) {
 		}
 		Sleep(2000);
 
-	} while (atoi(cmd) < 0 || atoi(cmd) > 3);
+	} while (atoi(cmd) < 0 || atoi(cmd) > 2);
 
 }
 
