@@ -10,14 +10,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <Windows.h>
 
 #include "compression.h"
 #include "header.h"
 #include "huffman.h"
-#include "message.h"
-#include "RLE.h"
-#include "RS232Comm.h"
+#include "rle.h"
 
 /*************************************************************************
 *                            PUBLIC FUNCTIONS                            *
@@ -25,118 +22,132 @@
 
 /*************************************************************************
 * compress() - Compress transmit buffer.
-* h		- Transmit header.
-* msg	- Message to be transmitted.
-* This function returns 0 if compression was successful (not not needed) or -1 if it failed.
+* in		- Input (uncompressed) buffer.
+* iBufSize	- Input buffer size.
+* type		- The type of compression to use on the message.
+* This function returns the size of the compressed buffer, or -1 if it failed.
 *************************************************************************/
-int compress(Header& h, void** msg) {
-	if (h.compression == cNONE) return(0);		// Exit function if no compression needed.
+unsigned int compress(void** in, unsigned int iBufSize, int type) {
+	unsigned char* out = NULL;
+	unsigned char* out2 = NULL;
+	unsigned int oBufSize = 0;
 
-	char* compressedBuf = NULL;
-	int compSz = 0;
-
-	if (h.payloadType == mTXT || h.payloadType == mTXTFILE) {
-		if (h.compression == cHUF) {
-			compressedBuf = (char*)malloc((h.uncompressedLength * 104 + 50) / 100 + 384);				// The equation came from Michael's version and is based of the Huffman library documentation
-			if (compressedBuf == NULL) {
-				printf("\nERROR: Coudn't malloc memory to compress message.\n");
-				return(-1);
-			}
-
-			compSz = Huffman_Compress((unsigned char*)*msg, (unsigned char*)compressedBuf, h.uncompressedLength);
-
-			// Need to realloc since the uncompressed message will be larger than the comrpessed message.
-			void* tmp = realloc(*msg, compSz);
-			if (tmp == NULL) {
-				printf("\nERROR: Could not realloc memory to compress message buffer.\n");
-				return(-1);
-			}
-			*msg = tmp;
-			strcpy((char*)*msg, compressedBuf);
-			h.payloadSize = compSz;	// Update payload size so tx and rx functions know the correct buffer size
+	switch (type) {
+		// No compression
+		case 0:
+			return(iBufSize);
+		// RLE
+		case 1: {
+			out = (unsigned char*)malloc(iBufSize * (257 / 256) + 1);
+			if (out == NULL) return(-1);
+			oBufSize = RLE_Compress((unsigned char*)*in, out, iBufSize);
+			out[oBufSize - 1] = '\0';
+			free(*in);
+			*in = out;
+			break;
 		}
-		else if (h.compression == cRLE) {
-			char buf[MAX_QUOTE_LENGTH];
-			RLEncode((char*)*msg, strlen((const char*)*msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
-			strcpy((char*)*msg, buf);
-			h.payloadSize = strlen(buf) + 1;
+		// Huffman
+		case 2: {
+			out = (unsigned char*)malloc(iBufSize * (101 / 100) + 384);
+			if (out == NULL) return(-1);
+			oBufSize = Huffman_Compress((unsigned char*)*in, out, iBufSize);			// Huffman_Compress() has a bug where it sometimes returns the wrong size and the last character is lost
+			out[oBufSize - 1] = '\0';
+			free(*in);
+			*in = out;
+			break;
+		}
+		// Both
+		/* Won't work until we find a good day to tell Huffman on the receive side how big the compressed RLE
+		buffer should be after Huffman is uncompressed */
+		case 3: {
+			// RLE first
+			out = (unsigned char*)malloc(iBufSize * (257 / 256) + 1);
+			if (out == NULL) return(-1);
+			oBufSize = RLE_Compress((unsigned char*)*in, out, iBufSize);
+			out[oBufSize - 1] = '\0';
+
+			// Huffman second
+			out2 = (unsigned char*)malloc(iBufSize * (101 / 100) + 384);
+			if (out2 == NULL) return(-1);
+			oBufSize = Huffman_Compress(out, out2, oBufSize);
+			out2[oBufSize - 1] = '\0';
+			free(out);
+			out = NULL;
+			free(*in);
+			*in = out2;
+			break;
+		}
+		default: {
+			return(-1);
 		}
 	}
-	else if (h.payloadType == mAUD) {
-		if (h.compression == cHUF) {
-			/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
-			Huffman_Compress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2);
-			strcpy((char*)msg, (char*)buf);
-			free(buf);*/
-		}
-		else if (h.compression == cRLE) {
-		}
-	}
 
-	//if (compressedBuf != NULL) {		
-	//	free(compressedBuf);			// This is giving me problems even though I should be able to free this memory
-	//	compressedBuf = NULL;
-	//}
-	return(0);
+	return(oBufSize);
 }
 
 /*************************************************************************
 * decompress() - Decompress received buffer.
-* h		- Received header.
-* msg	- Received message.
-* This function returns 0 if decompression was successful (or not needed) or -1 if it failed.
+* in		- Input (compressed) buffer.
+* iBufSize	- Size of input buffer.
+* oBufSize	- Size of output (uncompressed) buffer.
+* This function returns 0 if decompression was successful (or not needed), or -1 if it failed.
 *************************************************************************/
-int decompress(Header& h, void** msg) {
-	if (h.compression == cNONE) return(0);		// Exit function if no compression needed.
+int decompress(void** in, unsigned int iBufSize, unsigned int oBufSize, int type) {
+	unsigned char* out = NULL;
+	unsigned char* out2 = NULL;
 
-	char* uncompressedBuf = NULL;
-
-	if (h.payloadType == mTXT) {
-		if (h.compression == cHUF) {
-			uncompressedBuf = (char*)malloc(h.uncompressedLength);
-			if (uncompressedBuf == NULL) {
-				printf("\nERROR: Coudn't malloc memory to decompressed received message.\n");
-				return(-1);
-			}
-
-			Huffman_Uncompress((unsigned char*)*msg, (unsigned char*)uncompressedBuf, h.payloadSize, h.uncompressedLength);
-			if (uncompressedBuf[0] == '\0') {
-				printf("\nERROR: Failed to decompress received message.\n");
-				return(-1);
-			}
-
-			// Need to realloc since the uncompressed message will be larger than the comrpessed message.
-			void* tmp = realloc(*msg, h.uncompressedLength);
-			if (tmp == NULL) {
-				printf("\nERROR: Could not realloc memory to decompress message buffer.\n");
-				return(-1);
-			}
-			*msg = tmp;
-			strcpy((char*)*msg, uncompressedBuf);
-			h.payloadSize = strlen(uncompressedBuf); //THIS IS NOT RETURNING THE CORRECT TRANSMITTED UNCOMPRESSED LENGTH ALL THE TIME
+	switch (type) {
+		// No compression
+		case 0:
+			return(0);
+		// RLE
+		case 1: {
+			out = (unsigned char*)malloc(oBufSize);
+			if (out == NULL) return(-1);
+			RLE_Uncompress((unsigned char*)*in, out, iBufSize);
+			out[oBufSize - 1] = '\0';
+			free(*in);
+			*in = out;
+			break;
 		}
-		else if (h.compression == cRLE) {
-			char buf[MAX_QUOTE_LENGTH];
-			RLDecode((char*)*msg, strlen((const char*)*msg), buf, MAX_QUOTE_LENGTH, ESCAPE_CHARACTER);
-			strcpy((char*)*msg, buf);
-			h.payloadSize = strlen(buf);
+		// Huffman
+		case 2: {
+			out = (unsigned char*)malloc(oBufSize);
+			if (out == NULL) return(-1);
+			Huffman_Uncompress((unsigned char*)*in, out, iBufSize, oBufSize);
+			out[oBufSize - 1] = '\0';
+			free(*in);
+			*in = out;
+			break;
+		}
+		// Both
+		case 3: {
+			// Huffman first
+			out = (unsigned char*)calloc(1, oBufSize);
+			if (out == NULL) return(-1);
+			/* oBufSize can't be the last parameter in Huffman_Uncompress since the message still needs to be decompressed by RLE.
+			Need to find a way to get the right value. 67 is a magic number right now for the current string.
+			We could pass the parameter to the function or store it in the header. I don't have any better
+			ideas right now.*/
+			Huffman_Uncompress((unsigned char*)*in, out, iBufSize, 67);
+			out[strlen((char*)out)] = '\0';
+
+			// RLE second
+			out2 = (unsigned char*)calloc(1, oBufSize);
+			if (out2 == NULL) return(-1);
+			RLE_Uncompress(out, out2, strlen((char*)out) + 1);
+			out2[oBufSize - 1] = '\0';
+			free(out);
+			out = NULL;
+			free(*in);
+			*in = out2;
+			break;
+		}
+		default: {
+			return(-1);
 		}
 	}
-	else if (h.payloadType == mAUD) {
-		if (h.compression == cHUF) {
-			/*short* buf = (short*)malloc((strlen((const char*)msg) + 384) * sizeof(short));
-			Huffman_Uncompress((unsigned char*)msg, (unsigned char*)buf, strlen((const char*)msg) * 2, 1);
-			strcpy((char*)msg, (char*)buf);
-			free(buf);*/
-		}
-		else if (h.compression == cRLE) {
-		}
-	}
 
-	if (uncompressedBuf != NULL) {
-		free(uncompressedBuf);
-		uncompressedBuf = NULL;
-	}
 	return(0);
 }
 
@@ -149,9 +160,10 @@ void setCompression(Header& h) {
 	do {
 		system("cls");
 		printf("Enter type of compression/decompression\n");
-		printf("1. No compression\n");
+		printf("0. No compression\n");
+		printf("1. RLE\n");
 		printf("2. Huffman\n");
-		printf("3. RLE\n");
+		printf("3. Huffman & RLE (currently not working)\n");
 		printf("\n> ");
 
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
@@ -162,13 +174,17 @@ void setCompression(Header& h) {
 			printf("\nNow using no compression\n");
 			h.compression = cNONE;
 		}
+		else if (atoi(cmd) == cRLE) {
+			printf("\nNow using RLE compression\n");
+			h.compression = cRLE;
+		}
 		else if (atoi(cmd) == cHUF) {
 			printf("\nNow using Huffman compression\n");
 			h.compression = cHUF;
 		}
-		else if (atoi(cmd) == cRLE) {
+		else if (atoi(cmd) == cBOTH) {
 			printf("\nNow using RLE compression\n");
-			h.compression = cRLE;
+			h.compression = cBOTH;
 		}
 		else {
 			printf("You did not enter a valid command. Please try again.");

@@ -39,11 +39,14 @@ void printMenu(Header& h) {
 	case cNONE:
 		printf("None\n");
 		break;
+	case cRLE:
+		printf("RLE\n");
+		break;
 	case cHUF:
 		printf("Huffman\n");
 		break;
-	case cRLE:
-		printf("RLE\n");
+	case cBOTH:
+		printf("Huffman & RLE\n");
 		break;
 	}
 	printf("3. Set Encryption Type					Encryption Type:	");
