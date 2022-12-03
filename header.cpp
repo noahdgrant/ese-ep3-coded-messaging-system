@@ -56,14 +56,14 @@ void initHeader(Header &header) {
             strcpy_s(secretKey, "default");
         }
 
-        if (!atoi(cCompression)) {
+        if (atoi(cCompression) != 1 && atoi(cCompression) != 2 && atoi(cCompression) != 3) {
             header.compression = cNONE;
         }
         else {
             header.compression = atoi(cCompression);
         }
 
-        if (!atoi(cEncryption)) {
+        if (atoi(cEncryption) != 1 && atoi(cEncryption) != 2 && atoi(cEncryption) != 3) {
             header.encryption = NONE;
         }
         else {

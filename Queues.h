@@ -47,7 +47,7 @@ void traverse(link h, void (*visit)(link));			// Traverse the LL from head to ta
 void traverseR(link h, void (*visit)(link));		// Traverse the LL from tail to head
 
 // Queue recived messages
-int qRxMsg(Header rxHeader, void* rxMsg, int msgSz);				// Queue recieved message
+int qRxMsg(Header rxHeader, void* rxMsg);				// Queue recieved message
 void printNode(link h, int i);										// Print current node
 void printRxMsgs();													// Print recieved messages from oldest to newest
 void countAndTraverse(link h, void (*visit)(link, int i), int i);

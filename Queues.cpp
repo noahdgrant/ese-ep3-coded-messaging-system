@@ -157,10 +157,10 @@ void countAndTraverse(link h, void (*visit)(link, int i), int i) {
 * msgSz			- Message size.
 * This function return 0 if successful or -1 if it's not.
 *************************************************************************/
-int qRxMsg(Header rxHeader, void* rxMsg, int msgSz) {
+int qRxMsg(Header rxHeader, void* rxMsg) { 
 	link p = NULL;															// Pointer to memory where quere node will be stored
 
-	p = (link)calloc(1, sizeof(Node) + msgSz);								// Calloc() URL: https://www.geeksforgeeks.org/dynamic-memory-allocation-in-c-using-malloc-calloc-free-and-realloc/
+	p = (link)calloc(1, sizeof(Node) + rxHeader.payloadSize);								// Calloc() URL: https://www.geeksforgeeks.org/dynamic-memory-allocation-in-c-using-malloc-calloc-free-and-realloc/
 	if (p == NULL) {														// Make sure memory was allocated
 		printf("\nERROR: Couldn't malloc memory for recieved message.\n");
 		return (-1);
@@ -168,7 +168,7 @@ int qRxMsg(Header rxHeader, void* rxMsg, int msgSz) {
 
 	p->Data.msgHeader = rxHeader;					// Copy recieved header to node
 	
-	for (int i = 0; i < msgSz; i++) {
+	for (int i = 0; i < rxHeader.payloadSize; i++) {
 		p->Data.message[i] = ((char*)rxMsg)[i];		// Copy recieved message to node
 	}
 	pushQ(p);

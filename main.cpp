@@ -256,28 +256,33 @@ int	main(int argc, char* argv[])
 				decompress(rxHeader, &msgIn);
 				decrypt(rxHeader, msgIn);
 
-				// Play audio message
-				if (rxHeader.payloadType == mAUD) {
-					printf("\nPlaying received recording...\n");
-					InitializePlayback();
-					PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
-					ClosePlayback();
-					Sleep(500);
+				if (rxHeader.rid == txHeader.sid) {
+					// Play audio message
+					if (rxHeader.payloadType == mAUD) {
+						printf("\nPlaying received recording...\n");
+						InitializePlayback();
+						PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
+						ClosePlayback();
+						Sleep(500);
+					}
+					// Print text message
+					else if (rxHeader.payloadType == mTXT) {
+						printf("\nMessage Received: %s\n\n", (char*)msgIn);
+						system("pause");					// Wait for user to press key before returning to main menu
+					}
 				}
-				// Print text message
-				else if (rxHeader.payloadType == mTXT) {
-					printf("\nMessage Received: %s\n\n", (char*)msgIn);
-					system("pause");					// Wait for user to press key before returning to main menu
+				else {
+					printf("\nMessage Received for another user\n\n");
+
 				}
+				
 				// Save txt file
-				else if (rxHeader.payloadType == mTXTFILE) {
+				if (rxHeader.payloadType == mTXTFILE) {
 					saveFile((char*)msgIn);
 					Sleep(2000);
-				}
-
-				if (rxHeader.payloadType != mTXTFILE) {
+				}else{
 					// Queue recieved message
-					qRxMsg(rxHeader, msgIn, rxHeader.payloadSize);
+					qRxMsg(rxHeader, msgIn);
 
 					// Increment the counter for number of items in recieve queue
 					numRxMsgs++;
@@ -317,6 +322,8 @@ int	main(int argc, char* argv[])
 			case 15:
 				playbackAudio();
 				break;
+
+
 			// Generate a random quote and save it to the queue
 			case 16:
 				generateQuote();
