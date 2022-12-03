@@ -396,7 +396,7 @@ int copyFile(char* txMsg, char* filename, int fileSz) {
 
 	fread(txMsg + offset, fileSz, 1, fp);
 
-	txMsg[offset + fileSz] = '\0';
+	txMsg[offset + fileSz - 1] = '\0';
 
 	fclose(fp);
 	return(strlen(txMsg) + 1); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string

@@ -25,7 +25,7 @@
 int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
-	char cmd[3] = {};								// User command
+	char cmd[3] = {'\0'};							// User command
 	void* msg = NULL;								// Text message to transmit
 	link q = NULL;									// Pointer to start of queue
 	char sendCmd = '\0';							// Holds wether the user wants to send the audio message or not
@@ -198,12 +198,11 @@ int	main(int argc, char* argv[])
 				break;
 				// Transmit txt file
 			case 11:
-				// Get file name
-				//printf("\nFilename to transmit (no spaces & includeing extension): ");
-				//fflush(stdin);
-				//scanf_s("%s", filename, MAX_QUOTE_LENGTH);
-				//while (getchar() != '\n') {}
-				strcpy(filename, "FortuneCookies.txt");
+				//Get file name
+				printf("\nFilename to transmit (no spaces & includeing extension): ");
+				fflush(stdin);
+				scanf_s("%s", filename, MAX_QUOTE_LENGTH);
+				while (getchar() != '\n') {}
 
 				fSize = fileSz(filename);
 
@@ -222,10 +221,10 @@ int	main(int argc, char* argv[])
 				txHeader.uncompressedLength = txHeader.payloadSize = fSize;
 
 				// Encrypt and compress message
-				//returnCode = encrypt(txHeader, (char*)msg);
-				//if (returnCode == -1) {							// Secret key was not set
-				//	break;
-				//}
+				returnCode = encrypt(txHeader, (char*)msg);
+				if (returnCode == -1) {							// Secret key was not set
+					break;
+				}
 
 				txHeader.payloadSize = compress(&msg, (unsigned int)txHeader.uncompressedLength, txHeader.compression);
 				if (txHeader.payloadSize == -1) {
