@@ -32,7 +32,7 @@
 int txTesting() {
 	Header txHeader = {};
 	void* msg;
-	short* audioMsg = NULL;								// Pointer to audio message buffer
+	void* audioMsg = NULL;								// Pointer to audio message buffer
 	int recordTime = 2;
 	long numAudioBytes = SAMPLES_SEC * recordTime;		// Size of audio buffer
 	
@@ -64,7 +64,7 @@ int txTesting() {
 	compTypes compType = cNONE;
 	encTypes encType = NONE;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -79,7 +79,7 @@ int txTesting() {
 	compType = cHUF;
 	encType = NONE;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -94,7 +94,7 @@ int txTesting() {
 	compType = cRLE;
 	encType = NONE;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -109,7 +109,7 @@ int txTesting() {
 	compType = cNONE;
 	encType = XOR;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -124,7 +124,7 @@ int txTesting() {
 	compType = cNONE;
 	encType = VIG;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -139,7 +139,7 @@ int txTesting() {
 	compType = cHUF;
 	encType = XOR;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -154,7 +154,7 @@ int txTesting() {
 	compType = cHUF;
 	encType = VIG;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -169,7 +169,7 @@ int txTesting() {
 	compType = cRLE;
 	encType = XOR;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -184,7 +184,7 @@ int txTesting() {
 	compType = cRLE;
 	encType = VIG;
 	encrypt(txHeader, msg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -204,7 +204,7 @@ int txTesting() {
 
 	// Record message
 	InitializeRecording();
-	RecordBuffer(audioMsg, numAudioBytes);
+	RecordBuffer((short*)audioMsg, numAudioBytes);
 	CloseRecording();
 
 	txHeader.payloadType = mAUD;
@@ -215,7 +215,7 @@ int txTesting() {
 	txHeader.compression = cNONE;
 	txHeader.encryption = NONE;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -225,7 +225,7 @@ int txTesting() {
 	txHeader.compression = cHUF;
 	txHeader.encryption = NONE;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -235,7 +235,7 @@ int txTesting() {
 	txHeader.compression = cRLE;
 	txHeader.encryption = NONE;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -245,7 +245,7 @@ int txTesting() {
 	txHeader.compression = cNONE;
 	txHeader.encryption = XOR;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -255,7 +255,7 @@ int txTesting() {
 	txHeader.compression = cNONE;
 	txHeader.encryption = VIG;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -265,7 +265,7 @@ int txTesting() {
 	txHeader.compression = cHUF;
 	txHeader.encryption = XOR;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -275,7 +275,7 @@ int txTesting() {
 	txHeader.compression = cHUF;
 	txHeader.encryption = VIG;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -285,7 +285,7 @@ int txTesting() {
 	txHeader.compression = cRLE;
 	txHeader.encryption = XOR;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -295,7 +295,7 @@ int txTesting() {
 	txHeader.compression = cRLE;
 	txHeader.encryption = VIG;
 	encrypt(txHeader, audioMsg);
-	compress(txHeader, &msg);
+	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
@@ -329,7 +329,7 @@ int rxTesting() {
 	//======================== Plain Text ================================//
 	printf("\nTEST: Plain Text\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn); 
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -338,7 +338,7 @@ int rxTesting() {
 	//======================== Text w/ Huffman ============================//
 	printf("\nTEST: Huffman\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -347,7 +347,7 @@ int rxTesting() {
 	//======================== Text w/ RLE ============================//
 	printf("\nTEST: RLE\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -356,7 +356,7 @@ int rxTesting() {
 	//======================== Text w/ XOR ============================//
 	printf("\nTEST: XOR\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -365,7 +365,7 @@ int rxTesting() {
 	//======================== Text w/ Viginere ============================//
 	printf("\nTEST: Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -374,7 +374,7 @@ int rxTesting() {
 	//======================== Text w/ Huffman & XOR ============================//
 	printf("\nTEST: Huffman & XOR\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -383,7 +383,7 @@ int rxTesting() {
 	//======================== Text w/ Huffman & Viginere ============================//
 	printf("\nTEST: Huffman & Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -392,7 +392,7 @@ int rxTesting() {
 	//======================== Text w/ RLE & XOR ============================//
 	printf("\nTEST: RLE & XOR\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -401,7 +401,7 @@ int rxTesting() {
 	//======================== Text w/ RLE & Viginere ============================//
 	printf("\nTEST: RLE & Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
@@ -416,7 +416,7 @@ int rxTesting() {
 	//======================== Plane audio ============================//
 	printf("\nTEST: Plane audio\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -428,7 +428,7 @@ int rxTesting() {
 	//======================== Audio w/ Huffman ============================//
 	printf("\nTEST: Huffman\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -440,7 +440,7 @@ int rxTesting() {
 	//======================== Audio w/ RLE ============================//
 	printf("\nTEST: RLE\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -452,7 +452,7 @@ int rxTesting() {
 	//======================== Audio w/ XOR ============================//
 	printf("\nTEST: XOR\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -464,7 +464,7 @@ int rxTesting() {
 	//======================== Audio w/ Viginere ============================//
 	printf("\nTEST: Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -476,7 +476,7 @@ int rxTesting() {
 	//======================== Audio w/ Huffman & XOR ============================//
 	printf("\nTEST: Huffman & XOR\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -488,7 +488,7 @@ int rxTesting() {
 	//======================== Audio w/ Huffman & Viginere ============================//
 	printf("\nTEST: Huffman & Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -500,7 +500,7 @@ int rxTesting() {
 	//======================== Audio w/ RLE & XOR ============================//
 	printf("\nTEST: RLE & XOR\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();
@@ -512,7 +512,7 @@ int rxTesting() {
 	//======================== Audio w/ RLE & Viginere ============================//
 	printf("\nTEST: RLE & Viginere\n");
 	receiveCom(&rxHeader, &msgIn);
-	decompress(rxHeader, &msgIn);
+	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
 	printf("\nPlaying received recording...\n");
 	InitializePlayback();

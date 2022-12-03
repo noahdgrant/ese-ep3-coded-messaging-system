@@ -351,26 +351,25 @@ void setSID(Header& h) {
 /*************************************************************************
 * fileSz() - Counts the number of characters in file
 * file		- The file to count the size of.
-* This function returns the number of characters in a file if successful. Otherwise, it returns -1.
+* This function returns the size of the file if successful. Otherwise, it returns -1.
 *************************************************************************/
 int fileSz(char* file) {
 	FILE* fp = NULL;
-	int size = 0;										// Number of characters in file.
-	char c = '\0';
+	long pos, size;
 
 	fp = fopen(file, "r");
-	if (fp == NULL) {									// Make sure the filename is correct
-		printf("\nERROR: Could not open file.\n");
+	if (fp == NULL) {
+		printf("\nERROR: Could not open file to calculate size\n");
 		return(-1);
 	}
 
-	while (!feof(fp)) {
-		fgetc(fp);
-		size++;
-	}
+	pos = ftell(fp);
+	fseek(fp, 0, SEEK_END);
+	size = ftell(fp);
+	fseek(fp, pos, SEEK_SET);
 
 	fclose(fp);
-	return(size);
+	return(size + 1);
 }
 
 /*************************************************************************
@@ -397,7 +396,7 @@ int copyFile(char* txMsg, char* filename, int fileSz) {
 
 	fread(txMsg + offset, fileSz, 1, fp);
 
-	txMsg[offset + fileSz] = '\0';
+	txMsg[offset + fileSz - 1] = '\0';
 
 	fclose(fp);
 	return(strlen(txMsg) + 1); // +1 for \0. strlen() only counts chars, it doesn't add the +1 needed for the \0 at the end of the string

@@ -30,7 +30,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="queues.cpp" />
-    <ClCompile Include="RLE.cpp" />
+    <ClCompile Include="rle.c" />
     <ClCompile Include="RS232Comm.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="testing.cpp" />
@@ -42,19 +42,18 @@
     <ClInclude Include="contactList.h" />
     <ClInclude Include="encryption.h" />
     <ClInclude Include="error_detection_correction.h" />
+    <ClInclude Include="rle.h" />
     <ClInclude Include="testing.h" />
     <ClInclude Include="huffman.h" />
     <ClInclude Include="header.h" />
     <ClInclude Include="message.h" />
     <ClInclude Include="queues.h" />
-    <ClInclude Include="RLE.h" />
     <ClInclude Include="RS232Comm.h" />
     <ClInclude Include="sound.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="FortuneCookies1.txt" />
+    <Text Include="FortuneCookies.txt" />
     <Text Include="Test Results.txt" />
-    <Text Include="usersettings.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

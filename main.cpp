@@ -25,18 +25,18 @@
 int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
-	char cmd[3] = {};								// User command
+	char cmd[3] = {'\0'};							// User command
 	void* msg = NULL;								// Text message to transmit
 	link q = NULL;									// Pointer to start of queue
 	char sendCmd = '\0';							// Holds wether the user wants to send the audio message or not
-	short* audioMsg = NULL;							// Pointer to audio message buffer
+	void* audioMsg = NULL;							// Pointer to audio message buffer
 	void* msgIn = NULL;								// Pointer to recieved message buffer
 	Header txHeader = {};							// Header that stores tranmit information
 	Header rxHeader = {};							// Header that stores recieved information
 	int numRxMsgs = 0;								// The number of messages in the Rx queue
 	int returnCode = 0;								// Holds return value from functions to check success
 	Item delMsg;									// Message to delete from queue
-	char filename[MAX_QUOTE_LENGTH] = {};			// Name of file to transmit
+	char filename[MAX_QUOTE_LENGTH] = {'\0'};		// Name of file to transmit
 	int fSize = 0;									// Number of characters in file
 
 	// START-UP PROCESSES
@@ -118,7 +118,13 @@ int	main(int argc, char* argv[])
 				if (returnCode == -1) {							// Secret key was not set
 					break;
 				}
-				compress(txHeader, &msg);
+
+				txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
+				if (txHeader.payloadSize == -1) {
+					printf("\nERROR: Compression failed\n");
+					Sleep(2000);
+					break;
+				}
 
 				if (txHeader.errorDC == true) {
 					// Calculate checksum of message
@@ -147,7 +153,7 @@ int	main(int argc, char* argv[])
 
 				// Record message
 				InitializeRecording();
-				RecordBuffer(audioMsg, numAudioBytes);
+				RecordBuffer((short*)audioMsg, numAudioBytes);
 				CloseRecording();
 
 				// Update header
@@ -155,7 +161,7 @@ int	main(int argc, char* argv[])
 				/* numAudioBytes * 2 because audioMsg gets typecast to (char*) instead of short*.
 				Shorts are 2 bytes each and chars are 1 byte each so to have the same amount
 				of space it needs to be multiplied by 2. */
-				txHeader.payloadSize = numAudioBytes * 2;
+				txHeader.uncompressedLength = txHeader.payloadSize = numAudioBytes * 2;
 
 				// Transmit message
 				printf("\n\nWould you like to send your audio recording? (y/n): ");
@@ -165,7 +171,13 @@ int	main(int argc, char* argv[])
 
 				if (sendCmd == 'y' || sendCmd == 'Y') {
 					encrypt(txHeader, audioMsg);
-					compress(txHeader, &msg);
+
+					txHeader.payloadSize = compress(&audioMsg, txHeader.uncompressedLength, txHeader.compression);
+					if (txHeader.payloadSize == -1) {
+						printf("\nERROR: Compression failed\n");
+						Sleep(2000);
+						break;
+					}
 
 					if (txHeader.errorDC == true) {
 						// Calculate checksum of message
@@ -186,7 +198,7 @@ int	main(int argc, char* argv[])
 				break;
 				// Transmit txt file
 			case 11:
-				// Get file name
+				//Get file name
 				printf("\nFilename to transmit (no spaces & includeing extension): ");
 				fflush(stdin);
 				scanf_s("%s", filename, MAX_QUOTE_LENGTH);
@@ -195,7 +207,7 @@ int	main(int argc, char* argv[])
 				fSize = fileSz(filename);
 
 				// Malloc memory for file
-				msg = (char*)calloc(1, strlen(filename) + fSize + strlen("!!")); // !! is used to denote the end of the filename and the beginning of the file data
+				msg = (char*)calloc(1, strlen(filename) + strlen("!!") + fSize); // !! is used to denote the end of the filename and the beginning of the file data
 				if (msg == NULL) {
 					printf("\nERROR: Could not malloc memory for quote buffer.\n");
 					break;
@@ -214,7 +226,12 @@ int	main(int argc, char* argv[])
 					break;
 				}
 
-				compress(txHeader, &msg);
+				txHeader.payloadSize = compress(&msg, (unsigned int)txHeader.uncompressedLength, txHeader.compression);
+				if (txHeader.payloadSize == -1) {
+					printf("\nERROR: Compression failed\n");
+					Sleep(2000);
+					break;
+				}
 
 				// Calculate checksum
 				if (txHeader.errorDC == true) {
@@ -253,7 +270,7 @@ int	main(int argc, char* argv[])
 				}
 
 				// Decompress and decrypt received message
-				decompress(rxHeader, &msgIn);
+				decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 				decrypt(rxHeader, msgIn);
 
 				if (rxHeader.rid == txHeader.sid) {
@@ -261,7 +278,7 @@ int	main(int argc, char* argv[])
 					if (rxHeader.payloadType == mAUD) {
 						printf("\nPlaying received recording...\n");
 						InitializePlayback();
-						PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
+						PlayBuffer((short*)msgIn, rxHeader.uncompressedLength / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
 						ClosePlayback();
 						Sleep(500);
 					}
@@ -323,8 +340,6 @@ int	main(int argc, char* argv[])
 			case 15:
 				playbackAudio();
 				break;
-
-
 			// Generate a random quote and save it to the queue
 			case 16:
 				generateQuote();

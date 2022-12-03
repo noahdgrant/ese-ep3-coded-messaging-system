@@ -22,9 +22,6 @@
     <ClCompile Include="queues.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RLE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RS232Comm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +43,9 @@
     <ClCompile Include="contactList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMSLibrary.h">
@@ -64,9 +64,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="queues.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RLE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RS232Comm.h">
@@ -90,6 +87,9 @@
     <ClInclude Include="contactList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="rle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -106,10 +106,7 @@
     <Text Include="Test Results.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="usersettings.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="FortuneCookies1.txt">
+    <Text Include="FortuneCookies.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
