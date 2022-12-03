@@ -307,7 +307,7 @@ void setRID(Header& h) {
 		}
 		Sleep(2000);
 
-	} while (atoi(cmd) < 0 || atoi(cmd) > 2);
+	} while (atoi(cmd) < 1 || atoi(cmd) > 2);
   
   	h.rid2 = h.rid3 = h.rid;				// Used for voteOn() error detection and correction
     return;
@@ -336,7 +336,7 @@ void setSID(Header& h) {
 			addContact();
 		}
 		else if (atoi(cmd) == 2) {//chose an ID not assigned to a contact
-			printf("\nEnter the recipient ID: ");
+			printf("\nEnter the sender ID: ");
 			scanf_s("%d", &h.sid);
 		}
 		else {
@@ -344,7 +344,7 @@ void setSID(Header& h) {
 		}
 		Sleep(2000);
 
-	} while (atoi(cmd) < 0 || atoi(cmd) > 2);
+	} while (atoi(cmd) < 1 || atoi(cmd) > 2);
 
 }
 
