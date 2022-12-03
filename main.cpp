@@ -273,6 +273,7 @@ int	main(int argc, char* argv[])
 				}
 				else {
 					printf("\nMessage Received for another user\n\n");
+					system("pause");					// Wait for user to press key before returning to main menu
 
 				}
 				
