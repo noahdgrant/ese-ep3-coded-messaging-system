@@ -250,9 +250,8 @@ int	main(int argc, char* argv[])
 				// free(msg)
 				Sleep(2000);
 				break;
-				// Recieve message
-			case 12:
 				// Receive message
+			case 12:
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
 
@@ -316,6 +315,7 @@ int	main(int argc, char* argv[])
 				// Print received messages
 				system("cls");
 				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
+				printQueueSID = txHeader.sid;
 				printRxMsgs();
 				do {
 					// Ask if user wants to delete a message

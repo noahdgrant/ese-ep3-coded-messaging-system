@@ -19,7 +19,7 @@
 ************************************************************/
 
 static link pHead, pTail;
-
+int printQueueSID = 0;
 /*************************************************************************
 *                            PUBLIC FUNCTIONS                            *
 *************************************************************************/
@@ -112,7 +112,9 @@ link deleteR(link parent, link child, Item v) {
 * h		- Current node.
 *************************************************************************/
 void visit(link h) {
-	printf("\nNODE MESSAGE:\n%s\n", h->Data.message);	// Print the SID of the current node in the linked-list
+	if (printQueueSID == h->Data.msgHeader.rid) {
+		printf("\nNODE MESSAGE:\n%s\n", h->Data.message);	// Print the SID of the current node in the linked-list
+	}
 }
 
 /*************************************************************************
