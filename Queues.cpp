@@ -112,9 +112,7 @@ link deleteR(link parent, link child, Item v) {
 * h		- Current node.
 *************************************************************************/
 void visit(link h) {
-	if (printQueueSID == h->Data.msgHeader.rid) {
-		printf("\nNODE MESSAGE:\n%s\n", h->Data.message);	// Print the SID of the current node in the linked-list
-	}
+	printf("\nNODE MESSAGE:\n%s\n", h->Data.message);	// Print the SID of the current node in the linked-list
 }
 
 /*************************************************************************
@@ -185,44 +183,46 @@ int qRxMsg(Header rxHeader, void* rxMsg) {
 *************************************************************************/
 void printNode(link h, int i) {
 	char cmd = '\0';
+	if (printQueueSID == h->Data.msgHeader.rid) {
 
-	printf("\nMESSAGE #%d\n", i);
+		printf("\nMESSAGE #%d\n", i);
 
-	// Print message header
-	printf("\nMESSAGE HEADER\n");
-	printf("SID: %d\n", h->Data.msgHeader.sid);
-	printf("RID: %d\n", h->Data.msgHeader.rid);
-	printf("Priority: %d\n", h->Data.msgHeader.priority);
-	if (h->Data.msgHeader.payloadType == mTXT) {
-		printf("Payload Type: Text\n");
-	}
-	else if (h->Data.msgHeader.payloadType == mAUD) {
-		printf("Payload Type: Audio\n");
-	}
-	printf("Payload Size: %d\n", h->Data.msgHeader.payloadSize);
-
-	// Print message
-	printf("\nMESSAGE:\n");
-	if (h->Data.msgHeader.payloadType == mTXT) {
-		printf("%s\n", h->Data.message);
-	}
-	else if (h->Data.msgHeader.payloadType == mAUD) {
-		printf("\nDo you want to listen to stored audio message?\n");
-		printf("> ");
-		scanf_s("%c", &cmd, 1);
-		while (getchar() != '\n') {}
-		if (cmd == 'y' || cmd == 'Y') {
-			printf("\nPlaying audio message...\n");
-			InitializePlayback();
-			PlayBuffer((short*)h->Data.message, h->Data.msgHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
-			ClosePlayback();
-			Sleep(250);
+		// Print message header
+		printf("\nMESSAGE HEADER\n");
+		printf("SID: %d\n", h->Data.msgHeader.sid);
+		printf("RID: %d\n", h->Data.msgHeader.rid);
+		printf("Priority: %d\n", h->Data.msgHeader.priority);
+		if (h->Data.msgHeader.payloadType == mTXT) {
+			printf("Payload Type: Text\n");
 		}
-		else {
-			printf("\nAudio message.\n");
+		else if (h->Data.msgHeader.payloadType == mAUD) {
+			printf("Payload Type: Audio\n");
 		}
+		printf("Payload Size: %d\n", h->Data.msgHeader.payloadSize);
+
+		// Print message
+		printf("\nMESSAGE:\n");
+		if (h->Data.msgHeader.payloadType == mTXT) {
+			printf("%s\n", h->Data.message);
+		}
+		else if (h->Data.msgHeader.payloadType == mAUD) {
+			printf("\nDo you want to listen to stored audio message?\n");
+			printf("> ");
+			scanf_s("%c", &cmd, 1);
+			while (getchar() != '\n') {}
+			if (cmd == 'y' || cmd == 'Y') {
+				printf("\nPlaying audio message...\n");
+				InitializePlayback();
+				PlayBuffer((short*)h->Data.message, h->Data.msgHeader.payloadSize / 2);			// /2 since it was *2 to send the chars but now needs to be read as shorts
+				ClosePlayback();
+				Sleep(250);
+			}
+			else {
+				printf("\nAudio message.\n");
+			}
+		}
+		printf("\n*********************************\n");
 	}
-	printf("\n*********************************\n");
 }
 
 /*************************************************************************
