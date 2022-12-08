@@ -14,10 +14,10 @@
 #include <wchar.h>		// Don't remember what this is needed for
 #include <ctype.h>		// Don't remember what this is needed for
 
+#include "header.h"
 #include "CMSLibrary.h"
 #include "compression.h"
 #include "encryption.h"
-#include "header.h"
 #include "message.h"
 #include "queues.h"
 #include "RS232Comm.h"

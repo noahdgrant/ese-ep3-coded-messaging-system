@@ -52,3 +52,5 @@ void printNode(link h, int i);										// Print current node
 void printRxMsgs();													// Print recieved messages from oldest to newest
 void countAndTraverse(link h, void (*visit)(link, int i), int i);
 link deleteMsg(link parent, link child, Item v, int& numMsgs);
+
+extern int printQueueSID;
