@@ -42,8 +42,16 @@ int txTesting() {
 
 	int compArray[] =	{cNONE,	cHUF,	cRLE,	cNONE,	cNONE,	cHUF,	cHUF,	cRLE,	cRLE};
 	int encArray[] =	{NONE,	NONE,	NONE,	XOR,	VIG,	XOR,	VIG,	XOR,	VIG };
-	char msgArray[][100] = { "Plain text message",
-					 "Compressed with huffman", "Compressed with RLE", "Encrypted with XOR", "Encrypted with Viginere","Compressed with huffman", "Compressed with RLE", "Encrypted with XOR"};
+	char msgArray[][100] = {	"Plain message",
+								"Compressed with huffman",
+								"Compressed with RLE",
+								"Encrypted with XOR",
+								"Encrypted with Viginere",
+								"Compressed with huffman and Encrypted with XOR",
+								"Compressed with huffman and Encrypted with Viginere",
+								"Compressed with RLE and Encrypted with XOR",
+								"Compressed with RLE and Encrypted with Viginere"};
+	int numOfTestCases = 9;
 
 	system("cls");
 	printf("\n========== CMS DIAGNOSTIC TESTING ==========\n");
@@ -51,16 +59,29 @@ int txTesting() {
 	/***********************************************************
 	* TEXT MESSAGE TESTING
 	************************************************************/
-
+	printf("\nTEXT MESSAGE TESTING\n");
+	txHeader.payloadType = mTXT;
 	msg = (char*)malloc(MAX_QUOTE_LENGTH);
 	if (msg == NULL) {
 		printf("\nERROR: Could not malloc memory for quote buffer.\n");
 		return 0;
 	}
 
-	txHeader.payloadType = mTXT;
+	for (int i = 0; i < numOfTestCases; i++) {
+		printf("\n%s\n", msgArray[i]);
+		strcpy((char*)msg, msgArray[i]);
+		txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
+		txHeader.compression = compArray[i];
+		txHeader.encryption = encArray[i];
+		encrypt(txHeader, msg);
+		txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
+		transmitCom(&txHeader, msg);
+		printf("\n============================================================================\n");
+		Sleep(1000);
+	}
+	
 
-	printf("\nTEXT MESSAGE TESTING\n");
+	/*
 	//========================== Plain Text =================================//
 	printf("\nTEST: Plain text\n");
 	printf("Sending message: Plain text message\n");
@@ -177,7 +198,7 @@ int txTesting() {
 	transmitCom(&txHeader, msg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
-
+	*/
 
 	/***********************************************************
 	* AUDIO MESSAGE TESTING
@@ -198,6 +219,20 @@ int txTesting() {
 
 	txHeader.payloadType = mAUD;
 	txHeader.payloadSize = txHeader.uncompressedLength = numAudioBytes * 2;
+
+
+	for (int i = 0; i < numOfTestCases; i++) {
+		printf("\n%s\n", msgArray[i]);
+		txHeader.compression = compArray[i];
+		txHeader.encryption = encArray[i];
+		encrypt(txHeader, audioMsg);
+		txHeader.payloadSize = compress(&audioMsg, txHeader.uncompressedLength, txHeader.compression);
+		transmitCom(&txHeader, audioMsg);
+		printf("\n============================================================================\n");
+		Sleep(1000);
+	}
+
+	/*
 
 	//========================== Plain Audio =================================//
 	printf("\nTEST: Plain audio\n");
@@ -288,6 +323,7 @@ int txTesting() {
 	transmitCom(&txHeader, audioMsg);
 	printf("\n============================================================================\n");
 	Sleep(1000);
+	*/
 
 	free(audioMsg);
 	audioMsg = NULL;
@@ -311,10 +347,31 @@ int rxTesting() {
 	system("cls");
 	printf("\n========== CMS DIAGNOSTIC TESTING ==========\n");
 
+	char msgArray[][100] = { "Plain message",
+							"Compressed with huffman",
+							"Compressed with RLE",
+							"Encrypted with XOR",
+							"Encrypted with Viginere",
+							"Compressed with huffman and Encrypted with XOR",
+							"Compressed with huffman and Encrypted with Viginere",
+							"Compressed with RLE and Encrypted with XOR",
+							"Compressed with RLE and Encrypted with Viginere" };
+
 	/***********************************************************
 	* TEXT MESSAGE TESTING
 	************************************************************/
 	printf("\nTEXT MESSAGE TESTING\n");
+
+	for (int i = 0; i < 9; i++) {
+		printf("\nTEST: %s\n", msgArray[i]);
+		receiveCom(&rxHeader, &msgIn);
+		decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
+		decrypt(rxHeader, msgIn);
+		printf("\nReceived message: %s\n", (char*)msgIn);
+		printf("\n============================================================================\n");
+		Sleep(1000);
+	}
+	/*
 	//======================== Plain Text ================================//
 	printf("\nTEST: Plain Text\n");
 	receiveCom(&rxHeader, &msgIn);
@@ -395,15 +452,30 @@ int rxTesting() {
 	printf("\nReceived message: %s\n", (char*)msgIn);
 	printf("\n============================================================================\n");
 	Sleep(1000);
-
+	*/
 	/*****************************************************************************************/
 
 	/***********************************************************
 	* AUDIO MESSAGE TESTING
 	************************************************************/
 	printf("\nAUDIO MESSAGE TESTING\n");
-	//======================== Plane audio ============================//
-	printf("\nTEST: Plane audio\n");
+
+	for (int i = 0; i < 9; i++) {
+		printf("\nTEST: %s\n", msgArray[i]);
+		receiveCom(&rxHeader, &msgIn);
+		decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
+		decrypt(rxHeader, msgIn);
+		printf("\nPlaying received recording...\n");
+		InitializePlayback();
+		PlayBuffer((short*)msgIn, rxHeader.payloadSize / 2);
+		ClosePlayback();
+		printf("\n============================================================================\n");
+		Sleep(1000);
+	}
+
+	/*
+	//======================== Plain audio ============================//
+	printf("\nTEST: Plain audio\n");
 	receiveCom(&rxHeader, &msgIn);
 	decompress(&msgIn, rxHeader.payloadSize, rxHeader.uncompressedLength, rxHeader.compression);
 	decrypt(rxHeader, msgIn);
@@ -509,7 +581,7 @@ int rxTesting() {
 	ClosePlayback();
 	printf("\n============================================================================\n");
 	Sleep(1000);
-
+	*/
 	/*******************************************************************************/
 
 	strcpy(secretKey, "\0");		// Clear secret key at the end of testing
