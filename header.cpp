@@ -5,11 +5,10 @@
 ************************************************************/
 
 #include <stdio.h>
-
+#include "header.h"
 #include "CMSLibrary.h"
 #include "compression.h"
 #include "encryption.h"
-#include "header.h"
 #include "RS232Comm.h"
 #include "sound.h"
 
@@ -56,14 +55,14 @@ void initHeader(Header &header) {
             strcpy_s(secretKey, "default");
         }
 
-        if (atoi(cCompression) != 1 && atoi(cCompression) != 2 && atoi(cCompression) != 3) {
+        if (atoi(cCompression) != 1 && atoi(cCompression) != 2) {
             header.compression = cNONE;
         }
         else {
             header.compression = atoi(cCompression);
         }
 
-        if (atoi(cEncryption) != 1 && atoi(cEncryption) != 2 && atoi(cEncryption) != 3) {
+        if (atoi(cEncryption) != 2 && atoi(cEncryption) != 3) {
             header.encryption = NONE;
         }
         else {
