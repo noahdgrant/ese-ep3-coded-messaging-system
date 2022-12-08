@@ -29,14 +29,21 @@
 * txTesting() - Transmits all text cases for Coded Messaging System.
 * This function return 0 if it successful. Otherwise, it return -1.
 *************************************************************************/
+
+
+
 int txTesting() {
 	Header txHeader = {};
 	void* msg;
 	void* audioMsg = NULL;								// Pointer to audio message buffer
 	int recordTime = 2;
 	long numAudioBytes = SAMPLES_SEC * recordTime;		// Size of audio buffer
-	
 	strcpy(secretKey, "banana");						// Set secret key at the beginning of testing
+
+	int compArray[] =	{cNONE,	cHUF,	cRLE,	cNONE,	cNONE,	cHUF,	cHUF,	cRLE,	cRLE};
+	int encArray[] =	{NONE,	NONE,	NONE,	XOR,	VIG,	XOR,	VIG,	XOR,	VIG };
+	char msgArray[][100] = { "Plain text message",
+					 "Compressed with huffman", "Compressed with RLE", "Encrypted with XOR", "Encrypted with Viginere","Compressed with huffman", "Compressed with RLE", "Encrypted with XOR"};
 
 	system("cls");
 	printf("\n========== CMS DIAGNOSTIC TESTING ==========\n");
@@ -61,8 +68,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cNONE;
 	txHeader.encryption = NONE;
-	compTypes compType = cNONE;
-	encTypes encType = NONE;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -76,8 +81,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = NONE;
-	compType = cHUF;
-	encType = NONE;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -91,8 +94,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = NONE;
-	compType = cRLE;
-	encType = NONE;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -106,8 +107,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cNONE;
 	txHeader.encryption = XOR;
-	compType = cNONE;
-	encType = XOR;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -121,8 +120,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cNONE;
 	txHeader.encryption = VIG;
-	compType = cNONE;
-	encType = VIG;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -136,8 +133,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = XOR;
-	compType = cHUF;
-	encType = XOR;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -151,8 +146,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cHUF;
 	txHeader.encryption = VIG;
-	compType = cHUF;
-	encType = VIG;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -166,8 +159,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = XOR;
-	compType = cRLE;
-	encType = XOR;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
@@ -181,8 +172,6 @@ int txTesting() {
 	txHeader.payloadSize = txHeader.uncompressedLength = (long)(strlen((char*)msg) + 1);
 	txHeader.compression = cRLE;
 	txHeader.encryption = VIG;
-	compType = cRLE;
-	encType = VIG;
 	encrypt(txHeader, msg);
 	txHeader.payloadSize = compress(&msg, txHeader.uncompressedLength, txHeader.compression);
 	transmitCom(&txHeader, msg);
