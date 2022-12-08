@@ -10,11 +10,11 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "header.h"
 #include "CMSLibrary.h"
 #include "compression.h"
 #include "encryption.h"
 #include "error_detection_correction.h"
-#include "header.h"
 #include "message.h"
 #include "queues.h"
 #include "RS232Comm.h"
