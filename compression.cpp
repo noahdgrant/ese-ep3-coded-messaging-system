@@ -160,29 +160,29 @@ void setCompression(Header& h) {
 	do {
 		system("cls");
 		printf("Enter type of compression/decompression\n");
-		printf("0. No compression\n");
-		printf("1. RLE\n");
-		printf("2. Huffman\n");
-		printf("3. Huffman & RLE (currently not working)\n");
+		printf("1. No compression\n");
+		printf("2. RLE\n");
+		printf("3. Huffman\n");
+		printf("4. Huffman & RLE (currently not working)\n");
 		printf("\n> ");
 
 		fflush(stdin);														// Flush input buffer after use. Good practice in C
 		scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
 		while (getchar() != '\n') {}										// Flush other input buffer
 
-		if (atoi(cmd) == cNONE) {
+		if (atoi(cmd)-1 == cNONE) {
 			printf("\nNow using no compression\n");
 			h.compression = cNONE;
 		}
-		else if (atoi(cmd) == cRLE) {
+		else if (atoi(cmd)-1 == cRLE) {
 			printf("\nNow using RLE compression\n");
 			h.compression = cRLE;
 		}
-		else if (atoi(cmd) == cHUF) {
+		else if (atoi(cmd)-1 == cHUF) {
 			printf("\nNow using Huffman compression\n");
 			h.compression = cHUF;
 		}
-		else if (atoi(cmd) == cBOTH) {
+		else if (atoi(cmd)-1 == cBOTH) {
 			printf("\nNow using RLE compression\n");
 			h.compression = cBOTH;
 		}
@@ -191,5 +191,5 @@ void setCompression(Header& h) {
 		}
 		Sleep(2000);
 
-	} while (atoi(cmd) < cNONE || atoi(cmd) > numCompTypes);
+	} while (atoi(cmd)-1 < cNONE || atoi(cmd)-1 > numCompTypes);
 }
