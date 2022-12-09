@@ -39,5 +39,7 @@ void saveFile(char* rxMsg);
 
 // Communication settings functions
 void selectComPort();
+void initComPort();
 void setRID(Header& h);
 void setSID(Header& h);
+

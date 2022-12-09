@@ -77,6 +77,8 @@ void initHeader(Header &header) {
         currentCom = atoi(cCurrentCom);
         recordTime = atoi(cRecordTime);
         header.errorDC = atoi(cErrorDC);
+        initComPort();
+
     }
 
 	return;

@@ -432,3 +432,54 @@ void saveFile(char* rxMsg) {
 	printf("\n%s successfully saved.\n", filename);
 	return;
 }
+
+/*************************************************************************
+* initComPort() - Select com port to use for communication.
+*************************************************************************/
+void initComPort() {
+	switch (currentCom) {
+	case 0:
+		wcscpy(COMPORT_Tx, L"COM0");
+		wcscpy(COMPORT_Rx, L"COM0");
+		break;
+	case 1:
+		wcscpy(COMPORT_Tx, L"COM1");
+		wcscpy(COMPORT_Rx, L"COM1");
+		break;
+	case 2:
+		wcscpy(COMPORT_Tx, L"COM2");
+		wcscpy(COMPORT_Rx, L"COM2");
+		break;
+	case 3:
+		wcscpy(COMPORT_Tx, L"COM3");
+		wcscpy(COMPORT_Rx, L"COM3");
+		break;
+	case 4:
+		wcscpy(COMPORT_Tx, L"COM4");
+		wcscpy(COMPORT_Rx, L"COM4");
+		break;
+	case 5:
+		wcscpy(COMPORT_Tx, L"COM5");
+		wcscpy(COMPORT_Rx, L"COM5");
+		break;
+	case 6:
+		wcscpy(COMPORT_Tx, L"COM6");
+		wcscpy(COMPORT_Rx, L"COM6");
+		break;
+	case 7:
+		wcscpy(COMPORT_Tx, L"COM7");
+		wcscpy(COMPORT_Rx, L"COM7");
+		break;
+	case 8:
+		wcscpy(COMPORT_Tx, L"COM8");
+		wcscpy(COMPORT_Rx, L"COM8");
+		break;
+	case 9:
+		wcscpy(COMPORT_Tx, L"COM9");
+		wcscpy(COMPORT_Rx, L"COM9");
+		break;
+	default:
+		printf("Something went wrong with the com assignment");
+		Sleep(2000);
+	}
+}
