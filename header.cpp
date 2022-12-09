@@ -38,7 +38,7 @@ void initHeader(Header &header) {
     errno_t err;
     err = fopen_s(&f, "usersettings.txt", "rb");
     if(f) {
-        char cSid[11], cRid[11], cEncryption[3], cCompression[3], cCurrentCom[3], cRecordTime[4];
+        char cSid[11], cRid[11], cEncryption[3], cCompression[3], cCurrentCom[3], cRecordTime[4], cErrorDC[3];
         fgets(cSid, sizeof(cSid), f);
         fgets(cRid, sizeof(cRid), f);
         fgets(cEncryption, sizeof(cEncryption), f);
@@ -46,6 +46,8 @@ void initHeader(Header &header) {
         fgets(cCurrentCom, sizeof(cCurrentCom), f);
         fgets(secretKey, sizeof(secretKey), f);
         fgets(cRecordTime, sizeof(cRecordTime), f);
+        fgets(cErrorDC, sizeof(cErrorDC), f);
+
         
         
         if (secretKey[strlen(secretKey) - 1] == '\n') {
@@ -74,6 +76,7 @@ void initHeader(Header &header) {
         header.rid = atoi(cRid);
         currentCom = atoi(cCurrentCom);
         recordTime = atoi(cRecordTime);
+        header.errorDC = atoi(cErrorDC);
     }
 
 	return;
@@ -88,7 +91,7 @@ void saveUserSettings(Header& header) {
     errno_t err;
     err = fopen_s(&f, "usersettings.txt", "wb");
     if(f) {
-        fprintf(f, "%d\n%d\n%d\n%d\n%d\n%s\n%d", header.sid, header.rid, header.encryption, header.compression, currentCom, secretKey, recordTime);
+        fprintf(f, "%d\n%d\n%d\n%d\n%d\n%s\n%d\n%d", header.sid, header.rid, header.encryption, header.compression, currentCom, secretKey, recordTime, header.errorDC);
         fclose(f);
     }
 }
