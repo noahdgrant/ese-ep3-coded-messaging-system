@@ -25,19 +25,19 @@
 int	main(int argc, char* argv[])
 {
 	// LOCAL VARIABLE DECLARATION AND INITIALIZATION
-	char cmd[3] = {'\0'};							// User command
-	void* msg = NULL;								// Text message to transmit
-	link q = NULL;									// Pointer to start of queue
-	char sendCmd = '\0';							// Holds wether the user wants to send the audio message or not
-	void* audioMsg = NULL;							// Pointer to audio message buffer
-	void* msgIn = NULL;								// Pointer to recieved message buffer
-	Header txHeader = {};							// Header that stores tranmit information
-	Header rxHeader = {};							// Header that stores recieved information
-	int numRxMsgs = 0;								// The number of messages in the Rx queue
-	int returnCode = 0;								// Holds return value from functions to check success
-	Item delMsg;									// Message to delete from queue
-	char filename[MAX_QUOTE_LENGTH] = {'\0'};		// Name of file to transmit
-	int fSize = 0;									// Number of characters in file
+	char cmd[3] = {'\0'};										// User command
+	void* msg = NULL;											// Text message to transmit
+	link q = NULL;												// Pointer to start of queue
+	char sendCmd = '\0';										// Holds wether the user wants to send the audio message or not
+	void* audioMsg = NULL;										// Pointer to audio message buffer
+	void* msgIn = NULL;											// Pointer to recieved message buffer
+	Header txHeader = {};										// Header that stores tranmit information
+	Header rxHeader = {};										// Header that stores recieved information
+	int numRxMsgs = 0;											// The number of messages in the Rx queue
+	int returnCode = 0;											// Holds return value from functions to check success
+	Item delMsg;												// Message to delete from queue
+	char filename[MAX_QUOTE_LENGTH] = {'\0'};					// Name of file to transmit
+	int fSize = 0;												// Number of characters in file
 
 	// START-UP PROCESSES
 	srand(time(NULL));					 						// Seed the random number generator 
@@ -56,8 +56,8 @@ int	main(int argc, char* argv[])
 		while (getchar() != '\n') {}							// Flush other input buffer
 		
 		switch (atoi(cmd)) {
-			// Exit the program
-			case 0:
+			// EXIT PROGRAM
+			case 0: {
 				while (!isQueueEmpty()) {						// Free queue before program exits
 					q = popQ();
 					free(q);									// Free memory for nodes as they pop off the queue
@@ -65,40 +65,58 @@ int	main(int argc, char* argv[])
 				saveUserSettings(txHeader);
 				closeContacts();
 				break;
-				// Change Com Port
-			case 1:
+			}
+
+			// SET COM PORT
+			case 1: {
 				selectComPort();
 				break;
-				// Set Compression Type
-			case 2:
+			}
+			
+			// SET COMPRESSION TYPE
+			case 2: {
 				setCompression(txHeader);
 				break;
-				// Set Encription Type
-			case 3:
+			}
+			
+			// SET ENCRYPTION TYPE
+			case 3: {
 				setEncryption(txHeader);
 				break;
-				// Set Encription Code
-			case 4:
+			}
+
+			// SET ENCRYPTION KEY
+			case 4: {
 				setSecretKey();
 				break;
-				// Change Audio Settings
-			case 5:
+			}
+
+			// SET AUDIO LENGTH
+			case 5: {
 				changeAudioSettings();
 				break;
-				// Set Recipient ID
-			case 6:
+			}
+
+			// SET RECEIVER ID
+			case 6: {
 				setRID(txHeader);
 				break;
-				// Set Sender ID
-			case 7:
+			}
+
+			// SET SENDER ID
+			case 7: {
 				setSID(txHeader);
 				break;
-				// Enable or disable error correction and deteciton
-			case 8:
+			}
+
+			// ERROR DETECTION AND CORRECTION
+			case 8: {
 				txHeader.errorDC = !txHeader.errorDC;
 				break;
-				// Transmit Text Message
-			case 9:
+			}
+
+			// TRANSMIT TEXT MESSAGE
+			case 9: {
 				msg = (char*)malloc(MAX_QUOTE_LENGTH);
 				if (msg == NULL) {
 					printf("\nERROR: Could not malloc memory for quote buffer.\n");
@@ -142,8 +160,10 @@ int	main(int argc, char* argv[])
 				Sleep(2000);
 				// I THINK WE STILL NEED TO FREE THE MEMORY IF HUFFMAN IS NOT USED
 				break;
-				// Transmit audio message
-			case 10:
+			}
+
+			// TRANSMIT AUDIO MESSAGE
+			case 10: {
 				// Get memory for recording
 				audioMsg = (short*)malloc(numAudioBytes * sizeof(short));
 				if (audioMsg == NULL) {
@@ -196,8 +216,10 @@ int	main(int argc, char* argv[])
 				free(audioMsg);
 				audioMsg = NULL;
 				break;
-				// Transmit txt file
-			case 11:
+			}
+
+			// TRANSMIT *.TXT FILE
+			case 11: {
 				//Get file name
 				printf("\nFilename to transmit (no spaces & includeing extension): ");
 				fflush(stdin);
@@ -205,6 +227,7 @@ int	main(int argc, char* argv[])
 				while (getchar() != '\n') {}
 
 				fSize = fileSz(filename);
+				if (fSize == -1) break;
 
 				// Malloc memory for file
 				msg = (char*)calloc(1, strlen(filename) + strlen("!!") + fSize); // !! is used to denote the end of the filename and the beginning of the file data
@@ -250,8 +273,10 @@ int	main(int argc, char* argv[])
 				// free(msg)
 				Sleep(2000);
 				break;
-				// Receive message
-			case 12:
+			}
+
+			// RECEIVE MESSAGE
+			case 12: {
 				returnCode = receiveCom(&rxHeader, &msgIn);
 				if (returnCode == -1) break;
 
@@ -292,12 +317,13 @@ int	main(int argc, char* argv[])
 					system("pause");					// Wait for user to press key before returning to main menu
 
 				}
-				
+
 				// Save txt file
 				if (rxHeader.payloadType == mTXTFILE) {
 					saveFile((char*)msgIn);
 					Sleep(2000);
-				}else{
+				}
+				else {
 					// Queue recieved message
 					qRxMsg(rxHeader, msgIn);
 
@@ -308,60 +334,82 @@ int	main(int argc, char* argv[])
 				free(msgIn);
 				msgIn = NULL;
 				break;
-				// Print recieved messages
-			case 13:
-				delMsg.msgHeader.seqNum = 0;	// Reset the message to be deleted each time
+			}
+			
+			// PRINT RECEIVED MESSAGES
+			case 13: {
+				if (numRxMsgs == 0) {
+					printf("\nNo received messages\n");
+					Sleep(1500);
+				}
+				else {
+					delMsg.msgHeader.seqNum = 0;	// Reset the message to be deleted each time
 
-				// Print received messages
-				system("cls");
-				printf("\nNumber of recieved messages: %d\n", numRxMsgs);
-				printQueueSID = txHeader.sid;
-				printRxMsgs();
-				do {
-					// Ask if user wants to delete a message
-					printf("\nEnter the number of the message you want to delete, otherwise enter 0 to return to the menu\n");
-					printf("\n> ");
-					fflush(stdin);
-					scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
-					while (getchar() != '\n') {}
+					// Print received messages
+					system("cls");
+					printf("\nNumber of recieved messages: %d\n", numRxMsgs);
+					printQueueSID = txHeader.sid;
+					printRxMsgs();
+					do {
+						// Ask if user wants to delete a message
+						printf("\nEnter the number of the message you want to delete, otherwise enter 0 to return to the menu\n");
+						printf("\n> ");
+						fflush(stdin);
+						scanf_s("%s", cmd, (unsigned int)sizeof(cmd));
+						while (getchar() != '\n') {}
 
-					// Delete message
-					delMsg.msgHeader.seqNum = atoi(cmd);
-					deleteMsg(listHead(), listHead()->pNext, delMsg, numRxMsgs);
-				} while (atoi(cmd) != 0);
+						// Delete message
+						delMsg.msgHeader.seqNum = atoi(cmd);
+						deleteMsg(listHead(), listHead()->pNext, delMsg, numRxMsgs);
+					} while (atoi(cmd) != 0);
 
-				strcpy(cmd, "15");	// Reset cmd so that program doesn't close
+					strcpy(cmd, "15");	// Reset cmd so that program doesn't close
+				}
 				break;
-			// Record audio message
-			case 14:
+			}
+
+			// RECORD AUDIO MESSAGE
+			case 14: {
 				recordAudio();
 				break;
-			// Playback saved audio message
-			case 15:
+			}
+
+			// PLAYBACK SAVED AUDIO MESSAGE
+			case 15: {
 				playbackAudio();
 				break;
-			// Generate a random quote and save it to the queue
-			case 16:
+			}
+
+			// GENERATE RANDOM QUOTE
+			case 16: {
 				generateQuote();
 				break;
-			// Print out each message in the queue
-			case 17:
+			}
+
+			// PRINT MESSAGES IN QUEUE
+			case 17: {
 				traverse(listHead(), visit);
 				Sleep(4000);
 				break;
-			
-			// test function send
-			case 18:
+			}
+
+			// DIAGNOSTIC TRANSMIT FUNCTION
+			case 18: {
 				txTesting();
 				break;
-			// test function receive
-			case 19:
+			}
+
+			// DIAGNOSTIC RECEIVE FUNCTION
+			case 19: {
 				rxTesting();
 				break;
-			// Invalid command
-			default:
+			}
+
+			// INVALID COMMAND
+			default: {
 				printf("You did not enter a valid command. Please try again.");
 				Sleep(2000);
+			}
 		}
 	} while (atoi(cmd) != 0);
 
