@@ -77,7 +77,7 @@ void printMenu(Header& h) {
 	printf("10. Transmit Aduio Message\n");
 	printf("11. Transmit text file\n");
 	printf("12. Receive Message\n");
-	printf("13. Print recieved messages\n");
+	printf("13. Print received messages\n");
 
 	printf("14. Record\n");
 	printf("15. Playblack\n");

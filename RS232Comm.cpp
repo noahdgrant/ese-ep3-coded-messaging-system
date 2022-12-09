@@ -360,6 +360,7 @@ int fileSz(char* file) {
 	fp = fopen(file, "r");
 	if (fp == NULL) {
 		printf("\nERROR: Could not open file to calculate size\n");
+		Sleep(1500);
 		return(-1);
 	}
 
