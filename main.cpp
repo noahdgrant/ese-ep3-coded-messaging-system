@@ -158,7 +158,8 @@ int	main(int argc, char* argv[])
 				transmitCom(&txHeader, msg);
 
 				Sleep(2000);
-				// I THINK WE STILL NEED TO FREE THE MEMORY IF HUFFMAN IS NOT USED
+				free(msg);
+				msg = NULL;
 				break;
 			}
 
@@ -270,7 +271,8 @@ int	main(int argc, char* argv[])
 				// Transmit message
 				transmitCom(&txHeader, msg);
 
-				// free(msg)
+				free(msg);
+				msg = NULL;
 				Sleep(2000);
 				break;
 			}

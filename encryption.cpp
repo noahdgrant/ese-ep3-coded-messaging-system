@@ -71,7 +71,7 @@ int vigCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 			enc[i] = (msg[i] - n);                   // Viginere decrypt - if false
 		}
 	}
-	enc[messageLength] = '\0';                       // Null terminate the ecrypted message
+	enc[messageLength - 1] = '\0';                       // Null terminate the ecrypted message
 	strcpy((char*)message, enc);                    // Encrypted/decrypted buffer   
 
 	free(enc);
@@ -113,8 +113,8 @@ int xorCipher(void* message, int messageLength, void* secretKey, int secretKeyLe
 	for (int i = 0; i < messageLength; i++) {
 		enc[i] = msg[i] ^ key[i % secretKeyLength];						// XOR encrypt bytewise (loop the key as many times as required
 	}
-	enc[messageLength] = '\0';											// Null terminate the ecrypted message
-	strcpy((char*)message, enc);												// Encrypted/decrypted buffer   
+	enc[messageLength - 1] = '\0';										// Null terminate the ecrypted message
+	strcpy((char*)message, enc);										// Encrypted/decrypted buffer   
 
 	free(enc);
 	enc = NULL;

@@ -223,6 +223,7 @@ int playbackAudio() {
 	fopen_s(&f, "C:\\myfiles\\recording.dat", "rb");
 	if (!f) {
 		printf("unable to open %s\n", "C:\\myfiles\\recording.dat");
+		Sleep(1500);
 		return 0;
 	}
 	printf("Reading from sound file ...\n");
@@ -277,6 +278,7 @@ int recordAudio() {
 		fopen_s(&f, "C:\\myfiles\\recording.dat", "wb");
 		if (!f) {
 			printf("unable to open %s\n", "C:\\myfiles\\recording.dat");
+			Sleep(1500);
 			return 0;
 		}
 		printf("Writing to sound file ...\n");
