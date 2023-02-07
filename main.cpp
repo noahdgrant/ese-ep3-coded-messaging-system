@@ -44,6 +44,27 @@ int	main(int argc, char* argv[])
 	initQueue();
 	initHeader(txHeader);										// Set header to default values
 	initContact();
+	printf("   _____          _          _                   \n");
+	printf("  / ____|        | |        | |                  \n");
+	printf(" | |     ___   __| | ___  __| |                  \n");
+	printf(" | |    / _ \\ / _` |/ _ \\/ _` |                  \n");
+	printf(" | |___| (_) | (_| |  __/ (_| |                  \n");
+	printf("  \\_____\\___/ \\__,_|\\___|\\__,_|    _             \n");
+	printf(" |  \\/  |                         (_)            \n");
+	printf(" | \\  / | ___  ___ ___  __ _  __ _ _ _ __   __ _ \n");
+	printf(" | |\\/| |/ _ \\/ __/ __|/ _` |/ _` | | '_ \\ / _` |\n");
+	printf(" | |  | |  __/\\__ \\__ \\ (_| | (_| | | | | | (_| |\n");
+	printf(" |_|__|_|\\___||___/___/\\__,_|\\__, |_|_| |_|\\__, |\n");
+	printf("  / ____\\ \\   / / ____| |     __/ |         __/ |\n");
+	printf(" | (___  \\ \\_/ / (___ | |_ __|___/_ ___    |___/ \n");
+	printf("  \\___ \\  \\   / \\___ \\| __/ _ \\ '_ ` _ \\         \n");
+	printf("  ____) |  | |  ____) | ||  __/ | | | | |        \n");
+	printf(" |_____/   |_| |_____/ \\__\\___|_| |_| |_|        \n");
+	printf("\n Created by Wyatt Richard and Noah Grant\n");
+	Sleep(3500);
+
+
+
 
 	// MAIN LOOP 
 	do {
